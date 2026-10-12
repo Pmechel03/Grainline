@@ -111,16 +111,16 @@ function render(p) {
       body += `<g filter="${D}"><path d="${tp}" fill="${G}"/><path d="${tp}" fill="${top}" opacity=".35"/>
         <rect x="${fx}" y="${fy}" width="${fw}" height="${fh}" rx="${rx}" fill="${G}"/><rect x="${fx}" y="${fy}" width="${fw}" height="${fh}" rx="${rx}" fill="${side}" opacity=".3"/>
         <rect x="${fx}" y="${fy}" width="${fw}" height="${fh}" rx="${rx}" fill="${S}"/></g>`;
-      // bottles stand on this step's tread
+      // LED strip at the back of this step's tread, drawn before the bottles so it backlights them
+      if (colors && i < n - 1) {
+        const ux = x + k * (i + 1), uw = w - 2 * k * (i + 1), uy = fy - dd + 0.5;
+        body += glow(id, ux + 4, uy, uw - 8, rise * 0.9, 0.02);
+      }
+      // bottles stand on this step's tread, in front of the light
       const count = Math.max(2, Math.min(5, Math.round(fw / 70))), gap = fw / count, base = fy - dd * 0.4;
       for (let j = 0; j < count; j++) {
         const bw = 18 + r() * 10, bh = Math.min(38 + r() * 26, rise + dd + 20);
         body += bottle(fx + gap * j + (gap - bw) / 2, base, bh, bw, glasses[(i * 2 + j) % glasses.length], caps[(i + j) % caps.length]);
-      }
-      // LED strip under the lip of the step above, lighting this step's face
-      if (colors && i < n - 1) {
-        const ux = x + k * (i + 1), uw = w - 2 * k * (i + 1), uy = fy - dd + 0.5;
-        body += glow(id, ux + 4, uy, uw - 8, rise * 0.9, 0.02);
       }
     }
   }
