@@ -1,0 +1,14 @@
+name = "grainline-checkout"
+main = "src/index.js"
+compatibility_date = "2025-06-01"
+
+[vars]
+# Where Stripe sends customers after paying or cancelling.
+SITE_URL = "https://grainlinecreations.com"
+# Sites allowed to start a checkout, comma-separated.
+ALLOWED_ORIGINS = "https://grainlinecreations.com,http://grainlinecreations.com,https://pmechel03.github.io"
+# Flat shipping charge per order, in cents. 1500 = $15.00. Change this to your real rate.
+SHIPPING_CENTS = "1500"
+
+# The Stripe secret key is NOT stored here. Set it with:
+#   npx wrangler secret put STRIPE_SECRET_KEY

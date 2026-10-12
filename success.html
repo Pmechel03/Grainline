@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order confirmed · Grainline Creations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gl-espresso: #2B1D14;
+    --gl-walnut:   #7A4A26;
+    --gl-brass:    #C08A3E;
+    --gl-copper:   #9A5F2B;
+    --gl-cream:    #F3ECE2;
+    --gl-linen:    #FBF7F1;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; font-family: 'Sora', sans-serif; background: var(--gl-cream); color: var(--gl-espresso); line-height: 1.6; }
+  .card { max-width: 520px; background: var(--gl-linen); border-radius: 16px; padding: 48px 40px; text-align: center; border: 1px solid rgba(43,29,20,0.06); box-shadow: 0 30px 60px -30px rgba(43,29,20,0.4); }
+  svg { width: 56px; height: 56px; }
+  .eyebrow { font-weight: 300; text-transform: uppercase; letter-spacing: 0.3em; font-size: 0.75rem; color: var(--gl-copper); margin: 20px 0 8px; }
+  h1 { margin: 0 0 16px; font-size: clamp(1.6rem, 4vw, 2.2rem); letter-spacing: -0.02em; line-height: 1.15; }
+  p { margin: 0 0 14px; color: var(--gl-walnut); }
+  .btn { display: inline-flex; margin-top: 16px; padding: 14px 32px; border-radius: 8px; background: var(--gl-walnut); color: var(--gl-cream); font-weight: 600; text-decoration: none; }
+  .btn:hover { background: var(--gl-espresso); }
+  a { color: var(--gl-copper); }
+</style>
+</head>
+<body>
+  <main class="card">
+    <svg viewBox="0 0 80 80" role="img" aria-label="Grainline Creations">
+      <rect x="6"  y="10" width="26" height="60" rx="4" fill="#7A4A26"/>
+      <rect x="48" y="10" width="26" height="60" rx="4" fill="#7A4A26"/>
+      <rect x="31" y="6"  width="18" height="68" rx="9" fill="#C08A3E"/>
+      <line x1="31" y1="29" x2="49" y2="29" stroke="#F3ECE2" stroke-width="2"/>
+      <line x1="31" y1="51" x2="49" y2="51" stroke="#F3ECE2" stroke-width="2"/>
+      <circle cx="18" cy="24" r="3" fill="#F3ECE2"/><circle cx="18" cy="56" r="3" fill="#F3ECE2"/>
+      <circle cx="62" cy="24" r="3" fill="#F3ECE2"/><circle cx="62" cy="56" r="3" fill="#F3ECE2"/>
+    </svg>
+    <div class="eyebrow">Order confirmed</div>
+    <h1>Thank you. We're on it.</h1>
+    <p>Your receipt is on its way to your email. Every piece is made to order, so we'll start building yours by hand and email you when it ships.</p>
+    <p>Questions about your order? Email <a href="mailto:creationsgrainline@gmail.com">creationsgrainline@gmail.com</a>.</p>
+    <a class="btn" href="./">Back to Grainline</a>
+  </main>
+  <script>
+    // The order went through, so empty the cart.
+    try { localStorage.removeItem("gl-cart"); } catch {}
+  </script>
+</body>
+</html>
