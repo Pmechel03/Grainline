@@ -107,6 +107,14 @@
   .recap dd:last-child { margin-bottom: 0; }
   .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 
+  /* Email choice menu (contact.js) */
+  .mail-menu { position: fixed; z-index: 60; width: 250px; padding: 8px; border-radius: 12px; background: var(--gl-linen); border: 1px solid rgba(43,29,20,0.12); box-shadow: 0 18px 40px -12px rgba(43,29,20,0.4); display: flex; flex-direction: column; }
+  .mail-menu-to { margin: 4px 10px 6px; font-size: 0.75rem; color: var(--gl-copper); overflow-wrap: anywhere; }
+  .mail-menu a, .mail-menu button { display: block; width: 100%; text-align: left; padding: 10px; border-radius: 8px; border: 0; background: none; font: 600 0.9rem 'Sora', sans-serif; color: var(--gl-espresso); text-decoration: none; cursor: pointer; }
+  .mail-menu a:hover, .mail-menu button:hover, .mail-menu a:focus-visible, .mail-menu button:focus-visible { background: var(--gl-cream); }
+  .mail-menu-msg { margin: 0 10px; font-size: 0.78rem; color: var(--gl-walnut); }
+  .mail-menu-msg:empty { display: none; }
+
   @media (max-width: 860px) {
     .layout { grid-template-columns: 1fr; }
     .summary { position: static; order: -1; }
@@ -218,5 +226,6 @@
 
 <!-- Bump ?v= whenever checkout.js changes. pricing.js and drawing.js versions are set inside checkout.js. -->
 <script type="module" src="checkout.js?v=9"></script>
+<script type="module" src="contact.js?v=1"></script>
 </body>
 </html>
