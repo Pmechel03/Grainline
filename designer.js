@@ -192,7 +192,7 @@ function clampSpec(p) {
 
 /* ---------- custom designer ---------- */
 // "Request a quote" opens an email to this address with the design filled in.
-const QUOTE_EMAIL = "creationgrainline@gmail.com";
+const QUOTE_EMAIL = "creationsgrainline@gmail.com";
 const DEFAULTS = {
   led:     {type: "led", width: 36, height: 1.75, depth: 8, wood: "Walnut", finish: "Satin", edge: "square", light: "Warm white"},
   cologne: {type: "cologne", width: 20, height: 3, depth: 9, wood: "Walnut", finish: "Satin", edge: "square", light: "Warm white"},
