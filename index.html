@@ -34,7 +34,7 @@
   /* Nav */
   header {
     position: sticky; top: 0; z-index: 10;
-    background: var(--gl-cream);
+    background: rgba(243,236,226,0.88); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(43,29,20,0.08);
   }
   nav {
@@ -51,23 +51,28 @@
   .nav-links a:hover { color: var(--gl-copper); }
 
   /* Hero */
-  .hero { padding: 96px 0 80px; text-align: center; }
+  .hero { padding: 72px 0 64px; }
+  .hero-grid { display: grid; grid-template-columns: 1fr 1.05fr; gap: 56px; align-items: center; }
+  .hero-grid > * { min-width: 0; }
   .eyebrow {
     font-weight: 300; text-transform: uppercase; letter-spacing: 0.3em;
     font-size: 0.8rem; color: var(--gl-copper); margin-bottom: 20px;
   }
   .hero h1 {
     font-weight: 700; letter-spacing: -0.025em;
-    font-size: clamp(2.2rem, 5vw, 3.6rem); margin: 0 0 20px;
+    font-size: clamp(2.2rem, 5vw, 3.6rem); margin: 0 0 20px; line-height: 1.12; text-wrap: balance;
   }
   .hero p {
-    max-width: 560px; margin: 0 auto 36px; font-size: 1.1rem;
+    max-width: 520px; margin: 0 0 32px; font-size: 1.1rem;
     color: var(--gl-walnut);
   }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+  .hero-art { aspect-ratio: 480 / 340; border-radius: 20px; margin: 0; box-shadow: 0 30px 60px -24px rgba(43,29,20,0.55), 0 0 0 1px rgba(43,29,20,0.08); }
   .btn {
-    display: inline-block; padding: 14px 32px; border-radius: 8px;
-    font-weight: 600; font-size: 1rem; min-height: 44px;
+    display: inline-flex; align-items: center; justify-content: center; padding: 14px 32px; border-radius: 8px;
+    font-weight: 600; font-size: 1rem; min-height: 44px; transition: background .2s, box-shadow .2s, transform .2s;
   }
+  .btn:hover { transform: translateY(-1px); }
   .btn-primary { background: var(--gl-walnut); color: var(--gl-cream); }
   .btn-primary:hover { background: var(--gl-espresso); }
 
@@ -78,6 +83,8 @@
     font-size: clamp(1.6rem, 3vw, 2.2rem); margin-bottom: 12px;
   }
   .section-intro { color: var(--gl-walnut); max-width: 560px; margin-bottom: 40px; }
+  section:not(.hero) .eyebrow { margin-bottom: 10px; }
+  .eyebrow + h2 { margin-top: 0; }
 
   .grid {
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
@@ -103,11 +110,26 @@
   :focus-visible { outline: 2px solid var(--gl-brass); outline-offset: 2px; }
 
   /* Product art */
-  .card.product { display: flex; flex-direction: column; gap: 10px; padding: 16px 16px 24px; }
-  .card.product h3, .card.product p { margin: 0 8px; }
-  .card.product .btn { align-self: flex-start; margin: auto 8px 0; }
-  .card.product p { margin-bottom: 8px; }
-  .art { background: var(--gl-cream); border-radius: 8px; aspect-ratio: 4 / 3; overflow: hidden; margin-bottom: 8px; }
+  .card.product { display: flex; flex-direction: column; gap: 12px; padding: 14px 14px 24px; transition: transform .25s, box-shadow .25s; }
+  .card.product:hover { transform: translateY(-4px); box-shadow: 0 22px 40px -22px rgba(43,29,20,0.45); }
+  .card.product > :not(.art) { margin-left: 10px; margin-right: 10px; }
+  .card.product .btn { align-self: flex-start; margin-top: auto; }
+  .product-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .product-head h3 { margin: 0; }
+  .from { font-size: 0.85rem; color: var(--gl-copper); white-space: nowrap; }
+  .from b { font-size: 1.15rem; color: var(--gl-espresso); font-variant-numeric: tabular-nums; }
+  .feat { list-style: none; padding: 0; margin: 0 0 8px; display: flex; flex-direction: column; gap: 4px; font-size: 0.88rem; color: var(--gl-walnut); }
+  .feat li::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--gl-brass); margin-right: 10px; vertical-align: middle; }
+  .art { position: relative; background: var(--gl-cream); border-radius: 10px; aspect-ratio: 4 / 3; overflow: hidden; margin-bottom: 4px; }
+  .art-tag { position: absolute; left: 10px; top: 10px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.02em; padding: 4px 10px; border-radius: 999px; background: rgba(251,247,241,0.92); color: var(--gl-espresso); }
+  .hero-art .art-tag { left: 16px; top: auto; bottom: 16px; font-size: 0.78rem; }
+  section[id] { scroll-margin-top: 64px; }
+
+  /* Perks strip */
+  .perks { border-block: 1px solid rgba(43,29,20,0.08); background: var(--gl-linen); }
+  .perks-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 28px; padding-block: 18px; font-size: 0.88rem; font-weight: 600; }
+  .perks-row span { display: inline-flex; align-items: center; gap: 10px; }
+  .perks-row span::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--gl-brass); transform: rotate(45deg); }
   .art svg, .stage svg { width: 100%; height: 100%; display: block; }
 
   /* Custom designer */
@@ -123,8 +145,19 @@
   .spec div { background: var(--gl-linen); padding: 10px 12px; }
   .spec dt { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gl-copper); }
   .spec dd { margin: 2px 0 0; font-weight: 600; font-size: 0.92rem; overflow-wrap: anywhere; }
-  .quote-row { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; }
-  .quote-msg { font-size: 0.9rem; color: var(--gl-walnut); }
+  .price-card { background: var(--gl-espresso); color: var(--gl-cream); border-radius: 14px; padding: 22px 24px; display: flex; flex-direction: column; gap: 12px; }
+  .price-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px; }
+  .mini { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--gl-sand); }
+  .total { font-size: 2.4rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .price-card .btn-primary { background: var(--gl-brass); color: var(--gl-espresso); }
+  .price-card .btn-primary:hover { background: var(--gl-sand); }
+  .lines { list-style: none; margin: 0; padding: 12px 0 0; border-top: 1px solid rgba(243,236,226,0.14); display: flex; flex-direction: column; gap: 6px; font-size: 0.88rem; }
+  .lines li { display: flex; justify-content: space-between; gap: 12px; color: rgba(243,236,226,0.8); font-variant-numeric: tabular-nums; }
+  .fine { margin: 0; font-size: 0.8rem; color: rgba(243,236,226,0.6); }
+  .quote-msg { margin: 0; font-size: 0.85rem; color: var(--gl-sand); }
+  .quote-msg:empty { display: none; }
+  .quote-msg a { color: var(--gl-cream); text-decoration: underline; }
+  .controls .lbl small { font-weight: 400; color: var(--gl-copper); margin-left: 6px; }
   .card.controls { background: var(--gl-cream); display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
   .controls .full { grid-column: 1 / -1; }
   .controls label, .controls .lbl { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
@@ -145,6 +178,8 @@
   .step p { margin: 0; color: var(--gl-walnut); font-size: 0.95rem; }
 
   @media (max-width: 860px) {
+    .hero-grid { grid-template-columns: 1fr; gap: 36px; }
+    .hero { padding: 40px 0 48px; }
     .studio { grid-template-columns: 1fr; }
     .preview { position: static; }
   }
@@ -160,7 +195,12 @@
   footer .foot-links a { color: var(--gl-sand); font-weight: 600; font-size: 0.95rem; }
   footer .copyright { font-size: 0.85rem; color: rgba(243,236,226,0.6); margin-top: 24px; }
 
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+    .btn:hover, .card.product:hover { transform: none; }
+  }
   @media (max-width: 760px) {
+    .perks-row { justify-content: flex-start; }
     .nav-links { display: none; }
     .grid { grid-template-columns: 1fr; }
     .steps { grid-template-columns: 1fr; }
@@ -196,62 +236,86 @@
 </header>
 
 <section class="hero">
-  <div class="wrap">
-    <div class="eyebrow">Modern Home &amp; Room Decor</div>
-    <h1>Real wood. Real hardware.<br>Built to last.</h1>
-    <p>Grainline Creations makes wood pieces and hardware where craftsmanship meets modern design — built by hand, backed by smart tools that make shopping easier.</p>
-    <a href="#contact" class="btn btn-primary">Get in touch</a>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <div class="eyebrow">Modern Home &amp; Room Decor</div>
+      <h1>Real wood. Real hardware.<br>Built to last.</h1>
+      <p>Grainline Creations makes wood pieces and hardware where craftsmanship meets modern design — built by hand, backed by smart tools that make shopping easier.</p>
+      <div class="ctas">
+        <a href="#products" class="btn btn-primary">Shop the collection</a>
+        <a href="#custom" class="btn btn-ghost">Design your own</a>
+      </div>
+    </div>
+    <div class="hero-art art lit" data-art='{"type":"led","width":36,"height":2,"depth":8,"wood":"Walnut","finish":"Satin","edge":"square","light":"Warm white"}'>
+      <span class="art-tag">LED floating shelf · Walnut</span>
+    </div>
   </div>
 </section>
 
+<div class="perks">
+  <div class="wrap perks-row">
+    <span>Made to order</span><span>Hand-finished</span><span>Sized to your space</span><span>Confirmed by email before we build</span>
+  </div>
+</div>
+
 <section id="products">
   <div class="wrap">
+    <div class="eyebrow">The collection</div>
     <h2>What we make</h2>
     <p class="section-intro">Our first three pieces. Each one can be made to your size, wood and finish in the designer below.</p>
     <div class="grid">
-      <div class="card product">
-        <div class="art" data-art='{"type":"led","width":36,"height":1.75,"depth":8,"wood":"Walnut","finish":"Satin","edge":"square","light":"Warm white"}'></div>
-        <h3>LED floating shelf</h3>
-        <p>A solid wood shelf with an LED strip tucked underneath that washes the wall below in light. [PRICE]</p>
-        <button class="btn btn-ghost" data-customize='{"type":"led","width":36,"height":1.75,"depth":8,"wood":"Walnut","finish":"Satin","edge":"square","light":"Warm white"}'>Customize</button>
-      </div>
-      <div class="card product">
-        <div class="art" data-art='{"type":"cologne","width":20,"height":3,"depth":9,"wood":"Walnut","finish":"Satin","edge":"square","light":"Warm white"}'></div>
-        <h3>Cologne display steps</h3>
-        <p>Tiered steps that lift every bottle into view, with optional LED lighting under each step. [PRICE]</p>
-        <button class="btn btn-ghost" data-customize='{"type":"cologne","width":20,"height":3,"depth":9,"wood":"Walnut","finish":"Satin","edge":"square","light":"Warm white"}'>Customize</button>
-      </div>
-      <div class="card product">
-        <div class="art" data-art='{"type":"charger","width":11,"height":13,"depth":6,"wood":"Walnut","finish":"Matte","edge":"rounded","light":"None"}'></div>
-        <h3>Charging station</h3>
-        <p>One stand for your headphones, watch and phone, with a tray for wireless charging, earbuds and your wallet. [PRICE]</p>
-        <button class="btn btn-ghost" data-customize='{"type":"charger","width":11,"height":13,"depth":6,"wood":"Walnut","finish":"Matte","edge":"rounded","light":"None"}'>Customize</button>
-      </div>
+      <article class="card product">
+        <div class="art" data-art='{"type":"led","width":36,"height":1.75,"depth":8,"wood":"Ash","finish":"Natural Oil","edge":"square","light":"Warm white"}'><span class="art-tag">Solid ash · Walnut available</span></div>
+        <div class="product-head"><h3>LED floating shelf</h3><span class="from">from <b data-from="led"></b></span></div>
+        <p>A solid wood shelf with an LED strip tucked underneath that washes the wall below in light.</p>
+        <ul class="feat"><li>Warm white, cool white or RGB</li><li>Hidden wall bracket</li><li>12″ to 60″ wide</li></ul>
+        <button class="btn btn-ghost" data-customize="led">Customize</button>
+      </article>
+      <article class="card product">
+        <div class="art" data-art='{"type":"cologne","width":20,"height":3,"depth":9,"wood":"Oak","finish":"Satin","edge":"square","light":"Warm white"}'><span class="art-tag">Shown with LED lighting</span></div>
+        <div class="product-head"><h3>Cologne display steps</h3><span class="from">from <b data-from="cologne"></b></span></div>
+        <p>Tiered steps that lift every bottle into view, with optional LED lighting behind each row.</p>
+        <ul class="feat"><li>2 to 4 steps</li><li>LED lighting +$30</li><li>Oak or walnut veneer</li></ul>
+        <button class="btn btn-ghost" data-customize="cologne">Customize</button>
+      </article>
+      <article class="card product">
+        <div class="art" data-art='{"type":"charger","width":11,"height":13,"depth":6,"wood":"Ash","finish":"Matte","edge":"rounded","pad":"Included"}'><span class="art-tag">Solid ash · Walnut available</span></div>
+        <div class="product-head"><h3>Charging station</h3><span class="from">from <b data-from="charger"></b></span></div>
+        <p>One stand for your headphones, watch and phone, with a tray for wireless charging, earbuds and your wallet.</p>
+        <ul class="feat"><li>Headphone arm and watch bar</li><li>15W wireless charging pad</li><li>$85 without the pad</li></ul>
+        <button class="btn btn-ghost" data-customize="charger">Customize</button>
+      </article>
     </div>
   </div>
 </section>
 
 <section id="custom">
   <div class="wrap">
+    <div class="eyebrow">Custom studio</div>
     <h2>Design your own</h2>
-    <p class="section-intro">Pick a piece, set the size, wood and finish, and watch it update. When it looks right, send it to us and we'll follow up with a price.</p>
+    <p class="section-intro">Pick a piece, set the size, wood and lighting, and the preview and price update as you go.</p>
     <div class="studio">
       <div class="preview">
         <div class="stage" id="stage"><span class="dimtag" id="dimTag"></span></div>
         <dl class="spec" id="spec"></dl>
-        <div class="quote-row">
-          <button class="btn btn-primary" id="quoteBtn">Request a quote</button>
-          <span class="quote-msg" id="quoteMsg" role="status"></span>
+        <div class="price-card">
+          <div class="price-top">
+            <div><div class="mini">Your price</div><div class="total" id="total"></div></div>
+            <button class="btn btn-primary" id="quoteBtn">Request this design</button>
+          </div>
+          <ul class="lines" id="lines"></ul>
+          <p class="fine">Plus shipping. We reply by email to confirm details and the final price before we build.</p>
+          <p class="quote-msg" id="quoteMsg" role="status"></p>
         </div>
       </div>
       <div class="card controls">
         <div class="full"><label for="cType">Product</label><select id="cType"></select></div>
+        <div class="full"><span class="lbl">Wood <small id="woodNote"></small></span><div class="swatches" id="cWood" role="group" aria-label="Wood"></div></div>
         <div><label for="cW">Width <b id="vW"></b></label><input type="range" id="cW"></div>
         <div><label for="cH"><span id="lH">Height</span> <b id="vH"></b></label><input type="range" id="cH"></div>
-        <div id="dWrap"><label for="cD">Depth <b id="vD"></b></label><input type="range" id="cD"></div>
+        <div><label for="cD">Depth <b id="vD"></b></label><input type="range" id="cD"></div>
         <div><label for="cFinish">Finish</label><select id="cFinish"></select></div>
-        <div class="full" id="lightWrap"><span class="lbl">LED light</span><div class="seg" id="cLight" role="group" aria-label="LED light"></div></div>
-        <div class="full"><span class="lbl">Wood</span><div class="swatches" id="cWood" role="group" aria-label="Wood"></div></div>
+        <div class="full"><span class="lbl" id="optLabel"></span><div class="seg" id="cOpt" role="group" aria-labelledby="optLabel"></div></div>
         <div class="full"><span class="lbl">Edge</span><div class="seg" id="cEdge" role="group" aria-label="Edge style"></div></div>
       </div>
     </div>
@@ -260,11 +324,12 @@
 
 <section id="how">
   <div class="wrap">
-    <h2>How custom works</h2>
+    <div class="eyebrow">How it works</div>
+    <h2>From your idea to your wall</h2>
     <div class="steps">
       <div class="step"><span>Step 1</span><h3>Pick a starting point</h3><p>Choose an LED shelf, cologne display steps or a charging station.</p></div>
-      <div class="step"><span>Step 2</span><h3>Make it yours</h3><p>Set the size, wood, finish and LED color, and watch the preview update.</p></div>
-      <div class="step"><span>Step 3</span><h3>We build it</h3><p>We follow up to confirm the details and price, then build it by hand.</p></div>
+      <div class="step"><span>Step 2</span><h3>Make it yours</h3><p>Set the size, wood, finish and lighting. The price updates as you go.</p></div>
+      <div class="step"><span>Step 3</span><h3>We build it</h3><p>Send it to us. We confirm the details and final price by email, then build it by hand.</p></div>
     </div>
   </div>
 </section>

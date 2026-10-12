@@ -4,12 +4,9 @@
 
 /* ---------- data ---------- */
 const WOODS = {
-  "White Oak":    "#C9A275",
-  "Walnut":       "#6E4A31",
-  "Maple":        "#E1C69C",
-  "Cherry":       "#A2603C",
-  "Ash":          "#D7C19C",
-  "Ebonized Oak": "#2F2722"
+  "Ash":    "#D7C19C",
+  "Oak":    "#C9A275",
+  "Walnut": "#6E4A31"
 };
 const FINISHES = ["Satin", "Matte", "Natural Oil"];
 const LIGHTS = {
@@ -18,12 +15,51 @@ const LIGHTS = {
   "Cool white": ["#DCEBFF"],
   "RGB":        ["#FF3B6B", "#FFB03B", "#3BFF8A", "#3B9BFF", "#B03BFF"]
 };
-// H is the second slider: [min, max, step, label, unit]
+// H is the second slider: [min, max, step, label, unit].
+// opt is the product's one extra choice, stored on the spec under opt.key.
 const TYPES = {
-  led:     {label: "LED floating shelf",    W: [12, 60], H: [1.5, 3, 0.25, "Thickness", "in"], D: [4, 10], edges: ["square", "rounded"], lights: ["Warm white", "Cool white", "RGB"]},
-  cologne: {label: "Cologne display steps", W: [12, 36], H: [2, 4, 1, "Steps", "count"],         D: [6, 12], edges: ["square", "rounded"], lights: ["None", "Warm white", "Cool white", "RGB"]},
-  charger: {label: "Charging station",      W: [8, 14],  H: [10, 16, 1, "Height", "in"],         D: [5, 8],  edges: ["square", "rounded"], lights: null}
+  led:     {label: "LED floating shelf",    W: [12, 60], H: [1.5, 3, 0.25, "Thickness", "in"], D: [4, 10], edges: ["square", "rounded"],
+            woods: ["Ash", "Walnut"], material: "Solid hardwood",
+            opt: {key: "light", label: "LED light", values: ["Warm white", "Cool white", "RGB"]}},
+  cologne: {label: "Cologne display steps", W: [12, 36], H: [2, 4, 1, "Steps", "count"],         D: [6, 12], edges: ["square", "rounded"],
+            woods: ["Oak", "Walnut"], material: "Hardwood veneer",
+            opt: {key: "light", label: "LED light", values: ["None", "Warm white", "Cool white", "RGB"]}},
+  charger: {label: "Charging station",      W: [8, 14],  H: [10, 16, 1, "Height", "in"],         D: [5, 8],  edges: ["square", "rounded"],
+            woods: ["Ash", "Walnut"], material: "Solid hardwood",
+            opt: {key: "pad", label: "Wireless charging pad", values: ["Included", "Not included"]}}
 };
+
+/* ---------- pricing ----------
+   Base prices are for the standard size (see DEFAULTS). Size changes are
+   rounded to the nearest $5 so prices stay tidy. min keeps small sizes
+   profitable, since hardware and LEDs cost about the same at any size. */
+const PRICING = {
+  led: {
+    base: {Ash: 139, Walnut: 179}, min: 99,
+    size: (p, walnut) => (p.width - 36) * (walnut ? 4 : 2.5) + (p.depth - 8) * (walnut ? 9 : 6) + (p.height - 1.75) * 20,
+    extras: p => p.light === "RGB" ? [["RGB lights", 15]] : []
+  },
+  cologne: {
+    base: {Oak: 79, Walnut: 95}, min: 59,
+    size: (p, walnut) => (p.width - 20) * (walnut ? 2.5 : 2) + (p.depth - 9) * 3 + (p.height - 3) * 18,
+    extras: p => p.light !== "None" ? [[`LED lighting (${p.height - 1} strip${p.height > 2 ? "s" : ""})`, 10 + 10 * (p.height - 1)]] : []
+  },
+  charger: {
+    base: {Ash: 109, Walnut: 129}, min: 79,
+    size: p => (p.width - 11) * 4 + (p.height - 13) * 3 + (p.depth - 6) * 4,
+    extras: p => p.pad === "Not included" ? [["Without charging pad", -24]] : []
+  }
+};
+function priceOf(p) {
+  const rule = PRICING[p.type], base = rule.base[p.wood];
+  // Size savings never take the base piece below the product's minimum; add-ons go on top.
+  const size = Math.max(Math.round(rule.size(p, p.wood === "Walnut") / 5) * 5, rule.min - base);
+  const lines = [[`${TYPES[p.type].label}, ${p.wood.toLowerCase()}`, base]];
+  if (size) lines.push([size > 0 ? "Larger size" : "Smaller size", size]);
+  lines.push(...rule.extras(p));
+  return {lines, total: lines.reduce((sum, l) => sum + l[1], 0)};
+}
+const money = n => (n < 0 ? "−$" : "$") + Math.abs(n);
 
 /* ---------- helpers ---------- */
 const $ = s => document.querySelector(s);
@@ -161,11 +197,11 @@ function render(p) {
     body += `<path d="M ${bx + 16} ${ty} l 6 -26 h 48 l -4 26 Z" fill="#4A3426"/><path d="M ${bx + 24} ${ty - 22} h 40" stroke="#C8A04A" stroke-width="1.2" opacity=".6"/>`;
     const ex = bx + bw * 0.5 + 8;
     body += `<rect x="${ex}" y="${ty - 22}" width="34" height="24" rx="10" fill="#F4F4F2"/><path d="M ${ex} ${ty - 12} h 34" stroke="#D2D2CF" stroke-width="1"/>`;
-    const cx = bx + bw * 0.78;
-    body += `<ellipse cx="${cx}" cy="${ty - 2}" rx="34" ry="9" fill="#1A1A1C"/><ellipse cx="${cx}" cy="${ty - 2}" rx="26" ry="6" fill="none" stroke="#34E27A" stroke-width="2" opacity=".85"/>
-      <path d="M ${cx - 30} ${ty - 6} L ${cx + 18} ${ty - 22} L ${cx + 40} ${ty - 14} L ${cx - 8} ${ty + 2} Z" fill="#1C1F24"/>
-      <path d="M ${cx - 24} ${ty - 6} L ${cx + 16} ${ty - 19} L ${cx + 33} ${ty - 13} L ${cx - 7} ${ty} Z" fill="#0F2A1E"/>
-      <ellipse cx="${cx + 4}" cy="${ty - 10}" rx="8" ry="3" fill="none" stroke="#34E27A" stroke-width="1.4"/>`;
+    const cx = bx + bw * 0.78, pad = p.pad !== "Not included";
+    if (pad) body += `<ellipse cx="${cx}" cy="${ty - 2}" rx="34" ry="9" fill="#1A1A1C"/><ellipse cx="${cx}" cy="${ty - 2}" rx="26" ry="6" fill="none" stroke="#34E27A" stroke-width="2" opacity=".85"/>`;
+    body += `<path d="M ${cx - 30} ${ty - 6} L ${cx + 18} ${ty - 22} L ${cx + 40} ${ty - 14} L ${cx - 8} ${ty + 2} Z" fill="#1C1F24"/>
+      <path d="M ${cx - 24} ${ty - 6} L ${cx + 16} ${ty - 19} L ${cx + 33} ${ty - 13} L ${cx - 7} ${ty} Z" fill="${pad ? "#0F2A1E" : "#15181C"}"/>`;
+    if (pad) body += `<ellipse cx="${cx + 4}" cy="${ty - 10}" rx="8" ry="3" fill="none" stroke="#34E27A" stroke-width="1.4"/>`;
   }
   return `<svg viewBox="0 0 480 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(TYPES[p.type].label)} in ${esc(p.wood)}"><defs>${defs}</defs>${body}</svg>`;
 }
@@ -183,20 +219,21 @@ function clampSpec(p) {
   out.width = cl(out.width, t.W[0], t.W[1], 1);
   out.height = cl(out.height, t.H[0], t.H[1], t.H[2]);
   out.depth = cl(out.depth, t.D[0], t.D[1], 1);
-  if (!WOODS[out.wood]) out.wood = "Walnut";
+  if (!t.woods.includes(out.wood)) out.wood = t.woods[0];
   if (!FINISHES.includes(out.finish)) out.finish = "Satin";
   if (!t.edges.includes(out.edge)) out.edge = t.edges[0];
-  out.light = t.lights ? (t.lights.includes(out.light) ? out.light : t.lights[0]) : "None";
+  out.light = t.opt.key === "light" && t.opt.values.includes(out.light) ? out.light : (t.opt.key === "light" ? t.opt.values[0] : "None");
+  out.pad = t.opt.key === "pad" && t.opt.values.includes(out.pad) ? out.pad : (t.opt.key === "pad" ? t.opt.values[0] : undefined);
   return out;
 }
 
 /* ---------- custom designer ---------- */
-// "Request a quote" opens an email to this address with the design filled in.
+// "Request this design" opens an email to this address with the design filled in.
 const QUOTE_EMAIL = "creationsgrainline@gmail.com";
 const DEFAULTS = {
-  led:     {type: "led", width: 36, height: 1.75, depth: 8, wood: "Walnut", finish: "Satin", edge: "square", light: "Warm white"},
-  cologne: {type: "cologne", width: 20, height: 3, depth: 9, wood: "Walnut", finish: "Satin", edge: "square", light: "Warm white"},
-  charger: {type: "charger", width: 11, height: 13, depth: 6, wood: "Walnut", finish: "Matte", edge: "rounded", light: "None"}
+  led:     {type: "led", width: 36, height: 1.75, depth: 8, wood: "Ash", finish: "Natural Oil", edge: "square", light: "Warm white"},
+  cologne: {type: "cologne", width: 20, height: 3, depth: 9, wood: "Oak", finish: "Satin", edge: "square", light: "None"},
+  charger: {type: "charger", width: 11, height: 13, depth: 6, wood: "Ash", finish: "Matte", edge: "rounded", pad: "Included"}
 };
 let spec = clampSpec(DEFAULTS.led);
 
@@ -204,6 +241,7 @@ $("#cType").innerHTML = Object.entries(TYPES).map(([k, t]) => `<option value="${
 $("#cFinish").innerHTML = FINISHES.map(f => `<option>${f}</option>`).join("");
 
 const fmtH = (t, v) => t.H[4] === "count" ? String(v) : inch(v);
+const cap = s => s[0].toUpperCase() + s.slice(1);
 function setSpec(p) { spec = clampSpec(p); syncControls(); draw(); }
 function syncControls() {
   const t = TYPES[spec.type];
@@ -214,14 +252,18 @@ function syncControls() {
   setR($("#cD"), t.D[0], t.D[1], 1, spec.depth);
   $("#lH").textContent = t.H[3];
   $("#cFinish").value = spec.finish;
-  $("#cWood").innerHTML = Object.entries(WOODS).map(([k, hex]) => `<button type="button" aria-pressed="${k === spec.wood}" data-w="${k}"><i style="background:${hex}"></i>${k}</button>`).join("");
-  $("#cEdge").innerHTML = t.edges.map(e => `<button type="button" aria-pressed="${e === spec.edge}" data-e="${e}">${e[0].toUpperCase() + e.slice(1)}</button>`).join("");
-  $("#lightWrap").hidden = !t.lights;
-  if (t.lights) $("#cLight").innerHTML = t.lights.map(l => `<button type="button" aria-pressed="${l === spec.light}" data-l="${l}">${l}</button>`).join("");
+  $("#woodNote").textContent = t.material;
+  $("#cWood").innerHTML = t.woods.map(k => `<button type="button" aria-pressed="${k === spec.wood}" data-w="${k}"><i style="background:${WOODS[k]}"></i>${k}</button>`).join("");
+  $("#cEdge").innerHTML = t.edges.map(e => `<button type="button" aria-pressed="${e === spec.edge}" data-e="${e}">${cap(e)}</button>`).join("");
+  $("#optLabel").textContent = t.opt.label;
+  $("#cOpt").innerHTML = t.opt.values.map(v => `<button type="button" aria-pressed="${v === spec[t.opt.key]}" data-o="${v}">${v}</button>`).join("");
+}
+function optText(p) {
+  const t = TYPES[p.type];
+  return t.opt.key === "light" ? (p.light === "None" ? "No LED" : `${p.light} LED`) : `Charging pad ${p.pad === "Included" ? "included" : "not included"}`;
 }
 function summary() {
-  const light = TYPES[spec.type].lights && spec.light !== "None" ? `, ${spec.light} LED` : "";
-  return `${TYPES[spec.type].label}: ${dimsText(spec)}, ${spec.wood}, ${spec.finish} finish, ${spec.edge} edge${light}`;
+  return `${TYPES[spec.type].label}: ${dimsText(spec)}, ${spec.wood}, ${spec.finish} finish, ${spec.edge} edge, ${optText(spec).toLowerCase()}. Estimated price ${money(priceOf(spec).total)} plus shipping.`;
 }
 function draw() {
   const t = TYPES[spec.type], stage = $("#stage");
@@ -230,31 +272,30 @@ function draw() {
   stage.classList.toggle("lit", !!LIGHTS[spec.light]);
   $("#vW").textContent = inch(spec.width); $("#vH").textContent = fmtH(t, spec.height); $("#vD").textContent = inch(spec.depth);
   $("#dimTag").textContent = dimsText(spec);
-  const rows = [["Product", t.label], ["Wood", spec.wood], ["Finish", spec.finish], t.lights ? ["LED", spec.light] : ["Edge", spec.edge[0].toUpperCase() + spec.edge.slice(1)]];
+  const rows = [["Wood", `${spec.wood}`], ["Finish", spec.finish], ["Edge", cap(spec.edge)], [t.opt.key === "light" ? "LED" : "Charging", t.opt.key === "light" ? spec.light : spec.pad]];
   $("#spec").innerHTML = rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("");
+  const pr = priceOf(spec);
+  $("#total").textContent = money(pr.total);
+  $("#lines").innerHTML = pr.lines.map(([k, v], i) => `<li><span>${esc(k)}</span><span>${i ? (v > 0 ? "+" : "") : ""}${money(v)}</span></li>`).join("");
   $("#quoteMsg").textContent = "";
 }
-$("#cType").onchange = e => setSpec({...DEFAULTS[e.target.value], wood: spec.wood});
+$("#cType").onchange = e => setSpec({...DEFAULTS[e.target.value], finish: spec.finish});
 $("#cW").oninput = e => { spec.width = +e.target.value; draw(); };
 $("#cH").oninput = e => { spec.height = +e.target.value; draw(); };
 $("#cD").oninput = e => { spec.depth = +e.target.value; draw(); };
 $("#cFinish").onchange = e => { spec.finish = e.target.value; draw(); };
 $("#cWood").onclick = e => { const b = e.target.closest("[data-w]"); if (!b) return; spec.wood = b.dataset.w; syncControls(); draw(); };
 $("#cEdge").onclick = e => { const b = e.target.closest("[data-e]"); if (!b) return; spec.edge = b.dataset.e; syncControls(); draw(); };
-$("#cLight").onclick = e => { const b = e.target.closest("[data-l]"); if (!b) return; spec.light = b.dataset.l; syncControls(); draw(); };
+$("#cOpt").onclick = e => { const b = e.target.closest("[data-o]"); if (!b) return; spec[TYPES[spec.type].opt.key] = b.dataset.o; syncControls(); draw(); };
 
-$("#quoteBtn").onclick = async () => {
-  if (/^[^\s@\[\]]+@[^\s@]+\.[^\s@]+$/.test(QUOTE_EMAIL)) {
-    location.href = `mailto:${QUOTE_EMAIL}?subject=${encodeURIComponent("Custom quote request")}&body=${encodeURIComponent("Hi Grainline, I'd like a quote for:\n\n" + summary() + "\n\nThanks!")}`;
-    $("#quoteMsg").textContent = "Your email app should open with the design filled in.";
-    return;
-  }
-  try { await navigator.clipboard.writeText(summary()); $("#quoteMsg").textContent = "Design copied. Quote requests by email are coming soon."; }
-  catch { $("#quoteMsg").textContent = summary(); }
+$("#quoteBtn").onclick = () => {
+  location.href = `mailto:${QUOTE_EMAIL}?subject=${encodeURIComponent("Order request: " + TYPES[spec.type].label)}&body=${encodeURIComponent("Hi Grainline, I'd like to order this design:\n\n" + summary() + "\n\nMy name:\nShipping zip code:\n\nThanks!")}`;
+  $("#quoteMsg").innerHTML = `If your email app didn't open, email us at <a href="mailto:${QUOTE_EMAIL}">${QUOTE_EMAIL}</a>.`;
 };
 
-/* ---------- product cards ---------- */
-document.querySelectorAll("[data-art]").forEach(el => { const p = clampSpec(JSON.parse(el.dataset.art)); el.innerHTML = render(p); el.classList.toggle("lit", !!LIGHTS[p.light]); });
-document.querySelectorAll("[data-customize]").forEach(b => b.onclick = () => { setSpec(JSON.parse(b.dataset.customize)); document.getElementById("custom").scrollIntoView({behavior: "smooth"}); });
+/* ---------- product cards and hero ---------- */
+document.querySelectorAll("[data-art]").forEach(el => { const p = clampSpec(JSON.parse(el.dataset.art)); el.insertAdjacentHTML("afterbegin", render(p)); el.classList.toggle("lit", !!LIGHTS[p.light]); });
+document.querySelectorAll("[data-from]").forEach(el => { el.textContent = money(priceOf(clampSpec(DEFAULTS[el.dataset.from])).total); });
+document.querySelectorAll("[data-customize]").forEach(b => b.onclick = () => { setSpec({...DEFAULTS[b.dataset.customize]}); document.getElementById("custom").scrollIntoView({behavior: "smooth"}); });
 
 syncControls(); draw();
