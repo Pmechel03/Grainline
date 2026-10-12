@@ -1,6 +1,6 @@
 /* Product drawings. Every picture on the site is drawn here from a design
    spec, so catalog cards, the designer preview and the cart always match. */
-import { WOODS, LIGHTS, TYPES } from "./pricing.js?v=7";
+import { WOODS, LIGHTS, TYPES } from "./pricing.js?v=8";
 
 export const esc = s => String(s).replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
 function rng(seed) { let a = seed >>> 0; return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }

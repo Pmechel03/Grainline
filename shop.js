@@ -1,6 +1,6 @@
 /* Grainline shop: the custom designer, the cart and checkout. */
-import { WOODS, MATERIALS, LIGHTS, TYPES, DEFAULTS, priceOf, money, inch, dimsText, clampSpec, materialOf, describe } from "./pricing.js?v=7";
-import { render, esc } from "./drawing.js?v=7";
+import { WOODS, MATERIALS, LIGHTS, TYPES, DEFAULTS, priceOf, money, inch, dimsText, clampSpec, materialOf, describe } from "./pricing.js?v=8";
+import { render, esc } from "./drawing.js?v=8";
 
 const $ = s => document.querySelector(s);
 // Shown in the material comparison. durability is 1-5: how well it shrugs off dents and scratches.
@@ -78,10 +78,7 @@ $("#cOpt").onclick = e => { const b = e.target.closest("[data-o]"); if (!b) retu
 $("#addBtn").onclick = () => addToCart(spec);
 
 /* ---------- cart ---------- */
-// The checkout server's address (see worker/README.md). While it's empty,
-// Checkout emails the order to us instead of opening Stripe.
-const CHECKOUT_URL = "";
-const ORDER_EMAIL = "creationsgrainline@gmail.com";
+// The cart lives in the visitor's browser and checkout.html reads it from there.
 const MAX_QTY = 10;
 
 let cart = [];
@@ -103,7 +100,6 @@ function renderCart() {
   const count = cart.reduce((sum, l) => sum + l.qty, 0);
   $("#cartCount").textContent = count; $("#cartCount").hidden = !count;
   $("#cartFoot").hidden = !cart.length;
-  $("#cartMsg").textContent = "";
   if (!cart.length) {
     $("#cartLines").innerHTML = `<div class="cart-empty"><p>Your cart is empty.</p><a class="btn btn-ghost" href="#products" data-close>Browse the collection</a></div>`;
     return;
@@ -122,8 +118,6 @@ function renderCart() {
       <div class="cart-price">${money(priceOf(l.spec).total * l.qty)}</div>
     </div>`).join("");
   $("#cartSubtotal").textContent = money(subtotal());
-  $("#checkoutBtn").textContent = CHECKOUT_URL ? "Checkout" : "Place order by email";
-  $("#checkoutBtn").disabled = false;
 }
 function openCart(open) {
   $("#cart").hidden = !open; $("#scrim").hidden = !open;
@@ -144,28 +138,7 @@ $("#cartBtn").onclick = () => openCart(true);
 $("#cartClose").onclick = $("#scrim").onclick = () => openCart(false);
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#cart").hidden) openCart(false); });
 
-$("#checkoutBtn").onclick = async () => {
-  const btn = $("#checkoutBtn");
-  if (!CHECKOUT_URL) {
-    const list = cart.map(l => `- ${l.qty} × ${TYPES[l.spec.type].label}: ${describe(l.spec)} (${money(priceOf(l.spec).total)} each)`).join("\n");
-    location.href = `mailto:${ORDER_EMAIL}?subject=${encodeURIComponent("Order request")}&body=${encodeURIComponent(`Hi Grainline, I'd like to order:\n\n${list}\n\nSubtotal: ${money(subtotal())} plus shipping\n\nMy name:\nShipping address:\n\nThanks!`)}`;
-    $("#cartMsg").innerHTML = `If your email app didn't open, email your order to <a href="mailto:${ORDER_EMAIL}">${ORDER_EMAIL}</a>.`;
-    return;
-  }
-  btn.disabled = true; btn.textContent = "Opening secure checkout…";
-  try {
-    const res = await fetch(CHECKOUT_URL, {
-      method: "POST", headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({items: cart.map(l => ({spec: l.spec, qty: l.qty}))})
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok || !data.url) throw new Error(data.error);
-    location.href = data.url;
-  } catch (err) {
-    btn.disabled = false; btn.textContent = "Checkout";
-    $("#cartMsg").innerHTML = `${esc(err.message || "Checkout couldn't open.")} Please try again, or email us at <a href="mailto:${ORDER_EMAIL}">${ORDER_EMAIL}</a>.`;
-  }
-};
+$("#checkoutBtn").onclick = () => { location.href = "checkout.html"; };
 
 /* ---------- product cards and hero ---------- */
 document.querySelectorAll("[data-art]").forEach(el => { const p = clampSpec(JSON.parse(el.dataset.art)); el.insertAdjacentHTML("afterbegin", render(p)); el.classList.toggle("lit", !!LIGHTS[p.light]); });

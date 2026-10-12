@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout · Grainline Creations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gl-espresso: #2B1D14;
+    --gl-walnut:   #7A4A26;
+    --gl-brass:    #C08A3E;
+    --gl-copper:   #9A5F2B;
+    --gl-rust:     #A0662E;
+    --gl-sand:     #D9B892;
+    --gl-cream:    #F3ECE2;
+    --gl-linen:    #FBF7F1;
+    --line: rgba(43,29,20,0.12);
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; font-family: 'Sora', sans-serif; background: var(--gl-cream); color: var(--gl-espresso); line-height: 1.6; }
+  a { color: var(--gl-copper); }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+  :focus-visible { outline: 2px solid var(--gl-brass); outline-offset: 2px; }
+
+  header { background: var(--gl-cream); border-bottom: 1px solid rgba(43,29,20,0.08); }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; padding-block: 16px; }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+  .brand svg { width: 34px; height: 34px; }
+  .brand span { font-weight: 700; font-size: 1.2rem; letter-spacing: -0.025em; }
+  .back { font-size: 0.9rem; font-weight: 600; text-decoration: none; }
+
+  .preview-bar { background: var(--gl-espresso); color: var(--gl-sand); font-size: 0.85rem; text-align: center; padding: 10px 16px; }
+  .preview-bar b { color: var(--gl-cream); }
+
+  main { padding-block: 40px 72px; }
+  h1 { margin: 0 0 28px; font-size: clamp(1.7rem, 3.5vw, 2.3rem); letter-spacing: -0.02em; line-height: 1.15; }
+  .layout { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; align-items: start; }
+  .layout > * { min-width: 0; }
+
+  form { display: flex; flex-direction: column; gap: 22px; }
+  fieldset { margin: 0; border: 1px solid var(--line); border-radius: 14px; background: var(--gl-linen); padding: 20px 22px 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  legend { padding: 0 6px; margin-left: -6px; font-weight: 700; font-size: 1rem; }
+  legend small { font-weight: 400; color: var(--gl-copper); font-size: 0.8rem; margin-left: 6px; }
+  .full { grid-column: 1 / -1; }
+  label { display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; }
+  label small { font-weight: 400; color: var(--gl-copper); }
+  input, select, textarea { width: 100%; font: inherit; font-size: 0.95rem; padding: 11px 12px; border-radius: 8px; border: 1.5px solid var(--line); background: #fff; color: var(--gl-espresso); }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--gl-brass); }
+  input:user-invalid { border-color: var(--gl-rust); }
+  textarea { min-height: 84px; resize: vertical; }
+  .check { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; font-size: 0.88rem; margin: 0; }
+  .check input { width: 18px; height: 18px; margin-top: 3px; flex: none; accent-color: var(--gl-walnut); }
+
+  .pay-box { grid-column: 1 / -1; display: flex; gap: 14px; align-items: flex-start; padding: 16px; border-radius: 10px; border: 1.5px dashed rgba(43,29,20,0.2); background: var(--gl-cream); }
+  .pay-box svg { width: 28px; height: 28px; flex: none; color: var(--gl-copper); }
+  .pay-box p { margin: 0; font-size: 0.88rem; color: var(--gl-walnut); }
+  .pay-box b { display: block; color: var(--gl-espresso); font-size: 0.95rem; }
+
+  .rating { grid-column: 1 / -1; }
+  .scale { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .scale input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .scale label { margin: 0; text-align: center; padding: 10px 4px 8px; border-radius: 10px; border: 1.5px solid var(--line); background: #fff; cursor: pointer; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .scale label span { font-size: 1.15rem; }
+  .scale label small { font-size: 0.68rem; color: var(--gl-copper); font-weight: 400; line-height: 1.2; }
+  .scale input:checked + label { border-color: var(--gl-brass); background: rgba(192,138,62,0.14); box-shadow: 0 0 0 1px var(--gl-brass); }
+  .scale input:focus-visible + label { outline: 2px solid var(--gl-brass); outline-offset: 2px; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 15px 32px; border-radius: 8px; border: 0; cursor: pointer; font: 600 1rem 'Sora', sans-serif; text-decoration: none; min-height: 48px; }
+  .btn-primary { background: var(--gl-walnut); color: var(--gl-cream); }
+  .btn-primary:hover { background: var(--gl-espresso); }
+  .btn-ghost { background: transparent; color: var(--gl-espresso); box-shadow: inset 0 0 0 1.5px rgba(43,29,20,0.18); }
+  .submit-row { display: flex; flex-direction: column; gap: 10px; }
+  .submit-row .btn { width: 100%; }
+  .fine { margin: 0; font-size: 0.8rem; color: var(--gl-walnut); text-align: center; }
+
+  .summary { position: sticky; top: 24px; background: var(--gl-linen); border: 1px solid var(--line); border-radius: 14px; padding: 22px; }
+  .summary h2 { margin: 0 0 6px; font-size: 1.1rem; }
+  .item { display: grid; grid-template-columns: 76px 1fr auto; gap: 12px; padding: 14px 0; border-bottom: 1px solid rgba(43,29,20,0.08); align-items: start; }
+  .thumb { position: relative; background: var(--gl-cream); border-radius: 8px; aspect-ratio: 480 / 340; overflow: hidden; }
+  .thumb.lit { background: #241C17; }
+  .thumb svg { width: 100%; height: 100%; display: block; }
+  .thumb .q { position: absolute; top: -1px; right: -1px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 0 8px 0 8px; background: var(--gl-espresso); color: var(--gl-cream); font-size: 0.72rem; display: grid; place-items: center; }
+  .item b { font-size: 0.9rem; display: block; }
+  .item small { font-size: 0.75rem; color: var(--gl-walnut); line-height: 1.4; display: block; }
+  .item .p { font-weight: 700; font-size: 0.92rem; font-variant-numeric: tabular-nums; }
+  .totals { margin: 14px 0 0; display: grid; gap: 6px; font-size: 0.9rem; }
+  .totals div { display: flex; justify-content: space-between; gap: 12px; font-variant-numeric: tabular-nums; }
+  .totals dt { color: var(--gl-walnut); }
+  .totals dd { margin: 0; }
+  .totals .grand { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 4px; font-weight: 700; font-size: 1.15rem; }
+  .totals .grand dt { color: var(--gl-espresso); }
+
+  .empty, .done { background: var(--gl-linen); border: 1px solid var(--line); border-radius: 16px; padding: 48px 32px; text-align: center; max-width: 620px; margin: 0 auto; }
+  .done .mark { width: 56px; height: 56px; border-radius: 50%; background: var(--gl-brass); color: var(--gl-espresso); display: grid; place-items: center; margin: 0 auto 16px; }
+  .done .mark svg { width: 28px; height: 28px; }
+  .done h1, .empty h1 { margin-bottom: 12px; }
+  .done p, .empty p { color: var(--gl-walnut); margin: 0 auto 14px; max-width: 46ch; }
+  .recap { text-align: left; margin: 24px 0; padding: 16px 18px; background: var(--gl-cream); border-radius: 10px; font-size: 0.88rem; }
+  .recap dt { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gl-copper); }
+  .recap dd { margin: 0 0 10px; }
+  .recap dd:last-child { margin-bottom: 0; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    .summary { position: static; order: -1; }
+  }
+  @media (max-width: 520px) {
+    fieldset { grid-template-columns: 1fr; padding: 18px 16px; }
+    .scale { gap: 5px; }
+    .scale label small { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="preview-bar"><b>Preview checkout.</b> Online orders open soon. Nothing you enter here is sent or charged.</div>
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="./">
+      <svg viewBox="0 0 80 80" role="img" aria-label="Grainline Creations">
+        <rect x="6"  y="10" width="26" height="60" rx="4" fill="#7A4A26"/>
+        <rect x="48" y="10" width="26" height="60" rx="4" fill="#7A4A26"/>
+        <rect x="31" y="6"  width="18" height="68" rx="9" fill="#C08A3E"/>
+        <line x1="31" y1="29" x2="49" y2="29" stroke="#F3ECE2" stroke-width="2"/>
+        <line x1="31" y1="51" x2="49" y2="51" stroke="#F3ECE2" stroke-width="2"/>
+        <circle cx="18" cy="24" r="3" fill="#F3ECE2"/><circle cx="18" cy="56" r="3" fill="#F3ECE2"/>
+        <circle cx="62" cy="24" r="3" fill="#F3ECE2"/><circle cx="62" cy="56" r="3" fill="#F3ECE2"/>
+      </svg>
+      <span>Grainline</span>
+    </a>
+    <a class="back" href="./#cart">← Back to cart</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="checkout" hidden>
+    <h1>Checkout</h1>
+    <div class="layout">
+      <form id="form" novalidate>
+        <fieldset>
+          <legend>Contact</legend>
+          <div class="full"><label for="email">Email</label><input type="email" id="email" autocomplete="email" required></div>
+          <div class="full"><label for="phone">Phone <small>(optional)</small></label><input type="tel" id="phone" autocomplete="tel"></div>
+          <div class="full"><label class="check"><input type="checkbox" id="updates"> Email me when Grainline opens for orders and launches new pieces</label></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Shipping</legend>
+          <div><label for="first">First name</label><input id="first" autocomplete="given-name" required></div>
+          <div><label for="last">Last name</label><input id="last" autocomplete="family-name" required></div>
+          <div class="full"><label for="street">Street address</label><input id="street" autocomplete="address-line1" required></div>
+          <div class="full"><label for="apt">Apartment, suite, etc. <small>(optional)</small></label><input id="apt" autocomplete="address-line2"></div>
+          <div><label for="city">City</label><input id="city" autocomplete="address-level2" required></div>
+          <div><label for="state">State</label><select id="state" autocomplete="address-level1" required><option value="">Select</option></select></div>
+          <div><label for="zip">ZIP code</label><input id="zip" autocomplete="postal-code" inputmode="numeric" pattern="[0-9]{5}(-[0-9]{4})?" required></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Payment</legend>
+          <div class="pay-box">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <p><b>Secure card payment is coming soon</b>You won't be asked for a card today. When orders open, payment will be handled by a secure payment provider.</p>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Quick feedback <small>(optional)</small></legend>
+          <div class="rating" role="radiogroup" aria-labelledby="ratingLabel">
+            <label id="ratingLabel">How was designing your piece?</label>
+            <div class="scale" id="scale"></div>
+          </div>
+          <div class="full"><label for="heard">How did you hear about us?</label>
+            <select id="heard"><option value="">Choose one</option><option>Instagram</option><option>TikTok</option><option>A friend or family member</option><option>Google search</option><option>Other</option></select></div>
+          <div class="full"><label for="better">Anything we could do better?</label><textarea id="better" placeholder="A size, material or product you'd like to see..."></textarea></div>
+        </fieldset>
+
+        <div class="submit-row">
+          <button type="submit" class="btn btn-primary" id="placeBtn">Place order</button>
+          <p class="fine">Preview only: placing an order here doesn't send your details or charge anything.</p>
+        </div>
+      </form>
+
+      <aside class="summary" aria-label="Order summary">
+        <h2>Order summary</h2>
+        <div id="items"></div>
+        <dl class="totals">
+          <div><dt>Subtotal</dt><dd id="sub"></dd></div>
+          <div><dt>Shipping</dt><dd id="ship"></dd></div>
+          <div class="grand"><dt>Total</dt><dd id="total"></dd></div>
+        </dl>
+      </aside>
+    </div>
+  </section>
+
+  <section class="empty" id="empty" hidden>
+    <h1>Your cart is empty</h1>
+    <p>Add a piece from the collection or design your own, then come back to check out.</p>
+    <a class="btn btn-primary" href="./#products">Browse the collection</a>
+  </section>
+
+  <section class="done" id="done" hidden>
+    <div class="mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <h1 id="doneTitle">Thanks for trying our checkout</h1>
+    <p>This was a preview, so nothing was sent to us and you weren't charged. Online orders open soon.</p>
+    <dl class="recap" id="recap"></dl>
+    <div class="actions"><a class="btn btn-primary" href="./">Back to Grainline</a><a class="btn btn-ghost" href="./#cart">Back to cart</a></div>
+  </section>
+</main>
+
+<!-- Keep ?v= in step with index.html, shop.js and drawing.js. -->
+<script type="module" src="checkout.js?v=8"></script>
+</body>
+</html>
