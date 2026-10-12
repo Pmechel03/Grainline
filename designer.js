@@ -15,6 +15,19 @@ const WOODS = {
   "Matte white": {hex: "#ECE8E1", grain: 0,   finish: "Matte paint",   material: {solid: "Painted poplar",         veneer: "Painted birch plywood"}}
 };
 const MATERIALS = Object.keys(WOODS);
+// Shown in the material comparison. durability is 1-5: how well it shrugs off dents and scratches.
+const MATERIAL_INFO = {
+  "Oak":         {look: "Light, with bold open grain",     durability: 5, best: "Everyday use, natural look",
+                  note: "The toughest option. Resists dents, and scratches can be sanded and re-oiled."},
+  "Walnut":      {look: "Rich chocolate brown",            durability: 4, best: "A premium, statement piece",
+                  note: "Our most premium wood. Deep color that warms up as it ages."},
+  "Dark stain":  {look: "Walnut-like brown, even color",   durability: 3, best: "The walnut look for less",
+                  note: "Gets the dark walnut look for less. Deep scratches can show lighter wood underneath."},
+  "Matte black": {look: "Flat black, no grain",            durability: 3, best: "Modern rooms, LED glow",
+                  note: "Bold and modern, and makes LED light pop. Shows dust more than wood does."},
+  "Matte white": {look: "Soft white, no grain",            durability: 3, best: "Bright, minimal rooms",
+                  note: "Clean and bright, blends into light walls. Wipe with a damp cloth to keep it fresh."}
+};
 const LIGHTS = {
   "None":       null,
   "Warm white": ["#FFC46B"],
@@ -258,6 +271,7 @@ function syncControls() {
   setR($("#cD"), t.D[0], t.D[1], 1, spec.depth);
   $("#lH").textContent = t.H[3];
   $("#woodNote").textContent = materialOf(spec);
+  $("#matNote").textContent = MATERIAL_INFO[spec.wood].note;
   $("#cWood").innerHTML = MATERIALS.map(k => `<button type="button" aria-pressed="${k === spec.wood}" data-w="${k}"><i style="background:${WOODS[k].hex}"></i>${k}</button>`).join("");
   $("#cEdge").innerHTML = t.edges.map(e => `<button type="button" aria-pressed="${e === spec.edge}" data-e="${e}">${cap(e)}</button>`).join("");
   $("#optLabel").textContent = t.opt.label;
@@ -286,7 +300,22 @@ function draw() {
   $("#total").textContent = money(pr.total);
   $("#lines").innerHTML = pr.lines.map(([k, v], i) => `<li><span>${esc(k)}</span><span>${i ? (v > 0 ? "+" : "") : ""}${money(v)}</span></li>`).join("");
   $("#quoteMsg").textContent = "";
+  if (!$("#matInfo").hidden) drawCompare();
 }
+// Material comparison; prices are for the piece as currently designed.
+function drawCompare() {
+  const dots = n => `<span class="dots" title="Durability ${n} out of 5">${"●".repeat(n)}<i>${"●".repeat(5 - n)}</i></span>`;
+  $("#matInfo").innerHTML = MATERIALS.map(m => `
+    <div class="mat-row${m === spec.wood ? " on" : ""}">
+      <div class="mat-top"><span class="sw-dot" style="background:${WOODS[m].hex}"></span><b>${m}</b><small>${WOODS[m].material[TYPES[spec.type].build]}</small><span class="mat-price">${money(priceOf({...spec, wood: m}).total)}</span></div>
+      <div class="mat-meta"><span>${MATERIAL_INFO[m].look}</span><span>Best for: ${MATERIAL_INFO[m].best}</span><span>Durability ${dots(MATERIAL_INFO[m].durability)}</span></div>
+    </div>`).join("");
+}
+$("#matInfoBtn").onclick = () => {
+  const open = $("#matInfo").hidden;
+  $("#matInfo").hidden = !open; $("#matInfoBtn").setAttribute("aria-expanded", open);
+  if (open) drawCompare();
+};
 $("#cType").onchange = e => setSpec({...DEFAULTS[e.target.value], wood: spec.wood});
 $("#cW").oninput = e => { spec.width = +e.target.value; draw(); };
 $("#cH").oninput = e => { spec.height = +e.target.value; draw(); };

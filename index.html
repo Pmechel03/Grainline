@@ -163,7 +163,21 @@
   .controls label, .controls .lbl { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
   .controls label b { font-variant-numeric: tabular-nums; color: var(--gl-copper); }
   .controls select, .controls input[type=text] { width: 100%; font: inherit; padding: 10px 12px; border-radius: 8px; border: 1.5px solid rgba(43,29,20,0.15); background: var(--gl-linen); color: var(--gl-espresso); }
-  .controls select:disabled { opacity: 0.7; cursor: not-allowed; }
+  .info-btn { width: 20px; height: 20px; margin-left: 6px; padding: 0; border-radius: 50%; border: 1.5px solid var(--gl-brass); background: transparent; color: var(--gl-copper); font: italic 700 0.72rem Georgia, serif; line-height: 1; cursor: pointer; vertical-align: middle; }
+  .info-btn:hover, .info-btn[aria-expanded="true"] { background: var(--gl-brass); color: var(--gl-linen); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .mat-note { margin: 10px 0 0; font-size: 0.85rem; color: var(--gl-walnut); }
+  .mat-compare { margin-top: 12px; background: var(--gl-linen); border-radius: 10px; border: 1px solid rgba(43,29,20,0.08); }
+  .mat-row { padding: 10px 12px; border-top: 1px solid rgba(43,29,20,0.07); }
+  .mat-row:first-child { border-top: 0; }
+  .mat-row.on { background: rgba(192,138,62,0.12); }
+  .mat-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 0.88rem; }
+  .mat-top small { color: var(--gl-copper); font-size: 0.75rem; }
+  .mat-price { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .mat-meta { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 4px 0 0 22px; font-size: 0.78rem; color: var(--gl-walnut); }
+  .sw-dot { display: inline-block; flex: none; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); }
+  .dots { color: var(--gl-walnut); letter-spacing: 1px; white-space: nowrap; }
+  .dots i { font-style: normal; color: rgba(43,29,20,0.15); }
   .controls input[type=range] { width: 100%; accent-color: var(--gl-walnut); }
   .swatches, .seg { display: flex; flex-wrap: wrap; gap: 8px; }
   .swatches button, .seg button { font: inherit; font-size: 0.88rem; cursor: pointer; color: var(--gl-espresso); background: var(--gl-linen); border: 1.5px solid rgba(43,29,20,0.15); border-radius: 999px; padding: 5px 12px; display: flex; align-items: center; gap: 8px; }
@@ -311,7 +325,13 @@
       </div>
       <div class="card controls">
         <div class="full"><label for="cType">Product</label><select id="cType"></select></div>
-        <div class="full"><span class="lbl">Material <small id="woodNote"></small></span><div class="swatches" id="cWood" role="group" aria-label="Material"></div></div>
+        <div class="full">
+          <span class="lbl">Material <small id="woodNote"></small>
+            <button type="button" class="info-btn" id="matInfoBtn" aria-expanded="false" aria-controls="matInfo" title="Compare materials"><span aria-hidden="true">i</span><span class="sr">Compare materials</span></button></span>
+          <div class="swatches" id="cWood" role="group" aria-label="Material"></div>
+          <p class="mat-note" id="matNote"></p>
+          <div class="mat-compare" id="matInfo" hidden></div>
+        </div>
         <div><label for="cW">Width <b id="vW"></b></label><input type="range" id="cW"></div>
         <div><label for="cH"><span id="lH">Height</span> <b id="vH"></b></label><input type="range" id="cH"></div>
         <div class="full"><label for="cD">Depth <b id="vD"></b></label><input type="range" id="cD"></div>
@@ -368,7 +388,7 @@
 </footer>
 
 <!-- Bump ?v= whenever designer.js changes so browsers never pair a new page with an old cached script. -->
-<script src="designer.js?v=4"></script>
+<script src="designer.js?v=6"></script>
 
 </body>
 </html>
