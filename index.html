@@ -19,6 +19,7 @@
   }
 
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   body {
     margin: 0;
     font-family: 'Sora', sans-serif;
@@ -96,6 +97,60 @@
   .about p { color: var(--gl-walnut); margin: 0 0 16px; }
   .about p:last-child { margin-bottom: 0; }
 
+  .btn { cursor: pointer; border: 0; font-family: inherit; }
+  .btn-ghost { background: transparent; color: var(--gl-espresso); box-shadow: inset 0 0 0 1.5px rgba(43,29,20,0.18); padding: 10px 22px; }
+  .btn-ghost:hover { box-shadow: inset 0 0 0 1.5px var(--gl-brass); }
+  :focus-visible { outline: 2px solid var(--gl-brass); outline-offset: 2px; }
+
+  /* Product art */
+  .card.product { display: flex; flex-direction: column; gap: 10px; padding: 16px 16px 24px; }
+  .card.product h3, .card.product p { margin: 0 8px; }
+  .card.product .btn { align-self: flex-start; margin: auto 8px 0; }
+  .card.product p { margin-bottom: 8px; }
+  .art { background: var(--gl-cream); border-radius: 8px; aspect-ratio: 4 / 3; overflow: hidden; margin-bottom: 8px; }
+  .art svg, .stage svg { width: 100%; height: 100%; display: block; }
+
+  /* Custom designer */
+  #custom { background: var(--gl-linen); }
+  .studio { display: grid; grid-template-columns: 1.15fr 1fr; gap: 32px; align-items: start; }
+  .studio > * { min-width: 0; }
+  .preview { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 90px; }
+  .stage { position: relative; background: var(--gl-cream); border-radius: 12px; aspect-ratio: 480 / 340; overflow: hidden; }
+  .dimtag { position: absolute; right: 14px; bottom: 12px; font-size: 0.85rem; color: var(--gl-walnut); font-variant-numeric: tabular-nums; }
+  .spec { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin: 0; background: rgba(43,29,20,0.1); border-radius: 10px; overflow: hidden; }
+  .spec div { background: var(--gl-linen); padding: 10px 12px; }
+  .spec dt { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gl-copper); }
+  .spec dd { margin: 2px 0 0; font-weight: 600; font-size: 0.92rem; overflow-wrap: anywhere; }
+  .quote-row { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; }
+  .quote-msg { font-size: 0.9rem; color: var(--gl-walnut); }
+  .card.controls { background: var(--gl-cream); display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .controls .full { grid-column: 1 / -1; }
+  .controls label, .controls .lbl { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
+  .controls label b { font-variant-numeric: tabular-nums; color: var(--gl-copper); }
+  .controls select, .controls input[type=text] { width: 100%; font: inherit; padding: 10px 12px; border-radius: 8px; border: 1.5px solid rgba(43,29,20,0.15); background: var(--gl-linen); color: var(--gl-espresso); }
+  .controls input[type=range] { width: 100%; accent-color: var(--gl-walnut); }
+  .swatches, .seg { display: flex; flex-wrap: wrap; gap: 8px; }
+  .swatches button, .seg button { font: inherit; font-size: 0.88rem; cursor: pointer; color: var(--gl-espresso); background: var(--gl-linen); border: 1.5px solid rgba(43,29,20,0.15); border-radius: 999px; padding: 5px 12px; display: flex; align-items: center; gap: 8px; }
+  .seg button { border-radius: 8px; }
+  .swatches i { width: 20px; height: 20px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); }
+  .swatches button[aria-pressed="true"], .seg button[aria-pressed="true"] { border-color: var(--gl-brass); box-shadow: 0 0 0 1px var(--gl-brass); }
+
+  /* Steps */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .step { border-top: 2px solid var(--gl-walnut); padding-top: 16px; }
+  .step span { font-weight: 300; text-transform: uppercase; letter-spacing: 0.2em; font-size: 0.75rem; color: var(--gl-copper); }
+  .step h3 { margin: 6px 0 8px; font-size: 1.1rem; }
+  .step p { margin: 0; color: var(--gl-walnut); font-size: 0.95rem; }
+
+  @media (max-width: 860px) {
+    .studio { grid-template-columns: 1fr; }
+    .preview { position: static; }
+  }
+  @media (max-width: 520px) {
+    .spec { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .card.controls { grid-template-columns: 1fr; }
+  }
+
   /* Footer */
   footer { background: var(--gl-espresso); color: var(--gl-cream); padding: 56px 0 32px; }
   footer .brand span { color: var(--gl-sand); }
@@ -106,6 +161,7 @@
   @media (max-width: 760px) {
     .nav-links { display: none; }
     .grid { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr; }
     .about { padding: 28px; }
   }
 </style>
@@ -129,6 +185,7 @@
       </div>
       <div class="nav-links">
         <a href="#products">Products</a>
+        <a href="#custom">Custom</a>
         <a href="#about">About</a>
         <a href="#contact">Contact</a>
       </div>
@@ -148,23 +205,64 @@
 <section id="products">
   <div class="wrap">
     <h2>What we make</h2>
-    <p class="section-intro">[TBD — exact lineup not finalized yet. Placeholder categories below.]</p>
+    <p class="section-intro">Our first collection is still being finalized. Here's what we're building. Every piece can be made to your size in the custom designer below.</p>
     <div class="grid">
-      <div class="card">
-        <div class="mark">&#8213;</div>
-        <h3>[Product Name]</h3>
-        <p>[Material], [finish]. [PRICE]</p>
+      <div class="card product">
+        <div class="art" data-art='{"type":"shelf","width":36,"height":1.75,"depth":8,"wood":"White Oak","finish":"Natural Oil","edge":"square"}'></div>
+        <h3>Floating shelves</h3>
+        <p>Solid wood shelves cut to the length your wall needs. [PRICE]</p>
+        <button class="btn btn-ghost" data-customize='{"type":"shelf","width":36,"height":1.75,"depth":8,"wood":"White Oak","finish":"Natural Oil","edge":"square"}'>Customize</button>
       </div>
-      <div class="card">
-        <div class="mark">&#8213;</div>
-        <h3>[Product Name]</h3>
-        <p>[Material], [finish]. [PRICE]</p>
+      <div class="card product">
+        <div class="art" data-art='{"type":"slat","width":30,"height":60,"wood":"Walnut","finish":"Matte","edge":"arched"}'></div>
+        <h3>Wall decor</h3>
+        <p>Slat panels, signs and mirror frames for the walls you look at most. [PRICE]</p>
+        <button class="btn btn-ghost" data-customize='{"type":"slat","width":30,"height":60,"wood":"Walnut","finish":"Matte","edge":"arched"}'>Customize</button>
       </div>
-      <div class="card">
-        <div class="mark">&#8213;</div>
-        <h3>[Product Name]</h3>
-        <p>[Material], [finish]. [PRICE]</p>
+      <div class="card product">
+        <div class="art" data-art='{"type":"table","width":20,"height":22,"depth":18,"wood":"Walnut","finish":"Natural Oil","edge":"rounded"}'></div>
+        <h3>Small furniture</h3>
+        <p>Side tables and planter boxes built from real wood. [PRICE]</p>
+        <button class="btn btn-ghost" data-customize='{"type":"table","width":20,"height":22,"depth":18,"wood":"Walnut","finish":"Natural Oil","edge":"rounded"}'>Customize</button>
       </div>
+    </div>
+  </div>
+</section>
+
+<section id="custom">
+  <div class="wrap">
+    <h2>Design your own</h2>
+    <p class="section-intro">Pick a piece, set the size, wood and finish, and watch it update. When it looks right, send it to us and we'll follow up with a price.</p>
+    <div class="studio">
+      <div class="preview">
+        <div class="stage" id="stage"><span class="dimtag" id="dimTag"></span></div>
+        <dl class="spec" id="spec"></dl>
+        <div class="quote-row">
+          <button class="btn btn-primary" id="quoteBtn">Request a quote</button>
+          <span class="quote-msg" id="quoteMsg" role="status"></span>
+        </div>
+      </div>
+      <div class="card controls">
+        <div class="full"><label for="cType">Product</label><select id="cType"></select></div>
+        <div><label for="cW">Width <b id="vW"></b></label><input type="range" id="cW"></div>
+        <div><label for="cH"><span id="lH">Height</span> <b id="vH"></b></label><input type="range" id="cH"></div>
+        <div id="dWrap"><label for="cD">Depth <b id="vD"></b></label><input type="range" id="cD"></div>
+        <div><label for="cFinish">Finish</label><select id="cFinish"></select></div>
+        <div class="full"><span class="lbl">Wood</span><div class="swatches" id="cWood" role="group" aria-label="Wood"></div></div>
+        <div class="full"><span class="lbl">Edge</span><div class="seg" id="cEdge" role="group" aria-label="Edge style"></div></div>
+        <div class="full" id="engWrap"><label for="cEng">Engraved text</label><input type="text" id="cEng" maxlength="24"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <h2>How custom works</h2>
+    <div class="steps">
+      <div class="step"><span>Step 1</span><h3>Pick a starting point</h3><p>Choose a shelf, sign, slat panel, mirror, side table or planter box.</p></div>
+      <div class="step"><span>Step 2</span><h3>Make it yours</h3><p>Set the size, wood, finish and edge. Signs can carry your own engraved text.</p></div>
+      <div class="step"><span>Step 3</span><h3>We build it</h3><p>We follow up to confirm the details and price, then build it by hand.</p></div>
     </div>
   </div>
 </section>
@@ -201,6 +299,245 @@
     <div class="copyright">&copy; 2026 Grainline Creations. All rights reserved.</div>
   </div>
 </footer>
+
+<script>
+const WOODS = {
+  "White Oak":   {hex:"#C9A275", rate:.055},
+  "Walnut":      {hex:"#6E4A31", rate:.085},
+  "Maple":       {hex:"#E1C69C", rate:.05},
+  "Cherry":      {hex:"#A2603C", rate:.07},
+  "Ash":         {hex:"#D7C19C", rate:.045},
+  "Ebonized Oak":{hex:"#2F2722", rate:.065}
+};
+const FINISHES = {"Satin":0, "Matte":0, "Natural Oil":10};
+const TYPES = {
+  shelf:  {label:"Floating shelf", base:35, W:[12,72], H:[1,3,.25], D:[4,12], hLabel:"Thickness", edges:["square","rounded","live edge"]},
+  sign:   {label:"Wall sign",      base:25, W:[8,48],  H:[6,36], D:null, hLabel:"Height", edges:["square","rounded","arched","live edge"]},
+  slat:   {label:"Slat wall panel",base:60, W:[12,60], H:[24,96], D:null, hLabel:"Height", edges:["square","rounded","arched","live edge"]},
+  table:  {label:"Side table",     base:120,W:[14,30], H:[18,28], D:[14,24], hLabel:"Height", edges:["square","rounded","live edge"]},
+  planter:{label:"Planter box",    base:40, W:[12,48], H:[8,30], D:[8,16], hLabel:"Height", edges:["square"]},
+  mirror: {label:"Framed mirror",  base:70, W:[16,40], H:[24,72], D:null, hLabel:"Height", edges:["square","rounded","arched"]}
+};
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const inch = n => (Math.round(n*100)/100) + "″";
+function rng(seed){ let a = seed>>>0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a>>>15, 1|a); t = t + Math.imul(t ^ t>>>7, 61|t) ^ t; return ((t ^ t>>>14)>>>0)/4294967296; }; }
+function hashStr(s){ let h=2166136261; for (const c of s) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return h>>>0; }
+function shade(hex, amt){
+  const n = parseInt(hex.slice(1),16); let r=n>>16, g=n>>8&255, b=n&255;
+  const t = amt<0 ? 0 : 255, p = Math.abs(amt);
+  r = Math.round(r+(t-r)*p); g = Math.round(g+(t-g)*p); b = Math.round(b+(t-b)*p);
+  return "#" + ((1<<24)|(r<<16)|(g<<8)|b).toString(16).slice(1);
+}
+let uid = 0;
+
+/* ---------- renderer ---------- */
+function grainDefs(id, hex, seed){
+  const r = rng(seed); let paths = "";
+  const dark = shade(hex, -.3), light = shade(hex, .14);
+  for (let i=0;i<14;i++){
+    const y = r()*160, a = (r()-.5)*18, col = r()<.25 ? light : dark;
+    paths += `<path d="M-20 ${y.toFixed(1)} C 150 ${(y+a).toFixed(1)}, 450 ${(y-a).toFixed(1)}, 620 ${(y+a*.4).toFixed(1)}" stroke="${col}" stroke-width="${(.5+r()*1.8).toFixed(2)}" fill="none" opacity="${(.22+r()*.4).toFixed(2)}"/>`;
+  }
+  if (r() < .8){ const cx=100+r()*400, cy=20+r()*120;
+    for (let k=1;k<4;k++) paths += `<ellipse cx="${cx}" cy="${cy}" rx="${k*14}" ry="${k*4}" stroke="${dark}" fill="none" opacity=".25"/>`; }
+  return `<pattern id="${id}" patternUnits="userSpaceOnUse" width="600" height="160"><rect width="600" height="160" fill="${hex}"/>${paths}</pattern>`;
+}
+function wavy(x1, x2, y, amp, seed, steps=24){
+  const r = rng(seed); let d = "";
+  for (let i=0;i<=steps;i++){ const x = x1 + (x2-x1)*i/steps; const yy = y + Math.sin(i*.9 + r()*2)*amp*.6 + (r()-.5)*amp; d += ` L ${x.toFixed(1)} ${yy.toFixed(1)}`; }
+  return d;
+}
+function shapePath(x,y,w,h,edge,seed){
+  if (edge==="arched"){ const r = Math.min(w/2, h); return `M ${x} ${y+h} L ${x} ${y+r} A ${r} ${r} 0 0 1 ${x+w} ${y+r} L ${x+w} ${y+h} Z`; }
+  if (edge==="rounded"){ const r = Math.min(w,h)*.14; return `M ${x+r} ${y} H ${x+w-r} Q ${x+w} ${y} ${x+w} ${y+r} V ${y+h-r} Q ${x+w} ${y+h} ${x+w-r} ${y+h} H ${x+r} Q ${x} ${y+h} ${x} ${y+h-r} V ${y+r} Q ${x} ${y} ${x+r} ${y} Z`; }
+  if (edge==="live edge"){ const a = Math.min(h*.08, 9); return `M ${x} ${y}` + wavy(x, x+w, y, a, seed) + ` L ${x+w} ${y+h}` + wavy(x+w, x, y+h, a*.7, seed+7) + " Z"; }
+  return `M ${x} ${y} H ${x+w} V ${y+h} H ${x} Z`;
+}
+
+function render(p, opts={}){
+  const id = "w" + (++uid), wood = WOODS[p.wood] || WOODS["White Oak"], hex = wood.hex;
+  const seed = hashStr(p.type + p.wood + p.width);
+  const sheen = {"Natural Oil":.2, "Satin":.12, "Matte":.04}[p.finish] ?? .1;
+  const defs = `<defs>${grainDefs(id+"g", hex, seed)}
+    <linearGradient id="${id}s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="${sheen}"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <linearGradient id="${id}m" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E9EEF0"/><stop offset="1" stop-color="#B8C4C9"/></linearGradient>
+    <filter id="${id}d" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#1a0f08" flood-opacity=".28"/></filter></defs>`;
+  const G = `url(#${id}g)`, S = `url(#${id}s)`, D = `url(#${id}d)`;
+  const top = shade(hex,.1), side = shade(hex,-.18), dark = shade(hex,-.5);
+  let body = "";
+  const floorShadow = (cx, w, y) => `<ellipse cx="${cx}" cy="${y}" rx="${w/2}" ry="7" fill="#1a0f08" opacity=".16"/>`;
+
+  if (p.type === "shelf"){
+    const s = Math.min(400/p.width, 14), w = p.width*s, t = Math.max(p.height*s, 6), dd = p.depth*s*.3, k = dd*.5;
+    const x = 240 - w/2, y = opts.props ? 205 : 180;
+    const backEdge = p.edge==="live edge" ? wavy(x+w-k, x+k, y-dd, Math.min(dd*.35,6), seed) : ` L ${x+k} ${y-dd}`;
+    const rx = p.edge==="rounded" ? Math.min(t/2, 7) : 1;
+    body += `<g filter="${D}"><path d="M ${x} ${y} L ${x+w} ${y} L ${x+w-k} ${y-dd}${backEdge} Z" fill="${G}"/>
+      <path d="M ${x} ${y} L ${x+w} ${y} L ${x+w-k} ${y-dd}${backEdge} Z" fill="${top}" opacity=".35"/>
+      <rect x="${x}" y="${y}" width="${w}" height="${t}" rx="${rx}" fill="${G}"/>
+      <rect x="${x}" y="${y}" width="${w}" height="${t}" rx="${rx}" fill="${side}" opacity=".25"/>
+      <rect x="${x}" y="${y}" width="${w}" height="${t}" rx="${rx}" fill="${S}"/></g>`;
+    if (opts.props){
+      const base = y - dd*.45;
+      const vx = x + w*.18;
+      body += `<path d="M ${vx-14} ${base} C ${vx-24} ${base-30}, ${vx-6} ${base-44}, ${vx-6} ${base-62} H ${vx+6} C ${vx+6} ${base-44}, ${vx+24} ${base-30}, ${vx+14} ${base} Z" fill="#E8DCCB"/>
+        <path d="M ${vx} ${base-62} C ${vx-10} ${base-95}, ${vx-30} ${base-110}, ${vx-38} ${base-118}" stroke="#5E7A4A" stroke-width="2" fill="none"/>
+        <path d="M ${vx} ${base-62} C ${vx+6} ${base-100}, ${vx+22} ${base-118}, ${vx+30} ${base-130}" stroke="#5E7A4A" stroke-width="2" fill="none"/>
+        <ellipse cx="${vx-30}" cy="${base-112}" rx="10" ry="4" fill="#6E8B57" transform="rotate(-30 ${vx-30} ${base-112})"/>
+        <ellipse cx="${vx+24}" cy="${base-122}" rx="10" ry="4" fill="#6E8B57" transform="rotate(-50 ${vx+24} ${base-122})"/>`;
+      const bx = x + w*.58, cols = ["#2F3640","#B98B4C","#3D2117","#8C9A8A"];
+      let off = 0; cols.forEach((c,i)=>{ const bh = 52 + (i%2)*8, bw = 11 + (i%3)*2; body += `<rect x="${bx+off}" y="${base-bh}" width="${bw}" height="${bh}" rx="1.5" fill="${c}"/>`; off += bw + 1; });
+      body += `<rect x="${bx+off+6}" y="${base-14}" width="40" height="14" rx="2" fill="#E8DCCB"/><circle cx="${bx+off+26}" cy="${base-24}" r="10" fill="#B98B4C"/>`;
+    }
+  }
+  else if (p.type === "sign" || p.type === "mirror"){
+    const isM = p.type==="mirror";
+    const s = Math.min((isM?300:400)/p.width, (isM?280:240)/p.height), w = p.width*s, h = p.height*s;
+    const x = 240 - w/2, y = 170 - h/2;
+    const outer = shapePath(x,y,w,h,p.edge,seed);
+    body += `<g filter="${D}"><path d="${outer}" fill="${G}"/><path d="${outer}" fill="${S}"/></g>`;
+    if (isM){
+      const f = Math.max(2.4*s, 10), inner = shapePath(x+f, y+f, w-2*f, h-2*f, p.edge, seed);
+      body += `<clipPath id="${id}c"><path d="${inner}"/></clipPath><path d="${inner}" fill="url(#${id}m)"/>
+        <g clip-path="url(#${id}c)"><polygon points="${x+w*.15},${y+h} ${x+w*.55},${y} ${x+w*.75},${y} ${x+w*.35},${y+h}" fill="#fff" opacity=".35"/><polygon points="${x+w*.45},${y+h} ${x+w*.8},${y} ${x+w*.86},${y} ${x+w*.51},${y+h}" fill="#fff" opacity=".25"/></g>
+        <path d="${inner}" fill="none" stroke="${dark}" stroke-opacity=".4" stroke-width="1.5"/>`;
+    } else if (p.engraving){
+      const txt = esc(p.engraving), fs = Math.min(h*.42, (w*.85)/(Math.max(p.engraving.length,3)*.6));
+      body += `<text x="240" y="${170+fs*.34+1}" text-anchor="middle" font-family="Sora, sans-serif" font-weight="600" font-size="${fs.toFixed(1)}" fill="#fff" opacity=".18">${txt}</text>
+        <text x="240" y="${170+fs*.34}" text-anchor="middle" font-family="Sora, sans-serif" font-weight="600" font-size="${fs.toFixed(1)}" fill="${dark}" opacity=".85">${txt}</text>`;
+    }
+  }
+  else if (p.type === "slat"){
+    const s = Math.min(360/p.width, 280/p.height), w = p.width*s, h = p.height*s, x = 240 - w/2, y = 170 - h/2;
+    const n = Math.max(4, Math.round(p.width/2)), pitch = w/n, sw = pitch*.64;
+    body += `<g filter="${D}"><rect x="${x}" y="${y+4}" width="${w}" height="${h-8}" fill="#2A2420"/>`;
+    const r = rng(seed);
+    for (let i=0;i<n;i++){
+      const cx = x + i*pitch + pitch/2, sx = cx - sw/2;
+      let sy = y, sh = h;
+      if (p.edge==="arched"){ const R = w/2, dx = (cx-240)/R; const lift = R - Math.sqrt(Math.max(0,1-dx*dx))*R; sy = y + Math.min(lift, h*.6); sh = h - (sy-y); }
+      if (p.edge==="live edge"){ const o = (Math.sin(i*.7)+1)*h*.05 + r()*h*.03; sy = y + o; sh = h - o - (r()*h*.04); }
+      const rr = p.edge==="rounded" ? sw/2 : 1;
+      body += `<rect x="${sx}" y="${sy}" width="${sw}" height="${sh}" rx="${rr}" fill="${G}"/><rect x="${sx}" y="${sy}" width="${sw}" height="${sh}" rx="${rr}" fill="${S}"/><rect x="${sx}" y="${sy+rr}" width="${Math.max(1,sw*.12)}" height="${Math.max(0,sh-2*rr)}" fill="#fff" opacity=".12"/>`;
+    }
+    body += `</g>`;
+  }
+  else if (p.type === "table"){
+    const s = Math.min(320/p.width, 230/(p.height + p.depth*.3)), w = p.width*s, H = p.height*s, dd = p.depth*s*.3, k = dd*.6;
+    const x = 240 - w/2, floor = 305, y0 = floor - H, tt = Math.max(1.5*s, 8), lw = Math.max(1.6*s, 7);
+    body += floorShadow(240, w*1.05, floor);
+    body += `<rect x="${x+k+w*.06}" y="${y0-dd+tt}" width="${lw}" height="${H-tt+dd*.4}" fill="${G}"/><rect x="${x+w-k-w*.06-lw}" y="${y0-dd+tt}" width="${lw}" height="${H-tt+dd*.4}" fill="${G}"/>
+      <rect x="${x+k+w*.06}" y="${y0-dd+tt}" width="${lw}" height="${H-tt+dd*.4}" fill="${dark}" opacity=".45"/><rect x="${x+w-k-w*.06-lw}" y="${y0-dd+tt}" width="${lw}" height="${H-tt+dd*.4}" fill="${dark}" opacity=".45"/>
+      <rect x="${x+w*.06}" y="${floor-H*.32}" width="${w*.88}" height="${Math.max(tt*.8,6)}" fill="${G}"/><rect x="${x+w*.06}" y="${floor-H*.32}" width="${w*.88}" height="${Math.max(tt*.8,6)}" fill="${side}" opacity=".3"/>
+      <rect x="${x+w*.04}" y="${y0+tt}" width="${lw}" height="${H-tt}" fill="${G}"/><rect x="${x+w*.96-lw}" y="${y0+tt}" width="${lw}" height="${H-tt}" fill="${G}"/>
+      <rect x="${x+w*.04}" y="${y0+tt}" width="${lw}" height="${H-tt}" fill="${side}" opacity=".25"/><rect x="${x+w*.96-lw}" y="${y0+tt}" width="${lw}" height="${H-tt}" fill="${side}" opacity=".25"/>`;
+    const backEdge = p.edge==="live edge" ? wavy(x+w-k, x+k, y0-dd, Math.min(dd*.35,7), seed) : ` L ${x+k} ${y0-dd}`;
+    const rx = p.edge==="rounded" ? tt/2 : 1;
+    body += `<path d="M ${x} ${y0} L ${x+w} ${y0} L ${x+w-k} ${y0-dd}${backEdge} Z" fill="${G}"/><path d="M ${x} ${y0} L ${x+w} ${y0} L ${x+w-k} ${y0-dd}${backEdge} Z" fill="${top}" opacity=".3"/>
+      <rect x="${x}" y="${y0}" width="${w}" height="${tt}" rx="${rx}" fill="${G}"/><rect x="${x}" y="${y0}" width="${w}" height="${tt}" rx="${rx}" fill="${side}" opacity=".3"/><rect x="${x}" y="${y0-dd}" width="${w}" height="${dd+tt}" fill="${S}" opacity=".7"/>`;
+  }
+  else if (p.type === "planter"){
+    const s = Math.min(340/p.width, 150/p.height), w = p.width*s, h = p.height*s, dd = p.depth*s*.25, k = dd*.6;
+    const x = 240 - w/2, floor = 305, y0 = floor - 10 - h;
+    const n = Math.max(2, Math.round(p.height/4)), bh = h/n;
+    // plant
+    const r = rng(seed); let leaves = "";
+    for (let i=0;i<16;i++){ const lx = x + w*.1 + r()*w*.8, ly = y0 - 8 - r()*Math.min(110, h*1.2+40), a = -70 + r()*140;
+      leaves += `<ellipse cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" rx="${(12+r()*10).toFixed(1)}" ry="${(4+r()*3).toFixed(1)}" fill="${i%3? "#6E8B57":"#4F6B3F"}" transform="rotate(${a.toFixed(0)} ${lx.toFixed(1)} ${ly.toFixed(1)})"/>`; }
+    body += floorShadow(240, w*1.05, floor) + `<g>${leaves}</g>`;
+    body += `<path d="M ${x} ${y0} L ${x+w} ${y0} L ${x+w-k} ${y0-dd} L ${x+k} ${y0-dd} Z" fill="#3A2A1E"/>`;
+    for (let i=0;i<n;i++) body += `<rect x="${x}" y="${y0+i*bh}" width="${w}" height="${bh-2}" rx="1" fill="${G}"/><rect x="${x}" y="${y0+i*bh}" width="${w}" height="${bh-2}" rx="1" fill="${S}"/>`;
+    body += `<rect x="${x}" y="${y0}" width="${Math.max(6,1.5*s)}" height="${h}" fill="${G}"/><rect x="${x}" y="${y0}" width="${Math.max(6,1.5*s)}" height="${h}" fill="${side}" opacity=".35"/>
+      <rect x="${x+w-Math.max(6,1.5*s)}" y="${y0}" width="${Math.max(6,1.5*s)}" height="${h}" fill="${G}"/><rect x="${x+w-Math.max(6,1.5*s)}" y="${y0}" width="${Math.max(6,1.5*s)}" height="${h}" fill="${side}" opacity=".35"/>
+      <rect x="${x+6}" y="${floor-10}" width="14" height="10" fill="${dark}"/><rect x="${x+w-20}" y="${floor-10}" width="14" height="10" fill="${dark}"/>`;
+  }
+  return `<svg viewBox="0 0 480 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(TYPES[p.type].label)} in ${esc(p.wood)}">${defs}${body}</svg>`;
+}
+
+function dimsText(p){
+  const t = TYPES[p.type];
+  if (p.type==="shelf") return `${inch(p.width)} W × ${inch(p.depth)} D × ${inch(p.height)} thick`;
+  return t.D ? `${inch(p.width)} W × ${inch(p.depth)} D × ${inch(p.height)} H` : `${inch(p.width)} W × ${inch(p.height)} H`;
+}
+function clampSpec(p){
+  const out = {...p};
+  if (!TYPES[out.type]) out.type = "shelf";
+  const t = TYPES[out.type];
+  const cl = (v, r, d) => { v = Number(v); if (!isFinite(v)) v = d; return Math.min(r[1], Math.max(r[0], v)); };
+  out.width = Math.round(cl(out.width, t.W, (t.W[0]+t.W[1])/2));
+  out.height = t.H[2] ? Math.round(cl(out.height, t.H, 1.75)*4)/4 : Math.round(cl(out.height, t.H, (t.H[0]+t.H[1])/2));
+  out.depth = t.D ? Math.round(cl(out.depth, t.D, (t.D[0]+t.D[1])/2)) : 0;
+  if (!WOODS[out.wood]) out.wood = Object.keys(WOODS).find(k => k.toLowerCase() === String(out.wood||"").toLowerCase()) || "White Oak";
+  if (!(out.finish in FINISHES)) out.finish = "Satin";
+  if (!t.edges.includes(out.edge)) out.edge = t.edges[0];
+  out.engraving = out.type==="sign" ? String(out.engraving||"").slice(0,24) : "";
+  return out;
+}
+
+
+/* ---------- custom designer ---------- */
+// Set this to the shop's email once it exists; until then "Request a quote" copies the design instead.
+const QUOTE_EMAIL = "[EMAIL]";
+let spec = clampSpec({type:"shelf", width:48, height:2, depth:10, wood:"Walnut", finish:"Satin", edge:"rounded", engraving:""});
+
+$("#cType").innerHTML = Object.entries(TYPES).map(([k,t]) => `<option value="${k}">${t.label}</option>`).join("");
+$("#cFinish").innerHTML = Object.keys(FINISHES).map(f => `<option>${f}</option>`).join("");
+
+function setSpec(p){ spec = clampSpec(p); syncControls(); draw(); }
+function syncControls(){
+  const t = TYPES[spec.type];
+  $("#cType").value = spec.type;
+  const setR = (el, r, v, step) => { el.min = r[0]; el.max = r[1]; el.step = step; el.value = v; };
+  setR($("#cW"), t.W, spec.width, 1);
+  setR($("#cH"), t.H, spec.height, t.H[2] || 1);
+  $("#lH").textContent = t.hLabel;
+  $("#dWrap").hidden = !t.D; if (t.D) setR($("#cD"), t.D, spec.depth, 1);
+  $("#cFinish").value = spec.finish;
+  $("#cWood").innerHTML = Object.entries(WOODS).map(([k,w]) => `<button type="button" aria-pressed="${k===spec.wood}" data-w="${k}"><i style="background:${w.hex}"></i>${k}</button>`).join("");
+  $("#cEdge").innerHTML = t.edges.map(e => `<button type="button" aria-pressed="${e===spec.edge}" data-e="${e}">${e[0].toUpperCase()+e.slice(1)}</button>`).join("");
+  $("#engWrap").hidden = spec.type !== "sign"; $("#cEng").value = spec.engraving;
+}
+function summary(){
+  return `${TYPES[spec.type].label}: ${dimsText(spec)}, ${spec.wood}, ${spec.finish} finish, ${spec.edge} edge` + (spec.engraving ? `, engraved "${spec.engraving}"` : "");
+}
+function draw(){
+  const stage = $("#stage"); stage.querySelector("svg")?.remove();
+  stage.insertAdjacentHTML("afterbegin", render(spec, {props: spec.type === "shelf"}));
+  $("#vW").textContent = inch(spec.width); $("#vH").textContent = inch(spec.height); $("#vD").textContent = inch(spec.depth);
+  $("#dimTag").textContent = dimsText(spec);
+  const rows = [["Product", TYPES[spec.type].label], ["Wood", spec.wood], ["Finish", spec.finish], ["Edge", spec.edge[0].toUpperCase()+spec.edge.slice(1)]];
+  if (spec.engraving) rows[3] = ["Engraving", `“${spec.engraving}”`];
+  $("#spec").innerHTML = rows.map(([k,v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("");
+  $("#quoteMsg").textContent = "";
+}
+$("#cType").onchange = e => { const t = TYPES[e.target.value]; setSpec({...spec, type:e.target.value, width:(t.W[0]+t.W[1])/2, height:t.H[2] ? 1.75 : (t.H[0]+t.H[1])/2, depth:t.D ? (t.D[0]+t.D[1])/2 : 0, engraving: e.target.value === "sign" ? "welcome" : ""}); };
+$("#cW").oninput = e => { spec.width = +e.target.value; draw(); };
+$("#cH").oninput = e => { spec.height = +e.target.value; draw(); };
+$("#cD").oninput = e => { spec.depth = +e.target.value; draw(); };
+$("#cFinish").onchange = e => { spec.finish = e.target.value; draw(); };
+$("#cEng").oninput = e => { spec.engraving = e.target.value.slice(0,24); draw(); };
+$("#cWood").onclick = e => { const b = e.target.closest("[data-w]"); if (!b) return; spec.wood = b.dataset.w; syncControls(); draw(); };
+$("#cEdge").onclick = e => { const b = e.target.closest("[data-e]"); if (!b) return; spec.edge = b.dataset.e; syncControls(); draw(); };
+
+$("#quoteBtn").onclick = async () => {
+  if (/^[^\s@\[\]]+@[^\s@]+\.[^\s@]+$/.test(QUOTE_EMAIL)) {
+    location.href = `mailto:${QUOTE_EMAIL}?subject=${encodeURIComponent("Custom quote request")}&body=${encodeURIComponent("Hi Grainline, I'd like a quote for:\n\n" + summary() + "\n\nThanks!")}`;
+    $("#quoteMsg").textContent = "Your email app should open with the design filled in.";
+    return;
+  }
+  try { await navigator.clipboard.writeText(summary()); $("#quoteMsg").textContent = "Design copied. Quote requests by email are coming soon."; }
+  catch { $("#quoteMsg").textContent = summary(); }
+};
+
+/* ---------- product art ---------- */
+document.querySelectorAll("[data-art]").forEach(el => el.innerHTML = render(clampSpec(JSON.parse(el.dataset.art))));
+document.querySelectorAll("[data-customize]").forEach(b => b.onclick = () => { setSpec(JSON.parse(b.dataset.customize)); document.getElementById("custom").scrollIntoView({behavior: "smooth"}); });
+
+syncControls(); draw();
+</script>
 
 </body>
 </html>
