@@ -1,12 +1,15 @@
 /* Preview checkout. Reads the cart the shop saved in this browser and shows a
-   full checkout form, but nothing entered here leaves the visitor's browser:
-   there is no payment, no email and no server. When real checkout is ready,
-   replace placeOrder() with a call to the checkout server (see worker/). */
+   full checkout form, but nothing entered in the form leaves the visitor's
+   browser: there is no payment and no server. The only way to reach us from
+   here is the "Email us" links, which the customer sends themselves. When
+   real checkout is ready, replace placeOrder() with a call to the checkout
+   server (see worker/). */
 import { TYPES, LIGHTS, priceOf, money, clampSpec, describe } from "./pricing.js?v=8";
 import { render, esc } from "./drawing.js?v=8";
 
 const $ = s => document.querySelector(s);
 const MAX_QTY = 10;
+const SUPPORT_EMAIL = "creationsgrainline@gmail.com";
 const STATES = ["AL","AK","AZ","AR","CA","CO","CT","DE","DC","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"];
 const RATINGS = [["1", "Frustrating"], ["2", "Confusing"], ["3", "Okay"], ["4", "Easy"], ["5", "Loved it"]];
 
@@ -36,6 +39,12 @@ if (!cart.length) {
   $("#scale").innerHTML = RATINGS.map(([v, label]) =>
     `<input type="radio" name="rating" id="r${v}" value="${v}"><label for="r${v}"><span>${v}</span><small>${label}</small></label>`).join("");
 }
+
+// "Email us" links on this page carry the cart, so we know which order the question is about.
+const orderText = cart.map(l => `- ${l.qty} × ${TYPES[l.spec.type].label}: ${describe(l.spec)} (${money(priceOf(l.spec).total)} each)`).join("\n");
+document.querySelectorAll(".order-mail").forEach(a => {
+  a.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("Question about my order")}&body=${encodeURIComponent(`Hi Grainline,\n\nMy question:\n\n\nMy cart:\n${orderText}\nSubtotal: ${money(subtotal)}\n`)}`;
+});
 
 $("#form").addEventListener("submit", e => {
   e.preventDefault();

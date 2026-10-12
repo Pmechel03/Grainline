@@ -275,6 +275,31 @@
   .cart-msg:empty { display: none; }
   body.no-scroll { overflow: hidden; }
 
+  .fine a { color: var(--gl-sand); text-decoration: underline; }
+  .fine-dark a { color: var(--gl-copper); text-decoration: underline; }
+
+  /* Support */
+  .support { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; background: var(--gl-linen); border-radius: 16px; padding: 44px; border: 1px solid rgba(43,29,20,0.06); }
+  .support > * { min-width: 0; }
+  .support p { color: var(--gl-walnut); margin: 0 0 22px; max-width: 46ch; }
+  .support .support-addr { margin: 14px 0 0; font-size: 0.88rem; }
+  .support-addr a { text-decoration: underline; overflow-wrap: anywhere; }
+  .topics { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .topics a { display: flex; flex-direction: column; padding: 14px 18px; border-radius: 10px; background: var(--gl-cream); color: var(--gl-espresso); border: 1.5px solid transparent; transition: border-color .2s; }
+  .topics a:hover { border-color: var(--gl-brass); }
+  .topics b { font-size: 0.95rem; }
+  .topics b::after { content: " →"; color: var(--gl-copper); }
+  .topics span { font-size: 0.82rem; color: var(--gl-walnut); }
+  @media (max-width: 760px) { .support { grid-template-columns: 1fr; padding: 28px; gap: 24px; } }
+
+  /* Email choice menu (contact.js) */
+  .mail-menu { position: fixed; z-index: 60; width: 250px; padding: 8px; border-radius: 12px; background: var(--gl-linen); border: 1px solid rgba(43,29,20,0.12); box-shadow: 0 18px 40px -12px rgba(43,29,20,0.4); display: flex; flex-direction: column; }
+  .mail-menu-to { margin: 4px 10px 6px; font-size: 0.75rem; color: var(--gl-copper); overflow-wrap: anywhere; }
+  .mail-menu a, .mail-menu button { display: block; width: 100%; text-align: left; padding: 10px; border-radius: 8px; border: 0; background: none; font: 600 0.9rem 'Sora', sans-serif; color: var(--gl-espresso); text-decoration: none; cursor: pointer; }
+  .mail-menu a:hover, .mail-menu button:hover, .mail-menu a:focus-visible, .mail-menu button:focus-visible { background: var(--gl-cream); }
+  .mail-menu-msg { margin: 0 10px; font-size: 0.78rem; color: var(--gl-walnut); }
+  .mail-menu-msg:empty { display: none; }
+
   /* Footer */
   footer { background: var(--gl-espresso); color: var(--gl-cream); padding: 68px 0 28px; }
   footer .brand span { color: var(--gl-sand); font-family: var(--gl-serif); font-size: 1.35rem; font-weight: 500; }
@@ -335,7 +360,7 @@
         <a href="#products">Products</a>
         <a href="#custom">Custom</a>
         <a href="#about">About</a>
-        <a href="#contact">Contact</a>
+        <a href="#support">Support</a>
       </div>
       <button type="button" class="cart-btn" id="cartBtn" aria-controls="cart">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 9V6a3 3 0 0 1 6 0v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -417,7 +442,7 @@
             <button class="btn btn-primary" id="addBtn">Add to cart</button>
           </div>
           <ul class="lines" id="lines"></ul>
-          <p class="fine">Plus shipping. Made to order and built by hand.</p>
+          <p class="fine">Plus shipping. Made to order and built by hand. Need something the designer can't do? <a href="mailto:creationsgrainline@gmail.com?subject=Question%20about%20a%20custom%20piece">Email us</a>.</p>
         </div>
       </div>
       <div class="card controls">
@@ -457,6 +482,25 @@
       <h2>Craft first, tech second</h2>
       <p>Grainline Creations is run by two co-founders — one with a woodworking and construction background, the other with business and tech experience. Every piece starts with real materials and real joinery.</p>
       <p>Behind the scenes, we use AI to keep things running lean, so we can launch fast and grow without losing the hands-on quality that makes each piece worth having.</p>
+    </div>
+  </div>
+</section>
+
+<section id="support">
+  <div class="wrap">
+    <div class="support">
+      <div>
+        <div class="eyebrow">Questions &amp; support</div>
+        <h2>We're happy to help</h2>
+        <p>Have a question about sizing, materials, a custom idea or an order? Email us and one of the founders will write back.</p>
+        <a class="btn btn-primary" href="mailto:creationsgrainline@gmail.com?subject=Question%20for%20Grainline">Email us</a>
+        <p class="support-addr">Or write to <a href="mailto:creationsgrainline@gmail.com">creationsgrainline@gmail.com</a></p>
+      </div>
+      <ul class="topics">
+        <li><a href="mailto:creationsgrainline@gmail.com?subject=Question%20about%20a%20custom%20piece"><b>A custom size or idea</b><span>Something the designer doesn't cover</span></a></li>
+        <li><a href="mailto:creationsgrainline@gmail.com?subject=Help%20with%20my%20order"><b>Help with an order</b><span>Changes, timing or shipping</span></a></li>
+        <li><a href="mailto:creationsgrainline@gmail.com?subject=Question%20about%20materials%20or%20care"><b>Materials and care</b><span>Which finish fits your space</span></a></li>
+      </ul>
     </div>
   </div>
 </section>
@@ -505,12 +549,14 @@
     <div class="cart-total"><span>Subtotal</span><span id="cartSubtotal"></span></div>
     <p class="fine-dark">Plus shipping. Every piece is made to order.</p>
     <button type="button" class="btn btn-primary" id="checkoutBtn">Checkout</button>
+    <p class="fine-dark">Questions before you order? <a href="mailto:creationsgrainline@gmail.com?subject=Question%20about%20my%20order">Email us</a>.</p>
   </div>
 </aside>
 
 <!-- Bump every ?v= (here and in the imports at the top of shop.js and drawing.js)
      whenever the JS changes, so browsers never mix old and new files. -->
 <script type="module" src="shop.js?v=8"></script>
+<script type="module" src="contact.js?v=1"></script>
 <script>
   // Mobile nav toggle.
   (() => {

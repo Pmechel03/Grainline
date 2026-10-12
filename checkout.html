@@ -32,7 +32,10 @@
   .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
   .brand svg { width: 34px; height: 34px; }
   .brand span { font-family: 'Fraunces', serif; font-weight: 500; font-size: 1.25rem; letter-spacing: -0.015em; }
-  .back { font-size: 0.9rem; font-weight: 600; text-decoration: none; }
+  .top-links { display: flex; gap: 20px; align-items: center; }
+  .back, .help { font-size: 0.9rem; font-weight: 600; text-decoration: none; }
+  .support-note { margin: 16px 0 0; padding-top: 14px; border-top: 1px solid rgba(43,29,20,0.08); font-size: 0.85rem; color: var(--gl-walnut); }
+  .support-note a { text-decoration: underline; }
 
   .preview-bar { background: var(--gl-espresso); color: var(--gl-sand); font-size: 0.85rem; text-align: center; padding: 10px 16px; }
   .preview-bar b { color: var(--gl-cream); }
@@ -106,6 +109,14 @@
   .recap dd:last-child { margin-bottom: 0; }
   .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 
+  /* Email choice menu (contact.js) */
+  .mail-menu { position: fixed; z-index: 60; width: 250px; padding: 8px; border-radius: 12px; background: var(--gl-linen); border: 1px solid rgba(43,29,20,0.12); box-shadow: 0 18px 40px -12px rgba(43,29,20,0.4); display: flex; flex-direction: column; }
+  .mail-menu-to { margin: 4px 10px 6px; font-size: 0.75rem; color: var(--gl-copper); overflow-wrap: anywhere; }
+  .mail-menu a, .mail-menu button { display: block; width: 100%; text-align: left; padding: 10px; border-radius: 8px; border: 0; background: none; font: 600 0.9rem 'Sora', sans-serif; color: var(--gl-espresso); text-decoration: none; cursor: pointer; }
+  .mail-menu a:hover, .mail-menu button:hover, .mail-menu a:focus-visible, .mail-menu button:focus-visible { background: var(--gl-cream); }
+  .mail-menu-msg { margin: 0 10px; font-size: 0.78rem; color: var(--gl-walnut); }
+  .mail-menu-msg:empty { display: none; }
+
   @media (max-width: 860px) {
     .layout { grid-template-columns: 1fr; }
     .summary { position: static; order: -1; }
@@ -135,7 +146,7 @@
       </svg>
       <span>Grainline</span>
     </a>
-    <a class="back" href="./#cart">← Back to cart</a>
+    <nav class="top-links"><a class="help" id="helpTop" href="mailto:creationsgrainline@gmail.com?subject=Help%20with%20my%20order">Need help?</a><a class="back" href="./#cart">← Back to cart</a></nav>
   </div>
 </header>
 
@@ -195,6 +206,7 @@
           <div><dt>Shipping</dt><dd id="ship"></dd></div>
           <div class="grand"><dt>Total</dt><dd id="total"></dd></div>
         </dl>
+        <p class="support-note">Questions about this order? <a class="order-mail" href="mailto:creationsgrainline@gmail.com">Email us</a> and we'll get back to you.</p>
       </aside>
     </div>
   </section>
@@ -210,11 +222,12 @@
     <h1 id="doneTitle">Thanks for trying our checkout</h1>
     <p>This was a preview, so nothing was sent to us and you weren't charged. Online orders open soon.</p>
     <dl class="recap" id="recap"></dl>
-    <div class="actions"><a class="btn btn-primary" href="./">Back to Grainline</a><a class="btn btn-ghost" href="./#cart">Back to cart</a></div>
+    <div class="actions"><a class="btn btn-primary" href="./">Back to Grainline</a><a class="btn btn-ghost order-mail" href="mailto:creationsgrainline@gmail.com">Email us a question</a></div>
   </section>
 </main>
 
-<!-- Keep ?v= in step with index.html, shop.js and drawing.js. -->
-<script type="module" src="checkout.js?v=8"></script>
+<!-- Bump ?v= whenever checkout.js changes. pricing.js and drawing.js versions are set inside checkout.js. -->
+<script type="module" src="checkout.js?v=9"></script>
+<script type="module" src="contact.js?v=1"></script>
 </body>
 </html>
