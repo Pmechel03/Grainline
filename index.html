@@ -163,6 +163,7 @@
   .controls label, .controls .lbl { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
   .controls label b { font-variant-numeric: tabular-nums; color: var(--gl-copper); }
   .controls select, .controls input[type=text] { width: 100%; font: inherit; padding: 10px 12px; border-radius: 8px; border: 1.5px solid rgba(43,29,20,0.15); background: var(--gl-linen); color: var(--gl-espresso); }
+  .controls select:disabled { opacity: 0.7; cursor: not-allowed; }
   .controls input[type=range] { width: 100%; accent-color: var(--gl-walnut); }
   .swatches, .seg { display: flex; flex-wrap: wrap; gap: 8px; }
   .swatches button, .seg button { font: inherit; font-size: 0.88rem; cursor: pointer; color: var(--gl-espresso); background: var(--gl-linen); border: 1.5px solid rgba(43,29,20,0.15); border-radius: 999px; padding: 5px 12px; display: flex; align-items: center; gap: 8px; }
@@ -265,17 +266,17 @@
     <p class="section-intro">Our first three pieces. Each one can be made to your size, wood and finish in the designer below.</p>
     <div class="grid">
       <article class="card product">
-        <div class="art" data-art='{"type":"led","width":36,"height":1.75,"depth":8,"wood":"Ash","finish":"Natural Oil","edge":"square","light":"Warm white"}'><span class="art-tag">Solid ash · Walnut available</span></div>
+        <div class="art" data-art='{"type":"led","width":36,"height":1.75,"depth":8,"wood":"Ash","finish":"Natural Oil","edge":"square","light":"Warm white"}'><span class="art-tag">Ash · Walnut · Stained · Black · White</span></div>
         <div class="product-head"><h3>LED floating shelf</h3><span class="from">from <b data-from="led"></b></span></div>
         <p>A solid wood shelf with an LED strip tucked underneath that washes the wall below in light.</p>
-        <ul class="feat"><li>Warm white, cool white or RGB</li><li>Hidden wall bracket</li><li>12″ to 60″ wide</li></ul>
+        <ul class="feat"><li>Warm white, cool white or RGB</li><li>Natural wood or matte black from $125</li><li>Hidden wall bracket, 12″ to 60″ wide</li></ul>
         <button class="btn btn-ghost" data-customize="led">Customize</button>
       </article>
       <article class="card product">
         <div class="art" data-art='{"type":"cologne","width":20,"height":3,"depth":9,"wood":"Oak","finish":"Satin","edge":"square","light":"Warm white"}'><span class="art-tag">Shown with LED lighting</span></div>
         <div class="product-head"><h3>Cologne display steps</h3><span class="from">from <b data-from="cologne"></b></span></div>
         <p>Tiered steps that lift every bottle into view, with optional LED lighting behind each row.</p>
-        <ul class="feat"><li>2 to 4 steps</li><li>LED lighting +$30</li><li>Oak or walnut veneer</li></ul>
+        <ul class="feat"><li>2 to 4 steps</li><li>LED lighting +$30</li><li>Oak, walnut, matte black or white</li></ul>
         <button class="btn btn-ghost" data-customize="cologne">Customize</button>
       </article>
       <article class="card product">
@@ -310,7 +311,7 @@
       </div>
       <div class="card controls">
         <div class="full"><label for="cType">Product</label><select id="cType"></select></div>
-        <div class="full"><span class="lbl">Wood <small id="woodNote"></small></span><div class="swatches" id="cWood" role="group" aria-label="Wood"></div></div>
+        <div class="full"><span class="lbl">Material <small id="woodNote"></small></span><div class="swatches" id="cWood" role="group" aria-label="Material"></div></div>
         <div><label for="cW">Width <b id="vW"></b></label><input type="range" id="cW"></div>
         <div><label for="cH"><span id="lH">Height</span> <b id="vH"></b></label><input type="range" id="cH"></div>
         <div><label for="cD">Depth <b id="vD"></b></label><input type="range" id="cD"></div>
@@ -368,7 +369,7 @@
 </footer>
 
 <!-- Bump ?v= whenever designer.js changes so browsers never pair a new page with an old cached script. -->
-<script src="designer.js?v=2"></script>
+<script src="designer.js?v=3"></script>
 
 </body>
 </html>

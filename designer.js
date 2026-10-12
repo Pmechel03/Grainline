@@ -3,11 +3,17 @@
    catalog cards and the designer preview always match. */
 
 /* ---------- data ---------- */
+// grain: how visible the wood grain is (0 = painted, no grain).
+// finish: the only finish a painted piece can have; natural woods use FINISHES.
 const WOODS = {
-  "Ash":    "#D7C19C",
-  "Oak":    "#C9A275",
-  "Walnut": "#6E4A31"
+  "Ash":         {hex: "#D7C19C", grain: 1,   material: "Solid ash"},
+  "Oak":         {hex: "#C9A275", grain: 1,   material: "Oak veneer"},
+  "Walnut":      {hex: "#6E4A31", grain: 1,   material: "Solid walnut"},
+  "Dark stain":  {hex: "#4B3020", grain: 0.4, material: "Walnut-stained poplar"},
+  "Matte black": {hex: "#2E2B29", grain: 0,   material: "Painted", finish: "Matte paint"},
+  "Matte white": {hex: "#ECE8E1", grain: 0,   material: "Painted", finish: "Matte paint"}
 };
+const PAINT_BASE = {led: "poplar", cologne: "birch plywood"};
 const FINISHES = ["Satin", "Matte", "Natural Oil"];
 const LIGHTS = {
   "None":       null,
@@ -19,13 +25,13 @@ const LIGHTS = {
 // opt is the product's one extra choice, stored on the spec under opt.key.
 const TYPES = {
   led:     {label: "LED floating shelf",    W: [12, 60], H: [1.5, 3, 0.25, "Thickness", "in"], D: [4, 10], edges: ["square", "rounded"],
-            woods: ["Ash", "Walnut"], material: "Solid hardwood",
+            woods: ["Ash", "Walnut", "Dark stain", "Matte black", "Matte white"],
             opt: {key: "light", label: "LED light", values: ["Warm white", "Cool white", "RGB"]}},
   cologne: {label: "Cologne display steps", W: [12, 36], H: [2, 4, 1, "Steps", "count"],         D: [6, 12], edges: ["square", "rounded"],
-            woods: ["Oak", "Walnut"], material: "Hardwood veneer",
+            woods: ["Oak", "Walnut", "Matte black", "Matte white"],
             opt: {key: "light", label: "LED light", values: ["None", "Warm white", "Cool white", "RGB"]}},
   charger: {label: "Charging station",      W: [8, 14],  H: [10, 16, 1, "Height", "in"],         D: [5, 8],  edges: ["square", "rounded"],
-            woods: ["Ash", "Walnut"], material: "Solid hardwood",
+            woods: ["Ash", "Walnut"],
             opt: {key: "pad", label: "Wireless charging pad", values: ["Included", "Not included"]}}
 };
 
@@ -35,12 +41,12 @@ const TYPES = {
    profitable, since hardware and LEDs cost about the same at any size. */
 const PRICING = {
   led: {
-    base: {Ash: 139, Walnut: 179}, min: 99,
+    base: {Ash: 139, Walnut: 179, "Dark stain": 125, "Matte black": 125, "Matte white": 125}, min: 99,
     size: (p, walnut) => (p.width - 36) * (walnut ? 4 : 2.5) + (p.depth - 8) * (walnut ? 9 : 6) + (p.height - 1.75) * 20,
     extras: p => p.light === "RGB" ? [["RGB lights", 15]] : []
   },
   cologne: {
-    base: {Oak: 79, Walnut: 95}, min: 59,
+    base: {Oak: 79, Walnut: 95, "Matte black": 79, "Matte white": 79}, min: 59,
     size: (p, walnut) => (p.width - 20) * (walnut ? 2.5 : 2) + (p.depth - 9) * 3 + (p.height - 3) * 18,
     extras: p => p.light !== "None" ? [[`LED lighting (${p.height - 1} strip${p.height > 2 ? "s" : ""})`, 10 + 10 * (p.height - 1)]] : []
   },
@@ -76,12 +82,12 @@ function shade(hex, amt) {
 let uid = 0;
 
 /* ---------- drawing ---------- */
-function grainDefs(id, hex, seed) {
+function grainDefs(id, hex, seed, strength = 1) {
   const r = rng(seed), dark = shade(hex, -0.3), light = shade(hex, 0.14);
   let paths = "";
-  for (let i = 0; i < 14; i++) {
+  for (let i = 0; i < (strength ? 14 : 0); i++) {
     const y = r() * 160, a = (r() - 0.5) * 18;
-    paths += `<path d="M-20 ${y.toFixed(1)} C 150 ${(y + a).toFixed(1)}, 450 ${(y - a).toFixed(1)}, 620 ${(y + a * 0.4).toFixed(1)}" stroke="${r() < 0.25 ? light : dark}" stroke-width="${(0.5 + r() * 1.8).toFixed(2)}" fill="none" opacity="${(0.22 + r() * 0.4).toFixed(2)}"/>`;
+    paths += `<path d="M-20 ${y.toFixed(1)} C 150 ${(y + a).toFixed(1)}, 450 ${(y - a).toFixed(1)}, 620 ${(y + a * 0.4).toFixed(1)}" stroke="${r() < 0.25 ? light : dark}" stroke-width="${(0.5 + r() * 1.8).toFixed(2)}" fill="none" opacity="${((0.22 + r() * 0.4) * strength).toFixed(2)}"/>`;
   }
   return `<pattern id="${id}" patternUnits="userSpaceOnUse" width="600" height="160"><rect width="600" height="160" fill="${hex}"/>${paths}</pattern>`;
 }
@@ -106,13 +112,13 @@ function bottle(x, base, h, w, glass, cap) {
 }
 
 function render(p) {
-  const id = "w" + (++uid), hex = WOODS[p.wood] || WOODS.Walnut;
+  const wood = WOODS[p.wood] || WOODS.Walnut, id = "w" + (++uid), hex = wood.hex;
   const seed = hashStr(p.type + p.wood + p.width);
-  const sheen = {"Natural Oil": 0.2, "Satin": 0.12, "Matte": 0.04}[p.finish] ?? 0.1;
+  const sheen = {"Natural Oil": 0.2, "Satin": 0.12, "Matte": 0.04, "Matte paint": 0.03}[p.finish] ?? 0.1;
   const colors = LIGHTS[p.light];
   const G = `url(#${id}g)`, S = `url(#${id}s)`, D = `url(#${id}d)`;
   const top = shade(hex, 0.12), side = shade(hex, -0.2), dark = shade(hex, -0.5);
-  let defs = grainDefs(id + "g", hex, seed) +
+  let defs = grainDefs(id + "g", hex, seed, wood.grain) +
     `<linearGradient id="${id}s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="${sheen}"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></linearGradient>
      <filter id="${id}d" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#1a0f08" flood-opacity=".3"/></filter>`;
   if (colors) defs += lightDefs(id, colors);
@@ -220,7 +226,8 @@ function clampSpec(p) {
   out.height = cl(out.height, t.H[0], t.H[1], t.H[2]);
   out.depth = cl(out.depth, t.D[0], t.D[1], 1);
   if (!t.woods.includes(out.wood)) out.wood = t.woods[0];
-  if (!FINISHES.includes(out.finish)) out.finish = "Satin";
+  if (WOODS[out.wood].finish) out.finish = WOODS[out.wood].finish;
+  else if (!FINISHES.includes(out.finish)) out.finish = "Satin";
   if (!t.edges.includes(out.edge)) out.edge = t.edges[0];
   out.light = t.opt.key === "light" && t.opt.values.includes(out.light) ? out.light : (t.opt.key === "light" ? t.opt.values[0] : "None");
   out.pad = t.opt.key === "pad" && t.opt.values.includes(out.pad) ? out.pad : (t.opt.key === "pad" ? t.opt.values[0] : undefined);
@@ -238,7 +245,6 @@ const DEFAULTS = {
 let spec = clampSpec(DEFAULTS.led);
 
 $("#cType").innerHTML = Object.entries(TYPES).map(([k, t]) => `<option value="${k}">${t.label}</option>`).join("");
-$("#cFinish").innerHTML = FINISHES.map(f => `<option>${f}</option>`).join("");
 
 const fmtH = (t, v) => t.H[4] === "count" ? String(v) : inch(v);
 const cap = s => s[0].toUpperCase() + s.slice(1);
@@ -251,19 +257,26 @@ function syncControls() {
   setR($("#cH"), t.H[0], t.H[1], t.H[2], spec.height);
   setR($("#cD"), t.D[0], t.D[1], 1, spec.depth);
   $("#lH").textContent = t.H[3];
-  $("#cFinish").value = spec.finish;
-  $("#woodNote").textContent = t.material;
-  $("#cWood").innerHTML = t.woods.map(k => `<button type="button" aria-pressed="${k === spec.wood}" data-w="${k}"><i style="background:${WOODS[k]}"></i>${k}</button>`).join("");
+  // Painted pieces have one finish, so the finish menu shows it and locks.
+  const fixed = WOODS[spec.wood].finish;
+  $("#cFinish").innerHTML = (fixed ? [fixed] : FINISHES).map(f => `<option>${f}</option>`).join("");
+  $("#cFinish").value = spec.finish; $("#cFinish").disabled = !!fixed;
+  $("#woodNote").textContent = materialOf(spec);
+  $("#cWood").innerHTML = t.woods.map(k => `<button type="button" aria-pressed="${k === spec.wood}" data-w="${k}"><i style="background:${WOODS[k].hex}"></i>${k}</button>`).join("");
   $("#cEdge").innerHTML = t.edges.map(e => `<button type="button" aria-pressed="${e === spec.edge}" data-e="${e}">${cap(e)}</button>`).join("");
   $("#optLabel").textContent = t.opt.label;
   $("#cOpt").innerHTML = t.opt.values.map(v => `<button type="button" aria-pressed="${v === spec[t.opt.key]}" data-o="${v}">${v}</button>`).join("");
+}
+function materialOf(p) {
+  const w = WOODS[p.wood];
+  return w.material === "Painted" ? `Painted ${PAINT_BASE[p.type]}` : w.material;
 }
 function optText(p) {
   const t = TYPES[p.type];
   return t.opt.key === "light" ? (p.light === "None" ? "No LED" : `${p.light} LED`) : `Charging pad ${p.pad === "Included" ? "included" : "not included"}`;
 }
 function summary() {
-  return `${TYPES[spec.type].label}: ${dimsText(spec)}, ${spec.wood}, ${spec.finish} finish, ${spec.edge} edge, ${optText(spec).toLowerCase()}. Estimated price ${money(priceOf(spec).total)} plus shipping.`;
+  return `${TYPES[spec.type].label}: ${dimsText(spec)}, ${spec.wood} (${materialOf(spec).toLowerCase()}), ${spec.finish.toLowerCase()} finish, ${spec.edge} edge, ${optText(spec).toLowerCase()}. Estimated price ${money(priceOf(spec).total)} plus shipping.`;
 }
 function draw() {
   const t = TYPES[spec.type], stage = $("#stage");
@@ -272,7 +285,7 @@ function draw() {
   stage.classList.toggle("lit", !!LIGHTS[spec.light]);
   $("#vW").textContent = inch(spec.width); $("#vH").textContent = fmtH(t, spec.height); $("#vD").textContent = inch(spec.depth);
   $("#dimTag").textContent = dimsText(spec);
-  const rows = [["Wood", `${spec.wood}`], ["Finish", spec.finish], ["Edge", cap(spec.edge)], [t.opt.key === "light" ? "LED" : "Charging", t.opt.key === "light" ? spec.light : spec.pad]];
+  const rows = [["Material", spec.wood], ["Finish", spec.finish], ["Edge", cap(spec.edge)], [t.opt.key === "light" ? "LED" : "Charging", t.opt.key === "light" ? spec.light : spec.pad]];
   $("#spec").innerHTML = rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("");
   const pr = priceOf(spec);
   $("#total").textContent = money(pr.total);
@@ -284,7 +297,7 @@ $("#cW").oninput = e => { spec.width = +e.target.value; draw(); };
 $("#cH").oninput = e => { spec.height = +e.target.value; draw(); };
 $("#cD").oninput = e => { spec.depth = +e.target.value; draw(); };
 $("#cFinish").onchange = e => { spec.finish = e.target.value; draw(); };
-$("#cWood").onclick = e => { const b = e.target.closest("[data-w]"); if (!b) return; spec.wood = b.dataset.w; syncControls(); draw(); };
+$("#cWood").onclick = e => { const b = e.target.closest("[data-w]"); if (!b) return; spec = clampSpec({...spec, wood: b.dataset.w}); syncControls(); draw(); };
 $("#cEdge").onclick = e => { const b = e.target.closest("[data-e]"); if (!b) return; spec.edge = b.dataset.e; syncControls(); draw(); };
 $("#cOpt").onclick = e => { const b = e.target.closest("[data-o]"); if (!b) return; spec[TYPES[spec.type].opt.key] = b.dataset.o; syncControls(); draw(); };
 
