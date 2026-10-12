@@ -3,18 +3,18 @@
    catalog cards and the designer preview always match. */
 
 /* ---------- data ---------- */
-// grain: how visible the wood grain is (0 = painted, no grain).
-// finish: the only finish a painted piece can have; natural woods use FINISHES.
+// Every product offers the same five materials. grain: how visible the wood
+// grain is (0 = painted). finish: the one finish each material gets.
+// material: what it's really made of, for solid-wood pieces and for the
+// veneer-plywood cologne steps.
 const WOODS = {
-  "Ash":         {hex: "#D7C19C", grain: 1,   material: "Solid ash"},
-  "Oak":         {hex: "#C9A275", grain: 1,   material: "Oak veneer"},
-  "Walnut":      {hex: "#6E4A31", grain: 1,   material: "Solid walnut"},
-  "Dark stain":  {hex: "#4B3020", grain: 0.4, material: "Walnut-stained poplar"},
-  "Matte black": {hex: "#2E2B29", grain: 0,   material: "Painted", finish: "Matte paint"},
-  "Matte white": {hex: "#ECE8E1", grain: 0,   material: "Painted", finish: "Matte paint"}
+  "Oak":         {hex: "#C9A275", grain: 1,   finish: "Hardwax oil",   material: {solid: "Solid red oak",          veneer: "Oak veneer"}},
+  "Walnut":      {hex: "#6E4A31", grain: 1,   finish: "Hardwax oil",   material: {solid: "Solid walnut",           veneer: "Walnut veneer"}},
+  "Dark stain":  {hex: "#4B3020", grain: 0.4, finish: "Stain + satin", material: {solid: "Walnut-stained poplar",  veneer: "Stained oak veneer"}},
+  "Matte black": {hex: "#2E2B29", grain: 0,   finish: "Matte paint",   material: {solid: "Painted poplar",         veneer: "Painted birch plywood"}},
+  "Matte white": {hex: "#ECE8E1", grain: 0,   finish: "Matte paint",   material: {solid: "Painted poplar",         veneer: "Painted birch plywood"}}
 };
-const PAINT_BASE = {led: "poplar", cologne: "birch plywood"};
-const FINISHES = ["Satin", "Matte", "Natural Oil"];
+const MATERIALS = Object.keys(WOODS);
 const LIGHTS = {
   "None":       null,
   "Warm white": ["#FFC46B"],
@@ -25,13 +25,13 @@ const LIGHTS = {
 // opt is the product's one extra choice, stored on the spec under opt.key.
 const TYPES = {
   led:     {label: "LED floating shelf",    W: [12, 60], H: [1.5, 3, 0.25, "Thickness", "in"], D: [4, 10], edges: ["square", "rounded"],
-            woods: ["Ash", "Walnut", "Dark stain", "Matte black", "Matte white"],
+            build: "solid",
             opt: {key: "light", label: "LED light", values: ["Warm white", "Cool white", "RGB"]}},
   cologne: {label: "Cologne display steps", W: [12, 36], H: [2, 4, 1, "Steps", "count"],         D: [6, 12], edges: ["square", "rounded"],
-            woods: ["Oak", "Walnut", "Matte black", "Matte white"],
+            build: "veneer",
             opt: {key: "light", label: "LED light", values: ["None", "Warm white", "Cool white", "RGB"]}},
   charger: {label: "Charging station",      W: [8, 14],  H: [10, 16, 1, "Height", "in"],         D: [5, 8],  edges: ["square", "rounded"],
-            woods: ["Ash", "Walnut"],
+            build: "solid",
             opt: {key: "pad", label: "Wireless charging pad", values: ["Included", "Not included"]}}
 };
 
@@ -41,17 +41,18 @@ const TYPES = {
    profitable, since hardware and LEDs cost about the same at any size. */
 const PRICING = {
   led: {
-    base: {Ash: 139, Walnut: 179, "Dark stain": 125, "Matte black": 125, "Matte white": 125}, min: 99,
+    base: {Oak: 139, Walnut: 179, "Dark stain": 125, "Matte black": 125, "Matte white": 125}, min: 99,
     size: (p, walnut) => (p.width - 36) * (walnut ? 4 : 2.5) + (p.depth - 8) * (walnut ? 9 : 6) + (p.height - 1.75) * 20,
     extras: p => p.light === "RGB" ? [["RGB lights", 15]] : []
   },
   cologne: {
-    base: {Oak: 79, Walnut: 95, "Matte black": 79, "Matte white": 79}, min: 59,
+    base: {Oak: 79, Walnut: 95, "Dark stain": 79, "Matte black": 79, "Matte white": 79}, min: 59,
     size: (p, walnut) => (p.width - 20) * (walnut ? 2.5 : 2) + (p.depth - 9) * 3 + (p.height - 3) * 18,
     extras: p => p.light !== "None" ? [[`LED lighting (${p.height - 1} strip${p.height > 2 ? "s" : ""})`, 10 + 10 * (p.height - 1)]] : []
   },
   charger: {
-    base: {Ash: 109, Walnut: 129}, min: 79,
+    // Poplar barely saves money on a piece this small, and painting adds work, so finishes cost the same as oak.
+    base: {Oak: 109, Walnut: 129, "Dark stain": 109, "Matte black": 109, "Matte white": 109}, min: 79,
     size: p => (p.width - 11) * 4 + (p.height - 13) * 3 + (p.depth - 6) * 4,
     extras: p => p.pad === "Not included" ? [["Without charging pad", -24]] : []
   }
@@ -112,9 +113,9 @@ function bottle(x, base, h, w, glass, cap) {
 }
 
 function render(p) {
-  const wood = WOODS[p.wood] || WOODS.Walnut, id = "w" + (++uid), hex = wood.hex;
+  const wood = WOODS[p.wood] || WOODS.Oak, id = "w" + (++uid), hex = wood.hex;
   const seed = hashStr(p.type + p.wood + p.width);
-  const sheen = {"Natural Oil": 0.2, "Satin": 0.12, "Matte": 0.04, "Matte paint": 0.03}[p.finish] ?? 0.1;
+  const sheen = {"Hardwax oil": 0.16, "Stain + satin": 0.12, "Matte paint": 0.03}[wood.finish] ?? 0.1;
   const colors = LIGHTS[p.light];
   const G = `url(#${id}g)`, S = `url(#${id}s)`, D = `url(#${id}d)`;
   const top = shade(hex, 0.12), side = shade(hex, -0.2), dark = shade(hex, -0.5);
@@ -225,9 +226,8 @@ function clampSpec(p) {
   out.width = cl(out.width, t.W[0], t.W[1], 1);
   out.height = cl(out.height, t.H[0], t.H[1], t.H[2]);
   out.depth = cl(out.depth, t.D[0], t.D[1], 1);
-  if (!t.woods.includes(out.wood)) out.wood = t.woods[0];
-  if (WOODS[out.wood].finish) out.finish = WOODS[out.wood].finish;
-  else if (!FINISHES.includes(out.finish)) out.finish = "Satin";
+  if (!WOODS[out.wood]) out.wood = "Oak";
+  out.finish = WOODS[out.wood].finish;
   if (!t.edges.includes(out.edge)) out.edge = t.edges[0];
   out.light = t.opt.key === "light" && t.opt.values.includes(out.light) ? out.light : (t.opt.key === "light" ? t.opt.values[0] : "None");
   out.pad = t.opt.key === "pad" && t.opt.values.includes(out.pad) ? out.pad : (t.opt.key === "pad" ? t.opt.values[0] : undefined);
@@ -238,9 +238,9 @@ function clampSpec(p) {
 // "Request this design" opens an email to this address with the design filled in.
 const QUOTE_EMAIL = "creationsgrainline@gmail.com";
 const DEFAULTS = {
-  led:     {type: "led", width: 36, height: 1.75, depth: 8, wood: "Ash", finish: "Natural Oil", edge: "square", light: "Warm white"},
-  cologne: {type: "cologne", width: 20, height: 3, depth: 9, wood: "Oak", finish: "Satin", edge: "square", light: "None"},
-  charger: {type: "charger", width: 11, height: 13, depth: 6, wood: "Ash", finish: "Matte", edge: "rounded", pad: "Included"}
+  led:     {type: "led", width: 36, height: 1.75, depth: 8, wood: "Oak", edge: "square", light: "Warm white"},
+  cologne: {type: "cologne", width: 20, height: 3, depth: 9, wood: "Oak", edge: "square", light: "None"},
+  charger: {type: "charger", width: 11, height: 13, depth: 6, wood: "Oak", edge: "rounded", pad: "Included"}
 };
 let spec = clampSpec(DEFAULTS.led);
 
@@ -257,19 +257,14 @@ function syncControls() {
   setR($("#cH"), t.H[0], t.H[1], t.H[2], spec.height);
   setR($("#cD"), t.D[0], t.D[1], 1, spec.depth);
   $("#lH").textContent = t.H[3];
-  // Painted pieces have one finish, so the finish menu shows it and locks.
-  const fixed = WOODS[spec.wood].finish;
-  $("#cFinish").innerHTML = (fixed ? [fixed] : FINISHES).map(f => `<option>${f}</option>`).join("");
-  $("#cFinish").value = spec.finish; $("#cFinish").disabled = !!fixed;
   $("#woodNote").textContent = materialOf(spec);
-  $("#cWood").innerHTML = t.woods.map(k => `<button type="button" aria-pressed="${k === spec.wood}" data-w="${k}"><i style="background:${WOODS[k].hex}"></i>${k}</button>`).join("");
+  $("#cWood").innerHTML = MATERIALS.map(k => `<button type="button" aria-pressed="${k === spec.wood}" data-w="${k}"><i style="background:${WOODS[k].hex}"></i>${k}</button>`).join("");
   $("#cEdge").innerHTML = t.edges.map(e => `<button type="button" aria-pressed="${e === spec.edge}" data-e="${e}">${cap(e)}</button>`).join("");
   $("#optLabel").textContent = t.opt.label;
   $("#cOpt").innerHTML = t.opt.values.map(v => `<button type="button" aria-pressed="${v === spec[t.opt.key]}" data-o="${v}">${v}</button>`).join("");
 }
 function materialOf(p) {
-  const w = WOODS[p.wood];
-  return w.material === "Painted" ? `Painted ${PAINT_BASE[p.type]}` : w.material;
+  return WOODS[p.wood].material[TYPES[p.type].build];
 }
 function optText(p) {
   const t = TYPES[p.type];
@@ -292,11 +287,10 @@ function draw() {
   $("#lines").innerHTML = pr.lines.map(([k, v], i) => `<li><span>${esc(k)}</span><span>${i ? (v > 0 ? "+" : "") : ""}${money(v)}</span></li>`).join("");
   $("#quoteMsg").textContent = "";
 }
-$("#cType").onchange = e => setSpec({...DEFAULTS[e.target.value], finish: spec.finish});
+$("#cType").onchange = e => setSpec({...DEFAULTS[e.target.value], wood: spec.wood});
 $("#cW").oninput = e => { spec.width = +e.target.value; draw(); };
 $("#cH").oninput = e => { spec.height = +e.target.value; draw(); };
 $("#cD").oninput = e => { spec.depth = +e.target.value; draw(); };
-$("#cFinish").onchange = e => { spec.finish = e.target.value; draw(); };
 $("#cWood").onclick = e => { const b = e.target.closest("[data-w]"); if (!b) return; spec = clampSpec({...spec, wood: b.dataset.w}); syncControls(); draw(); };
 $("#cEdge").onclick = e => { const b = e.target.closest("[data-e]"); if (!b) return; spec.edge = b.dataset.e; syncControls(); draw(); };
 $("#cOpt").onclick = e => { const b = e.target.closest("[data-o]"); if (!b) return; spec[TYPES[spec.type].opt.key] = b.dataset.o; syncControls(); draw(); };
