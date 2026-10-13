@@ -5,6 +5,7 @@
   "scripts": {
     "studio": "remotion studio",
     "render": "remotion render Promo out/grainline-promo.mp4",
+    "render:tiktok": "remotion render TikTok out/grainline-tiktok.mp4",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
