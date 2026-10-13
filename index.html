@@ -3,541 +3,665 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Grainline Creations</title>
+<title>Grainline Creations · Solid wood, made to measure</title>
+<meta name="description" content="LED floating shelves, cologne display steps and charging stations, built by hand in oak, walnut and painted finishes and sized to your space.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect x='6' y='10' width='26' height='60' rx='4' fill='%237A4A26'/%3E%3Crect x='48' y='10' width='26' height='60' rx='4' fill='%237A4A26'/%3E%3Crect x='31' y='6' width='18' height='68' rx='9' fill='%23C08A3E'/%3E%3Cline x1='31' y1='29' x2='49' y2='29' stroke='%23F3ECE2' stroke-width='2'/%3E%3Cline x1='31' y1='51' x2='49' y2='51' stroke='%23F3ECE2' stroke-width='2'/%3E%3Ccircle cx='18' cy='24' r='3' fill='%23F3ECE2'/%3E%3Ccircle cx='18' cy='56' r='3' fill='%23F3ECE2'/%3E%3Ccircle cx='62' cy='24' r='3' fill='%23F3ECE2'/%3E%3Ccircle cx='62' cy='56' r='3' fill='%23F3ECE2'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;1,500&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --gl-espresso: #2B1D14;
-    --gl-walnut:   #7A4A26;
-    --gl-brass:    #C08A3E;
-    --gl-copper:   #9A5F2B;
-    --gl-rust:     #A0662E;
-    --gl-sand:     #D9B892;
-    --gl-cream:    #F3ECE2;
-    --gl-linen:    #FBF7F1;
-    --gl-serif: 'Fraunces', serif;
-    --gl-sans:  'Sora', sans-serif;
-    --shadow-sm: 0 2px 6px rgba(43,29,20,0.06);
-    --shadow-md: 0 18px 36px -18px rgba(43,29,20,0.35);
-    --shadow-lg: 0 34px 64px -26px rgba(43,29,20,0.5);
+    --paper:  #F5F2EC;   /* page */
+    --oat:    #ECE7DF;   /* image tiles, quiet fills */
+    --white:  #FDFCFA;   /* raised surfaces */
+    --ink:    #1D1B18;   /* text, primary buttons */
+    --muted:  #645E55;   /* secondary text */
+    --line:   #DCD5CA;   /* hairlines */
+    --wood:   #8B5E34;   /* the one accent, used sparingly */
+    --night:  #241C17;   /* matches the dark wall behind lit drawings */
+    --night-text: #BFB4A5;
+    --serif: 'Newsreader', Georgia, serif;
+    --sans:  'Hanken Grotesk', system-ui, sans-serif;
+    --ease: cubic-bezier(.2,.7,.2,1);
   }
 
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
-  html { scroll-behavior: smooth; }
-  body {
-    margin: 0;
-    font-family: var(--gl-sans);
-    background: var(--gl-cream);
-    color: var(--gl-espresso);
-    line-height: 1.6;
-    position: relative;
-  }
-  /* A faint paper grain so flat color fields feel tactile, not flat-vector. */
-  body::before {
-    content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
-    opacity: .035; mix-blend-mode: multiply;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-  header, main, section, footer, .scrim, .cart { position: relative; z-index: 1; }
-  a { color: var(--gl-copper); text-decoration: none; }
-  h1, h2 { font-family: var(--gl-serif); }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body { margin: 0; font-family: var(--sans); font-size: 16px; line-height: 1.6; background: var(--paper); color: var(--ink); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  img, svg { display: block; }
+  :focus-visible { outline: 2px solid var(--wood); outline-offset: 3px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 0 40px; }
+  section[id] { scroll-margin-top: 72px; }
 
-  .reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); }
-  .reveal.in { opacity: 1; transform: translateY(0); }
-  .reveal-stagger.in > * { animation: glFadeUp .6s cubic-bezier(.2,.7,.2,1) both; }
-  .reveal-stagger.in > *:nth-child(2) { animation-delay: .08s; }
-  .reveal-stagger.in > *:nth-child(3) { animation-delay: .16s; }
-  .reveal-stagger.in > *:nth-child(4) { animation-delay: .24s; }
-  @keyframes glFadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-  @media (prefers-reduced-motion: reduce) {
-    .reveal, .reveal-stagger > * { opacity: 1 !important; transform: none !important; animation: none !important; transition: none !important; }
-  }
+  h1, h2, h3 { margin: 0; font-weight: 400; }
+  .display { font-family: var(--serif); font-weight: 300; letter-spacing: -0.02em; line-height: 1.04; }
+  h2.display { font-size: clamp(2rem, 3.6vw, 3.1rem); }
+  .label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .lede { color: var(--muted); font-size: 1.05rem; max-width: 46ch; margin: 0; }
 
-  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+  .reveal { opacity: 0; transform: translateY(16px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
+  .reveal.in { opacity: 1; transform: none; }
 
-  /* Nav */
-  header {
-    position: sticky; top: 0; z-index: 10;
-    background: rgba(243,236,226,0.88); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(43,29,20,0.08);
-  }
-  nav {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 0;
-  }
-  .brand { display: flex; align-items: center; gap: 10px; }
-  .brand svg { width: 36px; height: 36px; }
-  .brand span {
-    font-family: var(--gl-serif); font-weight: 500; font-size: 1.3rem; letter-spacing: -0.015em;
-  }
-  .nav-links { display: flex; gap: 32px; }
-  .nav-links a { position: relative; font-weight: 600; font-size: 0.95rem; color: var(--gl-espresso); padding-bottom: 2px; }
-  .nav-links a::after { content: ""; position: absolute; left: 0; right: 100%; bottom: -2px; height: 1.5px; background: var(--gl-brass); transition: right .25s cubic-bezier(.2,.7,.2,1); }
-  .nav-links a:hover { color: var(--gl-copper); }
-  .nav-links a:hover::after { right: 0; }
-  .nav-toggle { display: none; width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid rgba(43,29,20,0.15); background: transparent; cursor: pointer; margin-left: 10px; align-items: center; justify-content: center; }
-  .nav-toggle svg { width: 18px; height: 18px; }
-  .nav-toggle:hover { border-color: var(--gl-brass); }
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 0 28px; border: 1px solid transparent; border-radius: 2px; font: 500 0.95rem var(--sans); letter-spacing: 0.01em; text-decoration: none; cursor: pointer; transition: background .2s, color .2s, border-color .2s; }
+  .btn-dark { background: var(--ink); color: var(--paper); }
+  .btn-dark:hover { background: #3A352F; }
+  .btn-line { background: transparent; color: var(--ink); border-color: var(--ink); }
+  .btn-line:hover { background: var(--ink); color: var(--paper); }
+  .btn-light { background: var(--paper); color: var(--ink); }
+  .btn-light:hover { background: #fff; }
+  .btn-sm { min-height: 40px; padding: 0 18px; font-size: 0.88rem; }
+  .btn-block { width: 100%; }
+  .arrow-link { display: inline-flex; align-items: center; gap: 8px; font-weight: 500; text-decoration: none; border-bottom: 1px solid currentColor; padding-bottom: 2px; }
+  .arrow-link::after { content: "→"; transition: transform .2s var(--ease); }
+  .arrow-link:hover::after { transform: translateX(3px); }
+
+  /* Announcement + header */
+  .announce { background: var(--ink); color: #D9D1C5; font-size: 0.8rem; letter-spacing: 0.02em; text-align: center; padding: 9px 16px; }
+  .announce a { color: #fff; text-underline-offset: 3px; }
+  .site-header { position: sticky; top: 0; z-index: 30; background: rgba(245,242,236,0.94); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+  .nav { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 68px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; justify-self: start; }
+  .brand svg { width: 28px; height: 28px; }
+  .brand span { font-family: var(--serif); font-size: 1.4rem; font-weight: 400; letter-spacing: -0.01em; }
+  .nav-links { display: flex; gap: 36px; }
+  .nav-links a { font-size: 0.92rem; font-weight: 500; text-decoration: none; padding: 6px 0; border-bottom: 1px solid transparent; transition: border-color .2s; }
+  .nav-links a:hover { border-color: var(--ink); }
+  .nav-actions { justify-self: end; display: flex; align-items: center; gap: 6px; }
+  .cart-btn { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 4px 0 10px; border: 0; background: none; color: var(--ink); font: 500 0.92rem var(--sans); cursor: pointer; }
+  .cart-btn svg { width: 20px; height: 20px; }
+  .cart-count { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--ink); color: var(--paper); font-size: 0.72rem; display: inline-grid; place-items: center; font-variant-numeric: tabular-nums; }
+  .nav-toggle { display: none; width: 40px; height: 40px; border: 0; background: none; color: var(--ink); cursor: pointer; align-items: center; justify-content: center; }
+  .nav-toggle svg { width: 22px; height: 22px; }
 
   /* Hero */
-  .hero { padding: 88px 0 76px; overflow: hidden; }
-  .hero-grid { display: grid; grid-template-columns: 1fr 1.05fr; gap: 56px; align-items: center; }
+  .hero { background: var(--night); color: #F2EDE4; overflow: hidden; }
+  .hero-grid { display: grid; grid-template-columns: 5fr 7fr; align-items: center; gap: 24px; min-height: min(78vh, 720px); padding-block: 48px; }
   .hero-grid > * { min-width: 0; }
-  .eyebrow {
-    display: inline-flex; align-items: center; gap: 10px;
-    font-weight: 300; text-transform: uppercase; letter-spacing: 0.3em;
-    font-size: 0.8rem; color: var(--gl-copper); margin-bottom: 22px;
-  }
-  .eyebrow::before { content: ""; width: 22px; height: 1.5px; background: var(--gl-brass); }
-  .hero h1 {
-    font-weight: 500; letter-spacing: -0.015em;
-    font-size: clamp(2.5rem, 5.4vw, 4.1rem); margin: 0 0 22px; line-height: 1.08; text-wrap: balance;
-  }
-  .hero p {
-    max-width: 520px; margin: 0 0 36px; font-size: 1.15rem;
-    color: var(--gl-walnut);
-  }
-  .ctas { display: flex; flex-wrap: wrap; gap: 12px; }
-  .hero-art { position: relative; aspect-ratio: 480 / 340; border-radius: 22px; margin: 0; box-shadow: var(--shadow-lg), 0 0 0 1px rgba(43,29,20,0.08); }
-  .hero-art::before {
-    content: ""; position: absolute; z-index: -1; inset: -14%;
-    background: radial-gradient(closest-side, rgba(192,138,62,0.3), transparent 72%);
-    filter: blur(6px);
-  }
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center; padding: 14px 32px; border-radius: 8px;
-    font-weight: 600; font-size: 1rem; min-height: 44px; transition: background .2s, box-shadow .2s, transform .2s;
-  }
-  .btn:hover { transform: translateY(-1px); }
-  .btn-primary { background: var(--gl-walnut); color: var(--gl-cream); box-shadow: 0 14px 28px -14px rgba(122,74,38,0.65); }
-  .btn-primary:hover { background: var(--gl-espresso); box-shadow: 0 16px 32px -14px rgba(43,29,20,0.6); }
+  .hero .label { color: var(--night-text); }
+  .hero h1 { font-size: clamp(2.8rem, 5.6vw, 5rem); margin: 18px 0 22px; }
+  .hero p { color: var(--night-text); font-size: 1.1rem; max-width: 40ch; margin: 0 0 34px; }
+  .hero-ctas { display: flex; flex-wrap: wrap; align-items: center; gap: 28px; }
+  .hero-ctas .arrow-link { color: #F2EDE4; }
+  .hero-art { position: relative; aspect-ratio: 480 / 340; margin: 0 -24px 0 0; }
+  .hero-art svg { width: 100%; height: 100%; }
+  .hero-art figcaption { position: absolute; left: 50%; bottom: 4%; transform: translateX(-50%); white-space: nowrap; font-size: 0.82rem; color: var(--night-text); }
+  .hero-art figcaption b { color: #F2EDE4; font-weight: 500; }
 
-  /* Sections */
-  section { padding: 76px 0; }
-  h2 {
-    font-weight: 500; letter-spacing: -0.01em;
-    font-size: clamp(1.75rem, 3.2vw, 2.5rem); margin-bottom: 14px;
-  }
-  .section-intro { color: var(--gl-walnut); max-width: 560px; margin-bottom: 44px; font-size: 1.05rem; }
-  section:not(.hero) .eyebrow { margin-bottom: 12px; }
-  .eyebrow + h2 { margin-top: 0; }
+  /* Values */
+  .values { border-bottom: 1px solid var(--line); }
+  .values .wrap { display: grid; grid-template-columns: repeat(4, 1fr); }
+  .value { padding: 30px 28px 30px 0; }
+  .value + .value { padding-left: 28px; border-left: 1px solid var(--line); }
+  .value h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
+  .value p { margin: 0; font-size: 0.9rem; color: var(--muted); }
 
-  .grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
-  }
-  .card {
-    background: var(--gl-linen); border-radius: 16px; padding: 28px;
-    border: 1px solid rgba(43,29,20,0.06);
-  }
-  .card .mark { color: var(--gl-brass); font-size: 1.6rem; margin-bottom: 14px; }
-  .card h3 { margin: 0 0 8px; font-size: 1.1rem; }
-  .card p { margin: 0; font-size: 0.95rem; color: var(--gl-walnut); }
+  /* Section shells */
+  .block { padding: 112px 0; }
+  .block-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; margin-bottom: 56px; }
+  .block-head .label { margin-bottom: 14px; display: block; }
 
-  .about {
-    background: var(--gl-linen); border-radius: 20px; padding: 52px;
-    box-shadow: var(--shadow-sm);
-  }
-  .about h2 { margin-bottom: 20px; }
-  .about p { color: var(--gl-walnut); margin: 0 0 16px; font-size: 1.03rem; }
-  .about p:last-child { margin-bottom: 0; }
+  /* Collection */
+  .products { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px 28px; }
+  .product { display: flex; flex-direction: column; min-width: 0; }
+  .art { position: relative; aspect-ratio: 480 / 340; background: var(--oat); overflow: hidden; }
+  .art svg, .stage svg { width: 100%; height: 100%; }
+  .art.lit, .stage.lit { background: var(--night); }
+  .art-tag { position: absolute; left: 14px; top: 14px; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.02em; padding: 4px 10px; background: rgba(253,252,250,0.92); color: var(--ink); }
+  .product .art { cursor: pointer; transition: opacity .3s; }
+  .product .art:hover { opacity: .92; }
+  .product-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-top: 20px; }
+  .product-head h3 { font-family: var(--serif); font-size: 1.5rem; letter-spacing: -0.01em; }
+  .from { font-size: 0.9rem; color: var(--muted); white-space: nowrap; }
+  .from b { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+  .product > p { margin: 6px 0 14px; color: var(--muted); font-size: 0.95rem; }
+  .dots-row { display: flex; gap: 6px; margin-bottom: 16px; }
+  .dots-row i { width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.14); }
+  .facts { margin: 0 0 22px; border-top: 1px solid var(--line); }
+  .facts div { display: flex; justify-content: space-between; gap: 16px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 0.88rem; }
+  .facts dt { color: var(--muted); }
+  .facts dd { margin: 0; text-align: right; }
+  .card-actions { display: flex; gap: 10px; margin-top: auto; }
+  .card-actions .btn { flex: 1; }
 
-  .btn { cursor: pointer; border: 0; font-family: inherit; }
-  .btn-ghost { background: transparent; color: var(--gl-espresso); box-shadow: inset 0 0 0 1.5px rgba(43,29,20,0.18); padding: 10px 22px; }
-  .btn-ghost:hover { box-shadow: inset 0 0 0 1.5px var(--gl-brass); }
-  :focus-visible { outline: 2px solid var(--gl-brass); outline-offset: 2px; }
-
-  /* Product art */
-  .card.product { display: flex; flex-direction: column; gap: 12px; padding: 14px 14px 24px; border-radius: 18px; transition: transform .3s cubic-bezier(.2,.7,.2,1), box-shadow .3s cubic-bezier(.2,.7,.2,1); }
-  .card.product:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
-  .card.product > :not(.art) { margin-left: 10px; margin-right: 10px; }
-  .card.product .btn { align-self: flex-start; margin-top: auto; }
-  .product-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
-  .product-head h3 { margin: 0; font-family: var(--gl-serif); font-weight: 500; font-size: 1.2rem; }
-  .from { font-size: 0.85rem; color: var(--gl-copper); white-space: nowrap; }
-  .from b { font-size: 1.15rem; color: var(--gl-espresso); font-variant-numeric: tabular-nums; }
-  .feat { list-style: none; padding: 0; margin: 0 0 8px; display: flex; flex-direction: column; gap: 4px; font-size: 0.88rem; color: var(--gl-walnut); }
-  .feat li::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--gl-brass); margin-right: 10px; vertical-align: middle; }
-  .art { position: relative; background: linear-gradient(160deg, var(--gl-linen), var(--gl-cream)); border-radius: 12px; aspect-ratio: 4 / 3; overflow: hidden; margin-bottom: 4px; box-shadow: inset 0 0 0 1px rgba(43,29,20,0.05); }
-  .art-tag { position: absolute; left: 10px; top: 10px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.02em; padding: 4px 10px; border-radius: 999px; background: rgba(251,247,241,0.92); color: var(--gl-espresso); box-shadow: var(--shadow-sm); }
-  .hero-art .art-tag { left: 16px; top: auto; bottom: 16px; font-size: 0.78rem; }
-  section[id] { scroll-margin-top: 64px; }
-
-  /* Perks strip */
-  .perks { border-block: 1px solid rgba(43,29,20,0.08); background: var(--gl-linen); }
-  .perks-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 28px; padding-block: 20px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gl-walnut); }
-  .perks-row span { display: inline-flex; align-items: center; gap: 10px; }
-  .perks-row span::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--gl-brass); transform: rotate(45deg); flex: none; }
-  .art svg, .stage svg { width: 100%; height: 100%; display: block; }
-
-  /* Custom designer */
-  #custom { background: var(--gl-linen); }
-  .studio { display: grid; grid-template-columns: 1.15fr 1fr; gap: 32px; align-items: start; }
+  /* Custom studio */
+  #custom { background: var(--white); border-block: 1px solid var(--line); }
+  .studio { display: grid; grid-template-columns: 7fr 5fr; gap: 56px; align-items: start; }
   .studio > * { min-width: 0; }
-  .preview { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 90px; }
-  .stage { position: relative; background: linear-gradient(160deg, var(--gl-linen), var(--gl-cream)); border-radius: 16px; aspect-ratio: 480 / 340; overflow: hidden; box-shadow: var(--shadow-md), inset 0 0 0 1px rgba(43,29,20,0.05); }
-  .art.lit, .stage.lit { background: #241C17; }
-  .stage.lit .dimtag { color: var(--gl-sand); }
-  .dimtag { position: absolute; right: 14px; bottom: 12px; font-size: 0.85rem; color: var(--gl-walnut); font-variant-numeric: tabular-nums; }
-  .spec { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin: 0; background: rgba(43,29,20,0.1); border-radius: 10px; overflow: hidden; }
-  .spec div { background: var(--gl-linen); padding: 10px 12px; }
-  .spec dt { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gl-copper); }
-  .spec dd { margin: 2px 0 0; font-weight: 600; font-size: 0.92rem; overflow-wrap: anywhere; }
-  .price-card { background: linear-gradient(155deg, #33241A, var(--gl-espresso)); color: var(--gl-cream); border-radius: 16px; padding: 22px 24px; display: flex; flex-direction: column; gap: 12px; box-shadow: var(--shadow-md); }
-  .price-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px; }
-  .mini { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--gl-sand); }
-  .total { font-size: 2.4rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
-  .price-card .btn-primary { background: var(--gl-brass); color: var(--gl-espresso); }
-  .price-card .btn-primary:hover { background: var(--gl-sand); }
-  .lines { list-style: none; margin: 0; padding: 12px 0 0; border-top: 1px solid rgba(243,236,226,0.14); display: flex; flex-direction: column; gap: 6px; font-size: 0.88rem; }
-  .lines li { display: flex; justify-content: space-between; gap: 12px; color: rgba(243,236,226,0.8); font-variant-numeric: tabular-nums; }
-  .fine { margin: 0; font-size: 0.8rem; color: rgba(243,236,226,0.6); }
-  .controls .lbl small { font-weight: 400; color: var(--gl-copper); margin-left: 6px; }
-  .card.controls { background: var(--gl-cream); display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-  .controls .full { grid-column: 1 / -1; }
-  .controls label, .controls .lbl { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
-  .controls label b { font-variant-numeric: tabular-nums; color: var(--gl-copper); }
-  .controls select, .controls input[type=text] { width: 100%; font: inherit; padding: 10px 12px; border-radius: 8px; border: 1.5px solid rgba(43,29,20,0.15); background: var(--gl-linen); color: var(--gl-espresso); }
-  .info-btn { width: 20px; height: 20px; margin-left: 6px; padding: 0; border-radius: 50%; border: 1.5px solid var(--gl-brass); background: transparent; color: var(--gl-copper); font: italic 700 0.72rem Georgia, serif; line-height: 1; cursor: pointer; vertical-align: middle; }
-  .info-btn:hover, .info-btn[aria-expanded="true"] { background: var(--gl-brass); color: var(--gl-linen); }
-  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .mat-note { margin: 10px 0 0; font-size: 0.85rem; color: var(--gl-walnut); }
-  .mat-compare { margin-top: 12px; background: var(--gl-linen); border-radius: 10px; border: 1px solid rgba(43,29,20,0.08); }
-  .mat-row { padding: 10px 12px; border-top: 1px solid rgba(43,29,20,0.07); }
-  .mat-row:first-child { border-top: 0; }
-  .mat-row.on { background: rgba(192,138,62,0.12); }
-  .mat-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 0.88rem; }
-  .mat-top small { color: var(--gl-copper); font-size: 0.75rem; }
-  .mat-price { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .mat-meta { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 4px 0 0 22px; font-size: 0.78rem; color: var(--gl-walnut); }
-  .sw-dot { display: inline-block; flex: none; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); }
-  .dots { color: var(--gl-walnut); letter-spacing: 1px; white-space: nowrap; }
-  .dots i { font-style: normal; color: rgba(43,29,20,0.15); }
-  .controls input[type=range] { width: 100%; accent-color: var(--gl-walnut); }
-  .swatches, .seg { display: flex; flex-wrap: wrap; gap: 8px; }
-  .swatches button, .seg button { font: inherit; font-size: 0.88rem; cursor: pointer; color: var(--gl-espresso); background: var(--gl-linen); border: 1.5px solid rgba(43,29,20,0.15); border-radius: 999px; padding: 5px 12px; display: flex; align-items: center; gap: 8px; }
-  .seg button { border-radius: 8px; }
-  .swatches i { width: 20px; height: 20px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); }
-  .swatches button[aria-pressed="true"], .seg button[aria-pressed="true"] { border-color: var(--gl-brass); box-shadow: 0 0 0 1px var(--gl-brass); }
+  .preview { position: sticky; top: 92px; }
+  .stage { position: relative; aspect-ratio: 480 / 340; background: var(--oat); overflow: hidden; }
+  .dimtag { position: absolute; right: 16px; bottom: 14px; font-size: 0.82rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .stage.lit .dimtag { color: var(--night-text); }
+  .spec { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; border-bottom: 1px solid var(--line); }
+  .spec div { padding: 16px 16px 16px 0; }
+  .spec div + div { padding-left: 16px; border-left: 1px solid var(--line); }
+  .spec dt { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+  .spec dd { margin: 4px 0 0; font-size: 0.95rem; overflow-wrap: anywhere; }
 
-  /* Steps */
-  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
-  .step { position: relative; border-top: 2px solid var(--gl-walnut); padding-top: 20px; }
-  .step span { font-weight: 300; text-transform: uppercase; letter-spacing: 0.2em; font-size: 0.75rem; color: var(--gl-copper); }
-  .step h3 { margin: 8px 0 8px; font-size: 1.25rem; font-family: var(--gl-serif); font-weight: 500; }
-  .step p { margin: 0; color: var(--gl-walnut); font-size: 0.95rem; }
+  .config { display: flex; flex-direction: column; }
+  .config-top { padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+  .config-top .label { display: block; margin-bottom: 10px; }
+  .select-wrap select { width: 100%; appearance: none; -webkit-appearance: none; font: 400 1.6rem/1.2 var(--serif); letter-spacing: -0.01em; color: var(--ink); background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%231D1B18' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 0 center / 22px; border: 0; padding: 0 32px 0 0; cursor: pointer; }
+  .price-row { display: flex; align-items: baseline; gap: 12px; margin-top: 10px; }
+  .total { font-size: 1.5rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .price-row small { color: var(--muted); font-size: 0.85rem; }
 
-  @media (max-width: 860px) {
-    .hero-grid { grid-template-columns: 1fr; gap: 36px; }
-    .hero { padding: 40px 0 48px; }
-    .studio { grid-template-columns: 1fr; }
-    .preview { position: static; }
-  }
-  @media (max-width: 520px) {
-    .spec { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .card.controls { grid-template-columns: 1fr; }
-  }
+  .opt { padding: 22px 0; border-bottom: 1px solid var(--line); }
+  .opt-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+  .opt-head > span, .opt-head label { font-size: 0.9rem; font-weight: 600; }
+  .opt-head b { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .opt-head small { font-size: 0.82rem; color: var(--muted); }
+  .text-btn { border: 0; background: none; padding: 0; font: 500 0.82rem var(--sans); color: var(--ink); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 
-  /* Cart */
-  .cart-btn { display: inline-flex; align-items: center; gap: 8px; margin-left: 28px; padding: 8px 14px; border-radius: 999px; border: 1.5px solid rgba(43,29,20,0.15); background: var(--gl-linen); color: var(--gl-espresso); font: 600 0.92rem 'Sora', sans-serif; cursor: pointer; }
-  .cart-btn:hover { border-color: var(--gl-brass); }
-  .cart-btn svg { width: 18px; height: 18px; }
-  .cart-count { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--gl-brass); color: var(--gl-espresso); font-size: 0.75rem; display: inline-grid; place-items: center; font-variant-numeric: tabular-nums; }
-  .card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
-  .btn-sm { padding: 10px 18px; font-size: 0.92rem; }
-  .scrim { position: fixed; inset: 0; z-index: 40; background: rgba(43,29,20,0.45); }
-  .cart { position: fixed; top: 0; right: 0; bottom: 0; z-index: 41; width: min(440px, 100%); background: var(--gl-linen); display: flex; flex-direction: column; box-shadow: -20px 0 50px rgba(43,29,20,0.25); }
-  .cart-head { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid rgba(43,29,20,0.08); }
-  .cart-head h2 { margin: 0; font-size: 1.3rem; }
-  .x { border: 0; background: transparent; font-size: 1.8rem; line-height: 1; cursor: pointer; color: var(--gl-walnut); }
-  .cart-lines { flex: 1; overflow-y: auto; padding: 8px 24px; }
-  .cart-line { display: grid; grid-template-columns: 84px 1fr auto; gap: 14px; padding: 16px 0; border-bottom: 1px solid rgba(43,29,20,0.08); align-items: start; }
-  .cart-thumb { background: var(--gl-cream); border-radius: 8px; aspect-ratio: 480 / 340; overflow: hidden; }
-  .cart-thumb.lit { background: #241C17; }
-  .cart-thumb svg { width: 100%; height: 100%; display: block; }
-  .cart-info { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-  .cart-info b { font-size: 0.95rem; }
-  .cart-info small { font-size: 0.78rem; color: var(--gl-walnut); line-height: 1.45; }
-  .cart-price { font-weight: 700; font-variant-numeric: tabular-nums; }
-  .qty { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-variant-numeric: tabular-nums; }
-  .qty button:not(.link) { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid rgba(43,29,20,0.15); background: transparent; cursor: pointer; font-size: 1rem; color: var(--gl-espresso); }
-  .qty button:disabled { opacity: 0.4; cursor: default; }
-  .qty .link { margin-left: 8px; border: 0; background: none; padding: 0; color: var(--gl-copper); font: inherit; font-size: 0.8rem; text-decoration: underline; cursor: pointer; }
-  .cart-empty { text-align: center; padding: 48px 0; color: var(--gl-walnut); display: flex; flex-direction: column; align-items: center; gap: 12px; }
-  .cart-foot { padding: 20px 24px 24px; border-top: 1px solid rgba(43,29,20,0.08); display: flex; flex-direction: column; gap: 10px; }
-  .cart-total { display: flex; justify-content: space-between; font-weight: 700; font-size: 1.15rem; font-variant-numeric: tabular-nums; }
-  .fine-dark { margin: 0; font-size: 0.8rem; color: var(--gl-walnut); }
-  .cart-foot .btn { width: 100%; }
-  .cart-msg { margin: 0; font-size: 0.85rem; color: var(--gl-rust); }
-  .cart-msg:empty { display: none; }
-  body.no-scroll { overflow: hidden; }
+  .swatches { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+  .swatches button { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 0; border: 0; background: none; cursor: pointer; font: 400 0.78rem var(--sans); color: var(--muted); text-align: center; line-height: 1.25; }
+  .swatches i { width: 40px; height: 40px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.14), 0 0 0 3px var(--white), 0 0 0 4px transparent; transition: box-shadow .2s; }
+  .swatches button:hover i { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.14), 0 0 0 3px var(--white), 0 0 0 4px var(--line); }
+  .swatches button[aria-pressed="true"] { color: var(--ink); }
+  .swatches button[aria-pressed="true"] i { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.14), 0 0 0 3px var(--white), 0 0 0 4px var(--ink); }
+  .mat-note { margin: 16px 0 0; font-size: 0.88rem; color: var(--muted); }
 
-  .fine a { color: var(--gl-sand); text-decoration: underline; }
-  .fine-dark a { color: var(--gl-copper); text-decoration: underline; }
+  .mat-compare { margin-top: 16px; border-top: 1px solid var(--line); }
+  .mat-row { padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .mat-row:last-child { border-bottom: 0; }
+  .mat-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 0.9rem; }
+  .mat-row.on .mat-top b { text-decoration: underline; text-underline-offset: 3px; }
+  .mat-top small { color: var(--muted); font-size: 0.78rem; }
+  .mat-price { margin-left: auto; font-variant-numeric: tabular-nums; }
+  .mat-meta { display: flex; flex-wrap: wrap; gap: 2px 16px; margin: 4px 0 0 24px; font-size: 0.8rem; color: var(--muted); }
+  .sw-dot { display: inline-block; flex: none; width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); }
+  .dots { color: var(--ink); letter-spacing: 1px; white-space: nowrap; font-size: 0.7rem; }
+  .dots i { font-style: normal; color: var(--line); }
 
-  /* Support */
-  .support { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; background: var(--gl-linen); border-radius: 16px; padding: 44px; border: 1px solid rgba(43,29,20,0.06); }
-  .support > * { min-width: 0; }
-  .support p { color: var(--gl-walnut); margin: 0 0 22px; max-width: 46ch; }
-  .support .support-addr { margin: 14px 0 0; font-size: 0.88rem; }
-  .support-addr a { text-decoration: underline; overflow-wrap: anywhere; }
-  .topics { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-  .topics a { display: flex; flex-direction: column; padding: 14px 18px; border-radius: 10px; background: var(--gl-cream); color: var(--gl-espresso); border: 1.5px solid transparent; transition: border-color .2s; }
-  .topics a:hover { border-color: var(--gl-brass); }
-  .topics b { font-size: 0.95rem; }
-  .topics b::after { content: " →"; color: var(--gl-copper); }
-  .topics span { font-size: 0.82rem; color: var(--gl-walnut); }
-  @media (max-width: 760px) { .support { grid-template-columns: 1fr; padding: 28px; gap: 24px; } }
+  .ranges { display: grid; gap: 18px; }
+  .ranges label { display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; }
+  .ranges label b { font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; }
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; margin: 0; background: transparent; cursor: pointer; }
+  input[type=range]::-webkit-slider-runnable-track { height: 2px; background: var(--line); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; margin-top: -9px; border-radius: 50%; background: var(--white); border: 1.5px solid var(--ink); }
+  input[type=range]::-moz-range-track { height: 2px; background: var(--line); }
+  input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--white); border: 1.5px solid var(--ink); }
 
-  /* Email choice menu (contact.js) */
-  .mail-menu { position: fixed; z-index: 60; width: 250px; padding: 8px; border-radius: 12px; background: var(--gl-linen); border: 1px solid rgba(43,29,20,0.12); box-shadow: 0 18px 40px -12px rgba(43,29,20,0.4); display: flex; flex-direction: column; }
-  .mail-menu-to { margin: 4px 10px 6px; font-size: 0.75rem; color: var(--gl-copper); overflow-wrap: anywhere; }
-  .mail-menu a, .mail-menu button { display: block; width: 100%; text-align: left; padding: 10px; border-radius: 8px; border: 0; background: none; font: 600 0.9rem 'Sora', sans-serif; color: var(--gl-espresso); text-decoration: none; cursor: pointer; }
-  .mail-menu a:hover, .mail-menu button:hover, .mail-menu a:focus-visible, .mail-menu button:focus-visible { background: var(--gl-cream); }
-  .mail-menu-msg { margin: 0 10px; font-size: 0.78rem; color: var(--gl-walnut); }
-  .mail-menu-msg:empty { display: none; }
+  .seg { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; }
+  .seg button { min-height: 44px; padding: 8px 10px; font: 400 0.88rem var(--sans); color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 2px; cursor: pointer; transition: border-color .2s; }
+  .seg button:hover { border-color: var(--muted); }
+  .seg button[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 0.5px var(--ink); }
+
+  .buy { padding-top: 24px; display: flex; flex-direction: column; gap: 16px; }
+  .breakdown summary { cursor: pointer; font-size: 0.88rem; font-weight: 500; list-style: none; display: flex; justify-content: space-between; }
+  .breakdown summary::-webkit-details-marker { display: none; }
+  .breakdown summary::after { content: "+"; font-weight: 400; }
+  .breakdown[open] summary::after { content: "−"; }
+  .lines { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 0.88rem; color: var(--muted); }
+  .lines li { display: flex; justify-content: space-between; gap: 12px; font-variant-numeric: tabular-nums; }
+  .assurances { list-style: none; margin: 0; padding: 16px 0 0; border-top: 1px solid var(--line); display: grid; gap: 6px; font-size: 0.85rem; color: var(--muted); }
+  .assurances a { color: var(--ink); text-underline-offset: 3px; }
+
+  /* Materials */
+  .materials { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px; }
+  .material { display: flex; flex-direction: column; min-width: 0; }
+  .material-swatch { aspect-ratio: 4 / 5; overflow: hidden; background: var(--oat); }
+  .material-swatch svg { width: 100%; height: 100%; }
+  .material h3 { font-family: var(--serif); font-size: 1.3rem; margin-top: 16px; }
+  .material .made { font-size: 0.82rem; color: var(--muted); margin: 2px 0 10px; }
+  .material p { margin: 0 0 12px; font-size: 0.88rem; color: var(--muted); }
+  .material .meta { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--line); display: flex; flex-direction: column; align-items: flex-start; gap: 8px; font-size: 0.8rem; color: var(--muted); }
+  .material .text-btn { font-size: 0.8rem; }
+
+  /* Process */
+  .process { background: var(--night); color: #F2EDE4; }
+  .process .label, .process .lede { color: var(--night-text); }
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; counter-reset: step; }
+  .step { border-top: 1px solid rgba(242,237,228,0.2); padding-top: 24px; }
+  .step::before { counter-increment: step; content: "0" counter(step); display: block; font-family: var(--serif); font-weight: 300; font-size: 3rem; line-height: 1; color: #E2C9A6; margin-bottom: 24px; }
+  .step h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; }
+  .step p { margin: 0; color: var(--night-text); font-size: 0.95rem; max-width: 34ch; }
+
+  /* Story */
+  .story { display: grid; grid-template-columns: 5fr 6fr; gap: 80px; align-items: start; }
+  .story .label { display: block; margin-bottom: 14px; }
+  .story-body p { margin: 0 0 18px; font-size: 1.08rem; color: var(--muted); max-width: 58ch; }
+  .story-body p:first-child { font-family: var(--serif); font-size: 1.55rem; line-height: 1.4; color: var(--ink); letter-spacing: -0.005em; }
+
+  /* FAQ + support */
+  #faq { border-top: 1px solid var(--line); }
+  .help { display: grid; grid-template-columns: 4fr 7fr; gap: 80px; align-items: start; }
+  .help-side { position: sticky; top: 100px; }
+  .help-side .label { display: block; margin-bottom: 14px; }
+  .help-side .lede { margin: 18px 0 28px; }
+  .support-addr { margin: 16px 0 0; font-size: 0.88rem; color: var(--muted); }
+  .support-addr a { overflow-wrap: anywhere; text-underline-offset: 3px; }
+  .topics { list-style: none; margin: 36px 0 0; padding: 0; border-top: 1px solid var(--line); }
+  .topics a { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); text-decoration: none; }
+  .topics a::after { content: "→"; transition: transform .2s var(--ease); }
+  .topics a:hover::after { transform: translateX(3px); }
+  .topics b { display: block; font-size: 0.92rem; font-weight: 500; }
+  .topics span { font-size: 0.82rem; color: var(--muted); }
+  .faq { border-top: 1px solid var(--ink); }
+  .faq details { border-bottom: 1px solid var(--line); }
+  .faq summary { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 22px 0; cursor: pointer; list-style: none; font-family: var(--serif); font-size: 1.3rem; letter-spacing: -0.005em; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: ""; flex: none; width: 12px; height: 12px; background: linear-gradient(var(--ink), var(--ink)) center / 12px 1.5px no-repeat, linear-gradient(var(--ink), var(--ink)) center / 1.5px 12px no-repeat; transition: transform .25s var(--ease); }
+  .faq details[open] summary::after { transform: rotate(45deg); }
+  .faq .answer { padding: 0 48px 24px 0; color: var(--muted); }
+  .faq .answer p { margin: 0 0 10px; }
+  .faq .answer a { color: var(--ink); text-underline-offset: 3px; }
 
   /* Footer */
-  footer { background: var(--gl-espresso); color: var(--gl-cream); padding: 68px 0 28px; }
-  footer .brand span { color: var(--gl-sand); font-family: var(--gl-serif); font-size: 1.35rem; font-weight: 500; }
-  .footer-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 48px; padding-bottom: 40px; border-bottom: 1px solid rgba(243,236,226,0.12); }
-  .footer-brand { max-width: 320px; }
-  .footer-tag { margin: 16px 0 0; font-size: 0.92rem; color: rgba(243,236,226,0.68); line-height: 1.65; }
-  .footer-cols { display: flex; gap: 56px; flex-wrap: wrap; }
-  .footer-col { display: flex; flex-direction: column; gap: 11px; min-width: 120px; }
-  .footer-head { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--gl-copper); margin-bottom: 3px; }
-  .footer-col a { color: var(--gl-sand); font-weight: 600; font-size: 0.92rem; transition: color .2s; }
-  .footer-col a:hover { color: var(--gl-cream); }
-  .footer-bottom { padding-top: 24px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-  footer .copyright { font-size: 0.82rem; color: rgba(243,236,226,0.55); }
+  footer { background: var(--ink); color: #D9D1C5; padding: 88px 0 32px; }
+  .footer-top { display: grid; grid-template-columns: 5fr 7fr; gap: 48px; padding-bottom: 64px; }
+  footer .brand span { color: #F2EDE4; }
+  .footer-tag { margin: 18px 0 0; font-family: var(--serif); font-size: 1.6rem; line-height: 1.3; color: #F2EDE4; max-width: 18ch; }
+  .footer-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+  .footer-col { display: flex; flex-direction: column; gap: 10px; }
+  .footer-head { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; color: #8F877C; margin-bottom: 6px; }
+  .footer-col a { font-size: 0.92rem; text-decoration: none; color: #D9D1C5; }
+  .footer-col a:hover { color: #fff; }
+  .footer-bottom { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding-top: 24px; border-top: 1px solid rgba(242,237,228,0.14); font-size: 0.8rem; color: #8F877C; }
+
+  /* Cart drawer */
+  .scrim { position: fixed; inset: 0; z-index: 40; background: rgba(29,27,24,0.4); }
+  .cart { position: fixed; top: 0; right: 0; bottom: 0; z-index: 41; width: min(460px, 100%); background: var(--white); display: flex; flex-direction: column; box-shadow: -24px 0 60px rgba(29,27,24,0.18); }
+  .cart-head { display: flex; justify-content: space-between; align-items: center; padding: 22px 28px; border-bottom: 1px solid var(--line); }
+  .cart-head h2 { font-family: var(--serif); font-size: 1.5rem; }
+  .x { width: 36px; height: 36px; border: 0; background: transparent; font-size: 1.6rem; line-height: 1; cursor: pointer; color: var(--ink); }
+  .cart-lines { flex: 1; overflow-y: auto; padding: 0 28px; }
+  .cart-line { display: grid; grid-template-columns: 92px 1fr auto; gap: 16px; padding: 20px 0; border-bottom: 1px solid var(--line); align-items: start; }
+  .cart-thumb { background: var(--oat); aspect-ratio: 480 / 340; overflow: hidden; }
+  .cart-thumb.lit { background: var(--night); }
+  .cart-thumb svg { width: 100%; height: 100%; }
+  .cart-info { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .cart-info b { font-weight: 500; font-size: 0.95rem; }
+  .cart-info small { font-size: 0.78rem; color: var(--muted); line-height: 1.45; }
+  .cart-price { font-variant-numeric: tabular-nums; }
+  .qty { display: flex; align-items: center; gap: 0; margin-top: 8px; font-variant-numeric: tabular-nums; }
+  .qty > span { min-width: 32px; text-align: center; font-size: 0.88rem; }
+  .qty button:not(.link) { width: 30px; height: 30px; border: 1px solid var(--line); background: transparent; cursor: pointer; font-size: 0.95rem; color: var(--ink); }
+  .qty button:disabled { opacity: 0.4; cursor: default; }
+  .qty .link { margin-left: 16px; border: 0; background: none; padding: 0; color: var(--muted); font: inherit; font-size: 0.8rem; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .cart-empty { text-align: center; padding: 64px 0; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .cart-empty p { margin: 0; }
+  .cart-foot { padding: 22px 28px 28px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; }
+  .cart-total { display: flex; justify-content: space-between; font-weight: 500; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+  .fine-dark { margin: 0; font-size: 0.8rem; color: var(--muted); }
+  .fine-dark a { color: var(--ink); text-underline-offset: 3px; }
+  body.no-scroll { overflow: hidden; }
+
+  /* Email choice menu (contact.js) */
+  .mail-menu { position: fixed; z-index: 60; width: 260px; padding: 8px; border-radius: 4px; background: var(--white); border: 1px solid var(--line); box-shadow: 0 20px 40px -16px rgba(29,27,24,0.35); display: flex; flex-direction: column; }
+  .mail-menu-to { margin: 4px 10px 6px; font-size: 0.75rem; color: var(--muted); overflow-wrap: anywhere; }
+  .mail-menu a, .mail-menu button { display: block; width: 100%; text-align: left; padding: 10px; border-radius: 2px; border: 0; background: none; font: 500 0.9rem var(--sans); color: var(--ink); text-decoration: none; cursor: pointer; }
+  .mail-menu a:hover, .mail-menu button:hover, .mail-menu a:focus-visible, .mail-menu button:focus-visible { background: var(--paper); }
+  .mail-menu-msg { margin: 0 10px; font-size: 0.78rem; color: var(--muted); }
+  .mail-menu-msg:empty { display: none; }
 
   @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .reveal { opacity: 1; transform: none; transition: none; }
     * { transition: none !important; }
-    .btn:hover, .card.product:hover { transform: none; }
   }
-  @media (max-width: 760px) {
-    .perks-row { justify-content: flex-start; }
+
+  @media (max-width: 1080px) {
+    .materials { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .story, .help { gap: 48px; }
+  }
+  @media (max-width: 900px) {
+    .wrap { padding-inline: 24px; }
+    .nav { grid-template-columns: 1fr auto; }
     .nav-toggle { display: inline-flex; }
     .nav-links {
-      position: absolute; top: 100%; left: 0; right: 0; z-index: 20;
-      flex-direction: column; gap: 0; padding: 6px 24px 18px;
-      background: var(--gl-cream); border-bottom: 1px solid rgba(43,29,20,0.08);
-      box-shadow: var(--shadow-md);
-      max-height: 0; overflow: hidden; opacity: 0;
-      transition: max-height .3s ease, opacity .25s ease;
+      position: absolute; top: 100%; left: 0; right: 0;
+      flex-direction: column; gap: 0; padding: 8px 24px 20px;
+      background: var(--paper); border-bottom: 1px solid var(--line);
+      visibility: hidden; opacity: 0; transform: translateY(-6px);
+      transition: opacity .2s, transform .2s, visibility .2s;
     }
-    header.nav-open .nav-links { max-height: 320px; opacity: 1; }
-    .nav-links a { padding: 12px 0; border-bottom: 1px solid rgba(43,29,20,0.06); }
-    .nav-links a::after { display: none; }
-    .cart-btn { margin-left: auto; }
-    .grid { grid-template-columns: 1fr; }
-    .steps { grid-template-columns: 1fr; }
-    .about { padding: 28px; }
+    .site-header.nav-open .nav-links { visibility: visible; opacity: 1; transform: none; }
+    .nav-links a { padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 1rem; }
+    .hero-grid { grid-template-columns: 1fr; min-height: 0; padding-block: 48px 8px; gap: 8px; }
+    .hero-art { margin: 0 -24px; }
+    .values .wrap { grid-template-columns: 1fr 1fr; }
+    .value:nth-child(3) { padding-left: 0; border-left: 0; }
+    .value:nth-child(n+3) { border-top: 1px solid var(--line); }
+    .block { padding: 80px 0; }
+    .block-head { flex-direction: column; align-items: flex-start; margin-bottom: 40px; }
+    .products { grid-template-columns: 1fr; gap: 56px; }
+    .studio { grid-template-columns: 1fr; gap: 32px; }
+    .preview { position: static; }
+    .materials { grid-template-columns: 1fr 1fr; gap: 32px 16px; }
+    .steps { grid-template-columns: 1fr; gap: 32px; }
+    .story, .help { grid-template-columns: 1fr; }
+    .help-side { position: static; }
+    .footer-top { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .wrap { padding-inline: 16px; }
+    .nav-links { padding-inline: 16px; }
+    .hero-art { margin: 0 -16px; }
+    .values .wrap { grid-template-columns: 1fr; }
+    .value, .value + .value { padding: 18px 0; border-left: 0; }
+    .value + .value { border-top: 1px solid var(--line); }
+    .spec { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .spec div:nth-child(3) { padding-left: 0; border-left: 0; }
+    .spec div:nth-child(n+3) { border-top: 1px solid var(--line); }
+    .swatches i { width: 36px; height: 36px; }
+      .footer-cols { grid-template-columns: 1fr 1fr; }
+    .cart-head, .cart-foot { padding-inline: 20px; }
+    .cart-lines { padding: 0 20px; }
+    .cart-line { grid-template-columns: 76px 1fr auto; gap: 12px; }
   }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="wrap">
-    <nav>
-      <div class="brand">
-        <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Grainline Creations">
-          <rect x="6"  y="10" width="26" height="60" rx="4" fill="#7A4A26"/>
-          <rect x="48" y="10" width="26" height="60" rx="4" fill="#7A4A26"/>
-          <rect x="31" y="6"  width="18" height="68" rx="9" fill="#C08A3E"/>
-          <line x1="31" y1="29" x2="49" y2="29" stroke="#F3ECE2" stroke-width="2"/>
-          <line x1="31" y1="51" x2="49" y2="51" stroke="#F3ECE2" stroke-width="2"/>
-          <circle cx="18" cy="24" r="3" fill="#F3ECE2"/><circle cx="18" cy="56" r="3" fill="#F3ECE2"/>
-          <circle cx="62" cy="24" r="3" fill="#F3ECE2"/><circle cx="62" cy="56" r="3" fill="#F3ECE2"/>
-        </svg>
-        <span>Grainline</span>
-      </div>
-      <div class="nav-links" id="navLinks">
-        <a href="#products">Products</a>
-        <a href="#custom">Custom</a>
-        <a href="#about">About</a>
-        <a href="#support">Support</a>
-      </div>
+<div class="announce">Every piece is made to order and built by hand. <a href="#custom">Design yours</a></div>
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="#top" aria-label="Grainline Creations, home">
+      <svg viewBox="0 0 80 80" aria-hidden="true">
+        <rect x="6"  y="10" width="26" height="60" rx="4" fill="#7A4A26"/>
+        <rect x="48" y="10" width="26" height="60" rx="4" fill="#7A4A26"/>
+        <rect x="31" y="6"  width="18" height="68" rx="9" fill="#C08A3E"/>
+        <line x1="31" y1="29" x2="49" y2="29" stroke="#F5F2EC" stroke-width="2"/>
+        <line x1="31" y1="51" x2="49" y2="51" stroke="#F5F2EC" stroke-width="2"/>
+        <circle cx="18" cy="24" r="3" fill="#F5F2EC"/><circle cx="18" cy="56" r="3" fill="#F5F2EC"/>
+        <circle cx="62" cy="24" r="3" fill="#F5F2EC"/><circle cx="62" cy="56" r="3" fill="#F5F2EC"/>
+      </svg>
+      <span>Grainline</span>
+    </a>
+    <nav class="nav-links" id="navLinks" aria-label="Main">
+      <a href="#products">Shop</a>
+      <a href="#custom">Custom studio</a>
+      <a href="#materials">Materials</a>
+      <a href="#story">Our story</a>
+      <a href="#faq">Help</a>
+    </nav>
+    <div class="nav-actions">
       <button type="button" class="cart-btn" id="cartBtn" aria-controls="cart">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 9V6a3 3 0 0 1 6 0v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        Cart <span class="cart-count" id="cartCount" hidden>0</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 7Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 9V6a3 3 0 0 1 6 0v3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span>Cart</span> <span class="cart-count" id="cartCount" hidden>0</span>
       </button>
       <button type="button" class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks" aria-label="Menu">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16M4 16h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       </button>
-    </nav>
+    </div>
   </div>
 </header>
 
+<main id="top">
+
 <section class="hero">
   <div class="wrap hero-grid">
-    <div class="hero-copy reveal-stagger in">
-      <div class="eyebrow">Modern Home &amp; Room Decor</div>
-      <h1>Real wood. Real hardware.<br>Built to last.</h1>
-      <p>Grainline Creations makes wood pieces and hardware where craftsmanship meets modern design — built by hand, backed by smart tools that make shopping easier.</p>
-      <div class="ctas">
-        <a href="#products" class="btn btn-primary">Shop the collection</a>
-        <a href="#custom" class="btn btn-ghost">Design your own</a>
+    <div>
+      <span class="label">Modern home &amp; room decor</span>
+      <h1 class="display">Solid wood,<br>made to measure.</h1>
+      <p>LED shelves, cologne displays and charging stations, built by hand in oak, walnut and painted finishes, and sized to the inch for your space.</p>
+      <div class="hero-ctas">
+        <a href="#custom" class="btn btn-light">Design your own</a>
+        <a href="#products" class="arrow-link">Shop the collection</a>
       </div>
     </div>
-    <div class="hero-art art lit reveal in" data-art='{"type":"led","width":36,"height":2,"depth":8,"wood":"Walnut","finish":"Satin","edge":"square","light":"Warm white"}'>
-      <span class="art-tag">LED floating shelf · Walnut</span>
-    </div>
+    <figure class="hero-art" data-art='{"type":"led","width":36,"height":2,"depth":8,"wood":"Walnut","edge":"square","light":"Warm white"}'>
+      <figcaption><b>LED floating shelf</b> in walnut, warm white</figcaption>
+    </figure>
   </div>
 </section>
 
-<div class="perks">
-  <div class="wrap perks-row">
-    <span>Made to order</span><span>Hand-finished</span><span>Sized to your space</span><span>Built by hand in small batches</span>
+<div class="values">
+  <div class="wrap">
+    <div class="value"><h3>Made to order</h3><p>Each piece is built after you order it.</p></div>
+    <div class="value"><h3>Sized to the inch</h3><p>Set the width, depth and height yourself.</p></div>
+    <div class="value"><h3>Five finishes</h3><p>Oak, walnut, dark stain, matte black or white.</p></div>
+    <div class="value"><h3>Hidden mounting</h3><p>Shelves hang on a concealed wall bracket.</p></div>
   </div>
 </div>
 
-<section id="products">
-  <div class="wrap reveal-stagger">
-    <div class="eyebrow">The collection</div>
-    <h2>What we make</h2>
-    <p class="section-intro">Our first three pieces, each in oak, walnut, dark stain, matte black or matte white, made to your size in the designer below.</p>
-    <div class="grid">
-      <article class="card product">
-        <div class="art" data-art='{"type":"led","width":36,"height":1.75,"depth":8,"wood":"Oak","edge":"square","light":"Warm white"}'><span class="art-tag">Oak · Walnut · Dark stain · Black · White</span></div>
-        <div class="product-head"><h3>LED floating shelf</h3><span class="from">from <b data-from="led"></b></span></div>
-        <p>A solid wood shelf with an LED strip tucked underneath that washes the wall below in light.</p>
-        <ul class="feat"><li>Warm white, cool white or RGB</li><li>Natural wood or matte black from $125</li><li>Hidden wall bracket, 12″ to 60″ wide</li></ul>
-        <div class="card-actions"><button class="btn btn-primary btn-sm" data-add="led">Add to cart</button><button class="btn btn-ghost btn-sm" data-customize="led">Customize</button></div>
+<section id="products" class="block">
+  <div class="wrap">
+    <div class="block-head reveal">
+      <div>
+        <span class="label">The collection</span>
+        <h2 class="display">Three pieces, made well.</h2>
+      </div>
+      <p class="lede">Each comes in five finishes at a standard size, or made to your measurements in the custom studio.</p>
+    </div>
+    <div class="products reveal">
+      <article class="product">
+        <div class="art" data-art='{"type":"led","width":36,"height":1.75,"depth":8,"wood":"Oak","edge":"square","light":"Warm white"}' data-customize="led"></div>
+        <div class="product-head"><h3>LED floating shelf</h3><span class="from">From <b data-from="led"></b></span></div>
+        <p>Solid wood with an LED strip tucked underneath that washes the wall in light.</p>
+        <div class="dots-row" data-swatches aria-hidden="true"></div>
+        <dl class="facts">
+          <div><dt>Width</dt><dd>12″ to 60″</dd></div>
+          <div><dt>Light</dt><dd>Warm white, cool white or RGB</dd></div>
+          <div><dt>Mounting</dt><dd>Hidden wall bracket</dd></div>
+        </dl>
+        <div class="card-actions"><button class="btn btn-dark btn-sm" data-customize="led">Customize</button><button class="btn btn-line btn-sm" data-add="led">Add to cart</button></div>
       </article>
-      <article class="card product">
-        <div class="art" data-art='{"type":"cologne","width":20,"height":3,"depth":9,"wood":"Oak","edge":"square","light":"Warm white"}'><span class="art-tag">Shown with LED lighting</span></div>
-        <div class="product-head"><h3>Cologne display steps</h3><span class="from">from <b data-from="cologne"></b></span></div>
-        <p>Tiered steps that lift every bottle into view, with optional LED lighting behind each row.</p>
-        <ul class="feat"><li>2 to 4 steps</li><li>LED lighting +$30</li><li>5 finishes, from oak to matte black</li></ul>
-        <div class="card-actions"><button class="btn btn-primary btn-sm" data-add="cologne">Add to cart</button><button class="btn btn-ghost btn-sm" data-customize="cologne">Customize</button></div>
+      <article class="product">
+        <div class="art" data-art='{"type":"cologne","width":20,"height":3,"depth":9,"wood":"Oak","edge":"square","light":"Warm white"}' data-customize="cologne"><span class="art-tag">Shown with LED lighting</span></div>
+        <div class="product-head"><h3>Cologne display steps</h3><span class="from">From <b data-from="cologne"></b></span></div>
+        <p>Tiered steps that lift every bottle into view, with optional light behind each row.</p>
+        <div class="dots-row" data-swatches aria-hidden="true"></div>
+        <dl class="facts">
+          <div><dt>Steps</dt><dd>2 to 4</dd></div>
+          <div><dt>Width</dt><dd>12″ to 36″</dd></div>
+          <div><dt>Lighting</dt><dd>Optional, +$30 for 3 steps</dd></div>
+        </dl>
+        <div class="card-actions"><button class="btn btn-dark btn-sm" data-customize="cologne">Customize</button><button class="btn btn-line btn-sm" data-add="cologne">Add to cart</button></div>
       </article>
-      <article class="card product">
-        <div class="art" data-art='{"type":"charger","width":11,"height":13,"depth":6,"wood":"Oak","edge":"rounded","pad":"Included"}'><span class="art-tag">Oak · Walnut · Dark stain · Black · White</span></div>
-        <div class="product-head"><h3>Charging station</h3><span class="from">from <b data-from="charger"></b></span></div>
-        <p>One stand for your headphones, watch and phone, with a tray for wireless charging, earbuds and your wallet.</p>
-        <ul class="feat"><li>Headphone arm and watch bar</li><li>15W wireless charging pad</li><li>$85 without the pad</li></ul>
-        <div class="card-actions"><button class="btn btn-primary btn-sm" data-add="charger">Add to cart</button><button class="btn btn-ghost btn-sm" data-customize="charger">Customize</button></div>
+      <article class="product">
+        <div class="art" data-art='{"type":"charger","width":11,"height":13,"depth":6,"wood":"Oak","edge":"rounded","pad":"Included"}' data-customize="charger"></div>
+        <div class="product-head"><h3>Charging station</h3><span class="from">From <b data-from="charger"></b></span></div>
+        <p>One stand for headphones, watch and phone, with a tray for wireless charging.</p>
+        <div class="dots-row" data-swatches aria-hidden="true"></div>
+        <dl class="facts">
+          <div><dt>Holds</dt><dd>Headphones, watch, phone</dd></div>
+          <div><dt>Charging</dt><dd>15W wireless pad</dd></div>
+          <div><dt>Without pad</dt><dd>$85</dd></div>
+        </dl>
+        <div class="card-actions"><button class="btn btn-dark btn-sm" data-customize="charger">Customize</button><button class="btn btn-line btn-sm" data-add="charger">Add to cart</button></div>
       </article>
     </div>
   </div>
 </section>
 
-<section id="custom">
-  <div class="wrap reveal-stagger">
-    <div class="eyebrow">Custom studio</div>
-    <h2>Design your own</h2>
-    <p class="section-intro">Pick a piece, then set the size, material and lighting. The preview and price update as you go.</p>
+<section id="custom" class="block">
+  <div class="wrap">
+    <div class="block-head reveal">
+      <div>
+        <span class="label">Custom studio</span>
+        <h2 class="display">Design it to fit.</h2>
+      </div>
+      <p class="lede">Choose a piece, then set the size, material and lighting. The preview and price update as you go.</p>
+    </div>
     <div class="studio">
       <div class="preview">
         <div class="stage" id="stage"><span class="dimtag" id="dimTag"></span></div>
         <dl class="spec" id="spec"></dl>
-        <div class="price-card">
-          <div class="price-top">
-            <div><div class="mini">Your price</div><div class="total" id="total"></div></div>
-            <button class="btn btn-primary" id="addBtn">Add to cart</button>
-          </div>
-          <ul class="lines" id="lines"></ul>
-          <p class="fine">Plus shipping. Made to order and built by hand. Need something the designer can't do? <a href="mailto:creationsgrainline@gmail.com?subject=Question%20about%20a%20custom%20piece">Email us</a>.</p>
-        </div>
       </div>
-      <div class="card controls">
-        <div class="full"><label for="cType">Product</label><select id="cType"></select></div>
-        <div class="full">
-          <span class="lbl">Material <small id="woodNote"></small>
-            <button type="button" class="info-btn" id="matInfoBtn" aria-expanded="false" aria-controls="matInfo" title="Compare materials"><span aria-hidden="true">i</span><span class="sr">Compare materials</span></button></span>
+      <div class="config">
+        <div class="config-top">
+          <label class="label" for="cType">Product</label>
+          <div class="select-wrap"><select id="cType"></select></div>
+          <div class="price-row"><span class="total" id="total"></span><small>Plus shipping</small></div>
+        </div>
+        <div class="opt">
+          <div class="opt-head">
+            <span>Material <small id="woodNote"></small></span>
+            <button type="button" class="text-btn" id="matInfoBtn" aria-expanded="false" aria-controls="matInfo">Compare materials</button>
+          </div>
           <div class="swatches" id="cWood" role="group" aria-label="Material"></div>
           <p class="mat-note" id="matNote"></p>
           <div class="mat-compare" id="matInfo" hidden></div>
         </div>
-        <div><label for="cW">Width <b id="vW"></b></label><input type="range" id="cW"></div>
-        <div><label for="cH"><span id="lH">Height</span> <b id="vH"></b></label><input type="range" id="cH"></div>
-        <div class="full"><label for="cD">Depth <b id="vD"></b></label><input type="range" id="cD"></div>
-        <div class="full"><span class="lbl" id="optLabel"></span><div class="seg" id="cOpt" role="group" aria-labelledby="optLabel"></div></div>
-        <div class="full"><span class="lbl">Edge</span><div class="seg" id="cEdge" role="group" aria-label="Edge style"></div></div>
+        <div class="opt ranges">
+          <div><label for="cW">Width <b id="vW"></b></label><input type="range" id="cW"></div>
+          <div><label for="cH"><span id="lH">Height</span> <b id="vH"></b></label><input type="range" id="cH"></div>
+          <div><label for="cD">Depth <b id="vD"></b></label><input type="range" id="cD"></div>
+        </div>
+        <div class="opt">
+          <div class="opt-head"><span id="optLabel"></span></div>
+          <div class="seg" id="cOpt" role="group" aria-labelledby="optLabel"></div>
+        </div>
+        <div class="opt">
+          <div class="opt-head"><span id="edgeLabel">Edge</span></div>
+          <div class="seg" id="cEdge" role="group" aria-labelledby="edgeLabel"></div>
+        </div>
+        <div class="buy">
+          <button class="btn btn-dark btn-block" id="addBtn">Add to cart</button>
+          <details class="breakdown">
+            <summary>Price breakdown</summary>
+            <ul class="lines" id="lines"></ul>
+          </details>
+          <ul class="assurances">
+            <li>Made to order and built by hand</li>
+            <li>Need a size or idea the studio can't do? <a href="mailto:creationsgrainline@gmail.com?subject=Question%20about%20a%20custom%20piece">Email us</a></li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<section id="how">
-  <div class="wrap reveal-stagger">
-    <div class="eyebrow">How it works</div>
-    <h2>From your idea to your wall</h2>
-    <div class="steps">
-      <div class="step"><span>Step 1</span><h3>Pick a starting point</h3><p>Choose an LED shelf, cologne display steps or a charging station.</p></div>
-      <div class="step"><span>Step 2</span><h3>Make it yours</h3><p>Set the size, material and lighting. The price updates as you go.</p></div>
-      <div class="step"><span>Step 3</span><h3>Order it</h3><p>Add it to your cart and check out. We build it by hand and email you when it ships.</p></div>
-    </div>
-  </div>
-</section>
-
-<section id="about">
-  <div class="wrap reveal">
-    <div class="about">
-      <h2>Craft first, tech second</h2>
-      <p>Grainline Creations is run by two co-founders — one with a woodworking and construction background, the other with business and tech experience. Every piece starts with real materials and real joinery.</p>
-      <p>Behind the scenes, we use AI to keep things running lean, so we can launch fast and grow without losing the hands-on quality that makes each piece worth having.</p>
-    </div>
-  </div>
-</section>
-
-<section id="support">
+<section id="materials" class="block">
   <div class="wrap">
-    <div class="support">
+    <div class="block-head reveal">
       <div>
-        <div class="eyebrow">Questions &amp; support</div>
-        <h2>We're happy to help</h2>
-        <p>Have a question about sizing, materials, a custom idea or an order? Email us and one of the founders will write back.</p>
-        <a class="btn btn-primary" href="mailto:creationsgrainline@gmail.com?subject=Question%20for%20Grainline">Email us</a>
-        <p class="support-addr">Or write to <a href="mailto:creationsgrainline@gmail.com">creationsgrainline@gmail.com</a></p>
+        <span class="label">Materials</span>
+        <h2 class="display">Choose your material.</h2>
       </div>
+      <p class="lede">Every piece is offered in the same five materials, each with the one finish that suits it best.</p>
+    </div>
+    <div class="materials reveal" id="materialsGrid"></div>
+  </div>
+</section>
+
+<section class="block process" id="how">
+  <div class="wrap">
+    <div class="block-head reveal">
+      <div>
+        <span class="label">How it works</span>
+        <h2 class="display">From your idea to your wall.</h2>
+      </div>
+    </div>
+    <div class="steps reveal">
+      <div class="step"><h3>Choose a piece</h3><p>Start with an LED shelf, cologne display steps or a charging station.</p></div>
+      <div class="step"><h3>Make it yours</h3><p>Set the size to the inch and pick a material and lighting. The price updates as you go.</p></div>
+      <div class="step"><h3>We build it by hand</h3><p>Once you order, we build your piece and email you when it ships.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="story" class="block">
+  <div class="wrap story reveal">
+    <div>
+      <span class="label">Our story</span>
+      <h2 class="display">Craft first.</h2>
+    </div>
+    <div class="story-body">
+      <p>Grainline Creations is run by two co-founders: one with a background in woodworking and construction, the other in business and technology.</p>
+      <p>We keep the range small so we can make every piece properly, starting with real materials and real joinery. Nothing is pulled off a warehouse shelf. Your piece is built for you, at the size you chose.</p>
+      <p>Running a lean business means more of what you pay goes into the piece itself, without losing the hands-on quality that makes it worth having.</p>
+    </div>
+  </div>
+</section>
+
+<section id="faq" class="block">
+  <div class="wrap help">
+    <div class="help-side reveal">
+      <span class="label">Help</span>
+      <h2 class="display">Questions, answered.</h2>
+      <p class="lede">Can't find what you need? Email us and one of the founders will write back.</p>
+      <a class="btn btn-dark" href="mailto:creationsgrainline@gmail.com?subject=Question%20for%20Grainline">Email us</a>
+      <p class="support-addr">Or write to <a href="mailto:creationsgrainline@gmail.com">creationsgrainline@gmail.com</a></p>
       <ul class="topics">
-        <li><a href="mailto:creationsgrainline@gmail.com?subject=Question%20about%20a%20custom%20piece"><b>A custom size or idea</b><span>Something the designer doesn't cover</span></a></li>
-        <li><a href="mailto:creationsgrainline@gmail.com?subject=Help%20with%20my%20order"><b>Help with an order</b><span>Changes, timing or shipping</span></a></li>
-        <li><a href="mailto:creationsgrainline@gmail.com?subject=Question%20about%20materials%20or%20care"><b>Materials and care</b><span>Which finish fits your space</span></a></li>
+        <li><a href="mailto:creationsgrainline@gmail.com?subject=Question%20about%20a%20custom%20piece"><span><b>A custom size or idea</b><span>Something the studio doesn't cover</span></span></a></li>
+        <li><a href="mailto:creationsgrainline@gmail.com?subject=Help%20with%20my%20order"><span><b>Help with an order</b><span>Changes, timing or shipping</span></span></a></li>
+        <li><a href="mailto:creationsgrainline@gmail.com?subject=Question%20about%20materials%20or%20care"><span><b>Materials and care</b><span>Which finish fits your space</span></span></a></li>
       </ul>
     </div>
+    <div class="faq reveal">
+      <details>
+        <summary>Is it real wood?</summary>
+        <div class="answer"><p>Yes. Oak and walnut pieces are solid red oak and solid walnut. Dark stain is walnut-stained poplar, and the matte black and white finishes are painted poplar. The cologne steps are made from veneer plywood, which stays flat and stable across wide steps.</p></div>
+      </details>
+      <details>
+        <summary>How long will my order take?</summary>
+        <div class="answer"><p>Every piece is built by hand after you order, so it isn't sitting in a warehouse waiting to ship. We'll email you when it's on its way. If you need it by a certain date, <a href="mailto:creationsgrainline@gmail.com?subject=Timing%20question">email us before ordering</a> and we'll let you know if we can make it.</p></div>
+      </details>
+      <details>
+        <summary>Which material should I choose?</summary>
+        <div class="answer"><p>Oak is the toughest and the most forgiving for everyday use. Walnut is our most premium wood, with a deep color that warms as it ages. Dark stain gets the walnut look for less. Matte black makes LED light pop, and matte white blends into light walls.</p><p>Use <b>Compare materials</b> in the custom studio to see the price of each for your exact design.</p></div>
+      </details>
+      <details>
+        <summary>How is the LED shelf mounted?</summary>
+        <div class="answer"><p>On a hidden wall bracket, so the shelf looks like it floats. The LED strip sits underneath and lights the wall below.</p></div>
+      </details>
+      <details>
+        <summary>Can I order a size the studio doesn't offer?</summary>
+        <div class="answer"><p>Often, yes. <a href="mailto:creationsgrainline@gmail.com?subject=Question%20about%20a%20custom%20piece">Email us</a> with the size or idea you have in mind and we'll tell you what's possible.</p></div>
+      </details>
+      <details>
+        <summary>How do I care for it?</summary>
+        <div class="answer"><p>Dust with a soft, dry cloth. Oiled oak and walnut can be lightly sanded and re-oiled if they get scratched. Painted finishes wipe clean with a damp cloth.</p></div>
+      </details>
+      <details>
+        <summary>What does shipping cost?</summary>
+        <div class="answer"><p>Shipping is added at checkout, and we currently ship within the US.</p></div>
+      </details>
+    </div>
   </div>
 </section>
 
+</main>
+
 <footer id="contact">
-  <div class="wrap footer-top">
-    <div class="footer-brand">
-      <div class="brand">
-        <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Grainline Creations">
-          <rect x="6"  y="10" width="26" height="60" rx="4" fill="#D9B892"/>
-          <rect x="48" y="10" width="26" height="60" rx="4" fill="#D9B892"/>
-          <rect x="31" y="6"  width="18" height="68" rx="9" fill="#C08A3E"/>
-          <line x1="31" y1="29" x2="49" y2="29" stroke="#2B1D14" stroke-width="2"/>
-          <line x1="31" y1="51" x2="49" y2="51" stroke="#2B1D14" stroke-width="2"/>
-          <circle cx="18" cy="24" r="3" fill="#2B1D14"/><circle cx="18" cy="56" r="3" fill="#2B1D14"/>
-          <circle cx="62" cy="24" r="3" fill="#2B1D14"/><circle cx="62" cy="56" r="3" fill="#2B1D14"/>
-        </svg>
-        <span>Grainline Creations</span>
+  <div class="wrap">
+    <div class="footer-top">
+      <div>
+        <a class="brand" href="#top" aria-label="Grainline Creations, back to top">
+          <svg viewBox="0 0 80 80" aria-hidden="true">
+            <rect x="6"  y="10" width="26" height="60" rx="4" fill="#D9B892"/>
+            <rect x="48" y="10" width="26" height="60" rx="4" fill="#D9B892"/>
+            <rect x="31" y="6"  width="18" height="68" rx="9" fill="#C08A3E"/>
+            <line x1="31" y1="29" x2="49" y2="29" stroke="#1D1B18" stroke-width="2"/>
+            <line x1="31" y1="51" x2="49" y2="51" stroke="#1D1B18" stroke-width="2"/>
+            <circle cx="18" cy="24" r="3" fill="#1D1B18"/><circle cx="18" cy="56" r="3" fill="#1D1B18"/>
+            <circle cx="62" cy="24" r="3" fill="#1D1B18"/><circle cx="62" cy="56" r="3" fill="#1D1B18"/>
+          </svg>
+          <span>Grainline Creations</span>
+        </a>
+        <p class="footer-tag">Real wood. Real hardware. Built to last.</p>
       </div>
-      <p class="footer-tag">Real wood. Real hardware. Made to order and built by hand, one piece at a time.</p>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <div class="footer-head">Shop</div>
+          <a href="#products">The collection</a>
+          <a href="#custom">Custom studio</a>
+          <a href="#materials">Materials</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-head">Help</div>
+          <a href="#faq">FAQ</a>
+          <a href="mailto:creationsgrainline@gmail.com?subject=Help%20with%20my%20order">Order help</a>
+          <a href="mailto:creationsgrainline@gmail.com">Contact us</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-head">Company</div>
+          <a href="#story">Our story</a>
+          <a href="#how">How it works</a>
+        </div>
+      </div>
     </div>
-    <div class="footer-cols">
-      <div class="footer-col">
-        <div class="footer-head">Shop</div>
-        <a href="#products">Products</a>
-        <a href="#custom">Custom studio</a>
-      </div>
-      <div class="footer-col">
-        <div class="footer-head">Company</div>
-        <a href="#about">About</a>
-        <a href="mailto:creationsgrainline@gmail.com">Contact</a>
-      </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 Grainline Creations. All rights reserved.</span>
+      <span>creationsgrainline@gmail.com</span>
     </div>
-  </div>
-  <div class="wrap footer-bottom">
-    <div class="copyright">&copy; 2026 Grainline Creations. All rights reserved.</div>
-    <div class="copyright">creationsgrainline@gmail.com</div>
   </div>
 </footer>
 
@@ -548,36 +672,32 @@
   <div class="cart-foot" id="cartFoot" hidden>
     <div class="cart-total"><span>Subtotal</span><span id="cartSubtotal"></span></div>
     <p class="fine-dark">Plus shipping. Every piece is made to order.</p>
-    <button type="button" class="btn btn-primary" id="checkoutBtn">Checkout</button>
+    <button type="button" class="btn btn-dark btn-block" id="checkoutBtn">Checkout</button>
     <p class="fine-dark">Questions before you order? <a href="mailto:creationsgrainline@gmail.com?subject=Question%20about%20my%20order">Email us</a>.</p>
   </div>
 </aside>
 
 <!-- Bump every ?v= (here and in the imports at the top of shop.js and drawing.js)
      whenever the JS changes, so browsers never mix old and new files. -->
-<script type="module" src="shop.js?v=8"></script>
+<script type="module" src="shop.js?v=9"></script>
 <script type="module" src="contact.js?v=1"></script>
 <script>
   // Mobile nav toggle.
   (() => {
-    const btn = document.getElementById("navToggle"), header = document.querySelector("header");
+    const btn = document.getElementById("navToggle"), header = document.querySelector(".site-header");
     if (!btn || !header) return;
-    btn.addEventListener("click", () => {
-      const open = !header.classList.contains("nav-open");
-      header.classList.toggle("nav-open", open);
-      btn.setAttribute("aria-expanded", String(open));
-    });
-    document.querySelectorAll("#navLinks a").forEach(a => a.addEventListener("click", () => {
-      header.classList.remove("nav-open"); btn.setAttribute("aria-expanded", "false");
-    }));
+    const set = open => { header.classList.toggle("nav-open", open); btn.setAttribute("aria-expanded", String(open)); };
+    btn.addEventListener("click", () => set(!header.classList.contains("nav-open")));
+    document.querySelectorAll("#navLinks a").forEach(a => a.addEventListener("click", () => set(false)));
+    document.addEventListener("keydown", e => { if (e.key === "Escape") set(false); });
   })();
-  // Fade + slide sections into view on scroll.
+  // Fade sections in as they scroll into view.
   (() => {
-    const els = document.querySelectorAll(".reveal, .reveal-stagger");
-    if (!("IntersectionObserver" in window) || !els.length) { els.forEach(el => el.classList.add("in")); return; }
+    const els = document.querySelectorAll(".reveal");
+    if (!("IntersectionObserver" in window)) { els.forEach(el => el.classList.add("in")); return; }
     const io = new IntersectionObserver(entries => {
       entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add("in"); io.unobserve(entry.target); } });
-    }, {threshold: 0.15, rootMargin: "0px 0px -60px 0px"});
+    }, {threshold: 0.12, rootMargin: "0px 0px -40px 0px"});
     els.forEach(el => io.observe(el));
   })();
 </script>

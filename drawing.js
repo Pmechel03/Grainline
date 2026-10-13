@@ -1,6 +1,6 @@
 /* Product drawings. Every picture on the site is drawn here from a design
    spec, so catalog cards, the designer preview and the cart always match. */
-import { WOODS, LIGHTS, TYPES } from "./pricing.js?v=8";
+import { WOODS, LIGHTS, TYPES } from "./pricing.js?v=9";
 
 export const esc = s => String(s).replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
 function rng(seed) { let a = seed >>> 0; return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -144,3 +144,10 @@ export function render(p) {
   return `<svg viewBox="0 0 480 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(TYPES[p.type].label)} in ${esc(p.wood)}"><defs>${defs}</defs>${body}</svg>`;
 }
 
+
+// A flat sample of one material, for the materials section. The grain runs
+// top to bottom, like a board standing on end.
+export function swatch(name) {
+  const wood = WOODS[name] || WOODS.Oak, id = "w" + (++uid);
+  return `<svg viewBox="0 0 300 375" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(name)} sample"><defs>${grainDefs(id, wood.hex, hashStr(name), wood.grain)}</defs><rect width="375" height="300" fill="url(#${id})" transform="translate(300 0) rotate(90)"/></svg>`;
+}

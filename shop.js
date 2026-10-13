@@ -1,6 +1,6 @@
 /* Grainline shop: the custom designer, the cart and checkout. */
-import { WOODS, MATERIALS, LIGHTS, TYPES, DEFAULTS, priceOf, money, inch, dimsText, clampSpec, materialOf, describe } from "./pricing.js?v=8";
-import { render, esc } from "./drawing.js?v=8";
+import { WOODS, MATERIALS, LIGHTS, TYPES, DEFAULTS, priceOf, money, inch, dimsText, clampSpec, materialOf, describe } from "./pricing.js?v=9";
+import { render, swatch, esc } from "./drawing.js?v=9";
 
 const $ = s => document.querySelector(s);
 // Shown in the material comparison. durability is 1-5: how well it shrugs off dents and scratches.
@@ -54,9 +54,9 @@ function draw() {
   $("#lines").innerHTML = pr.lines.map(([k, v], i) => `<li><span>${esc(k)}</span><span>${i ? (v > 0 ? "+" : "") : ""}${money(v)}</span></li>`).join("");
   if (!$("#matInfo").hidden) drawCompare();
 }
+const dots = n => `<span class="dots" title="Durability ${n} out of 5">${"●".repeat(n)}<i>${"●".repeat(5 - n)}</i></span>`;
 // Material comparison; prices are for the piece as currently designed.
 function drawCompare() {
-  const dots = n => `<span class="dots" title="Durability ${n} out of 5">${"●".repeat(n)}<i>${"●".repeat(5 - n)}</i></span>`;
   $("#matInfo").innerHTML = MATERIALS.map(m => `
     <div class="mat-row${m === spec.wood ? " on" : ""}">
       <div class="mat-top"><span class="sw-dot" style="background:${WOODS[m].hex}"></span><b>${m}</b><small>${WOODS[m].material[TYPES[spec.type].build]}</small><span class="mat-price">${money(priceOf({...spec, wood: m}).total)}</span></div>
@@ -140,7 +140,19 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#cart"
 
 $("#checkoutBtn").onclick = () => { location.href = "checkout.html"; };
 
+/* ---------- materials section ---------- */
+$("#materialsGrid").innerHTML = MATERIALS.map(m => `
+  <article class="material">
+    <div class="material-swatch">${swatch(m)}</div>
+    <h3>${m}</h3>
+    <div class="made">${WOODS[m].material.solid} · ${WOODS[m].finish.toLowerCase()}</div>
+    <p>${MATERIAL_INFO[m].note}</p>
+    <div class="meta"><span>Durability ${dots(MATERIAL_INFO[m].durability)}</span><button type="button" class="text-btn" data-pick-wood="${m}">Design in ${m.toLowerCase()}</button></div>
+  </article>`).join("");
+document.querySelectorAll("[data-pick-wood]").forEach(b => b.onclick = () => { setSpec({...spec, wood: b.dataset.pickWood}); document.getElementById("custom").scrollIntoView({behavior: "smooth"}); });
+
 /* ---------- product cards and hero ---------- */
+document.querySelectorAll("[data-swatches]").forEach(el => { el.innerHTML = MATERIALS.map(m => `<i style="background:${WOODS[m].hex}" title="${m}"></i>`).join(""); });
 document.querySelectorAll("[data-art]").forEach(el => { const p = clampSpec(JSON.parse(el.dataset.art)); el.insertAdjacentHTML("afterbegin", render(p)); el.classList.toggle("lit", !!LIGHTS[p.light]); });
 document.querySelectorAll("[data-from]").forEach(el => { el.textContent = money(priceOf(clampSpec(DEFAULTS[el.dataset.from])).total); });
 document.querySelectorAll("[data-customize]").forEach(b => b.onclick = () => { setSpec({...DEFAULTS[b.dataset.customize]}); document.getElementById("custom").scrollIntoView({behavior: "smooth"}); });
