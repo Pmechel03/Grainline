@@ -1,6 +1,7 @@
 /* Pieces shared by the vertical (TikTok) cut. Captions sit in the upper
    third, clear of TikTok's own buttons on the right and caption at the bottom. */
 import { useMemo } from "react";
+import { interpolate, useCurrentFrame } from "remotion";
 import { C, serif, useProgress } from "../theme";
 
 export const W = 1080, H = 1920;
@@ -19,11 +20,9 @@ export function shade(hex: string, amt: number) {
   return "#" + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
 }
 
-// A few pixels of camera shake between `from` and `to`, for impacts and the saw.
-export function shake(frame: number, from: number, to: number, amp: number) {
-  if (frame < from || frame > to) return "none";
-  const r = rng(frame * 7919 + 13);
-  return `translate(${(r() - 0.5) * 2 * amp}px, ${(r() - 0.5) * 2 * amp}px)`;
+// A slow push-in over a scene, for a calm, cinematic drift.
+export function drift(frame: number, frames: number, by = 0.04) {
+  return `scale(${1 + by * Math.min(1, Math.max(0, frame / frames))})`;
 }
 
 // A board seen from above, grain running along its length.
@@ -44,20 +43,26 @@ export const Plank: React.FC<{ w: number; h: number; hex: string; seed?: number;
   );
 };
 
-// Big caption lines that pop in. `add` lines are the thing each step adds.
+// Caption lines that rise gently into place. `add` lines name what each step brings.
 export const Cap: React.FC<{ delay: number; add?: boolean; size?: number; dark?: boolean; children: React.ReactNode }> = ({ delay, add, size, dark, children }) => {
-  const p = useProgress(delay, 8);
+  const p = useProgress(delay, 18);
   const color = add ? (dark ? "#8B5E34" : C.step) : (dark ? C.ink : C.cream);
   return (
-    <div style={{ font: `${add ? 400 : 300} ${size ?? (add ? 76 : 112)}px/1.05 ${serif}`, letterSpacing: "-0.02em", color,
-      opacity: p, transform: `translateY(${(1 - p) * 24}px) scale(${0.92 + 0.08 * p})` }}>
+    <div style={{ font: `${add ? 400 : 300} ${size ?? (add ? 68 : 112)}px/1.05 ${serif}`, letterSpacing: "-0.02em", color,
+      opacity: p, transform: `translateY(${(1 - p) * 18}px)` }}>
       {children}
     </div>
   );
 };
 
-export const Captions: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div style={{ position: "absolute", top: CAPTION_TOP, left: 80, right: 80, display: "flex", flexDirection: "column", alignItems: "center", gap: 18, textAlign: "center" }}>
-    {children}
-  </div>
-);
+// Scenes are joined by crossfades this long; captions clear out before one starts.
+export const FADE = 18;
+
+export const Captions: React.FC<{ end: number; children: React.ReactNode }> = ({ end, children }) => {
+  const out = interpolate(useCurrentFrame(), [end - FADE - 14, end - FADE], [1, 0], clamp);
+  return (
+    <div style={{ position: "absolute", top: CAPTION_TOP, left: 80, right: 80, display: "flex", flexDirection: "column", alignItems: "center", gap: 18, textAlign: "center", opacity: out }}>
+      {children}
+    </div>
+  );
+};

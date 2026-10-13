@@ -1,113 +1,117 @@
 import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from "remotion";
 import { C, serif, useProgress } from "../theme";
-import { Cap, Captions, Plank, W, clamp, rng, shake } from "./common";
+import { Cap, Captions, Plank, W, clamp, drift, rng } from "./common";
 
-// A 48″ raw walnut board on the bench, seen from above. We cut a 36″ shelf from it.
-export const BOARD = { w: 860, h: 190, x: 110, y: 1010, raw: "#94735A", seed: 11 };
+// A 48″ raw walnut board, seen from above. We cut a 36″ shelf from it.
+export const BOARD = { w: 860, h: 190, x: 110, y: 865, raw: "#94735A", seed: 11 };
 export const CUT = BOARD.w * 0.75;
-const R = 150; // saw blade radius
+export const SCENE = 96;
 const cutX = BOARD.x + CUT;
 
-// Blade center height over time: drops through the board in under a second.
-const sawY = (f: number) => interpolate(f, [8, 34], [BOARD.y - R - 120, BOARD.y + BOARD.h + 10], { ...clamp, easing: Easing.inOut(Easing.quad) });
-const kerfAt = (f: number) => Math.min(1, Math.max(0, (sawY(f) + R - BOARD.y) / BOARD.h));
+// A circular saw blade, seen from a steep angle so it reads as a slim
+// spinning disc. It glides down the pencil line and the kerf opens behind it.
+const R = 165; // blade radius
+const S = R * 2 + 20;
+const bladeY = (f: number) => interpolate(f, [16, 62], [BOARD.y - R - 90, BOARD.y + BOARD.h + R + 50], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+const kerfAt = (f: number) => Math.min(1, Math.max(0, (bladeY(f) + R * 0.95 - BOARD.y) / BOARD.h));
 
-// Circular saw: spinning toothed blade under a fixed guard.
-const Saw: React.FC<{ angle: number }> = ({ angle }) => {
-  const teeth = 32, step = (Math.PI * 2) / teeth;
+const Blade: React.FC<{ frame: number }> = ({ frame }) => {
+  const shown = interpolate(frame, [12, 22, 54, 64], [0, 1, 1, 0], clamp);
+  const teeth = 40, step = (Math.PI * 2) / teeth;
   const at = (r: number, a: number) => `${(r * Math.cos(a)).toFixed(1)} ${(r * Math.sin(a)).toFixed(1)}`;
-  let d = "";
+  let rim = "";
   for (let i = 0; i < teeth; i++) {
     const a = i * step;
-    d += `${i ? "L" : "M"} ${at(R - 14, a)} L ${at(R, a + step * 0.75)} L ${at(R - 14, a + step)} `;
+    rim += `${i ? "L" : "M"} ${at(R - 12, a)} L ${at(R, a + step * 0.62)} L ${at(R - 3, a + step * 0.78)} L ${at(R - 12, a + step)} `;
   }
-  const s = R + 30;
+  const y = bladeY(frame);
   return (
-    <svg width={s * 2} height={s * 2} viewBox={`${-s} ${-s} ${s * 2} ${s * 2}`} style={{ display: "block" }}>
-      <defs>
-        <radialGradient id="steel"><stop offset="0" stopColor="#E4E7EA" /><stop offset="0.7" stopColor="#B7BDC3" /><stop offset="1" stopColor="#8D949B" /></radialGradient>
-      </defs>
-      <g transform={`rotate(${angle})`}>
-        <path d={d + "Z"} fill="url(#steel)" />
-        {[0, 1, 2, 3].map(i => <path key={i} d={`M ${at(R * 0.45, i * Math.PI / 2)} L ${at(R * 0.78, i * Math.PI / 2 + 0.18)}`} stroke="#7D848B" strokeWidth="5" strokeLinecap="round" />)}
-        <circle r={R * 0.16} fill="#5E646A" />
-        <circle r={R * 0.07} fill="#2C2F33" />
-      </g>
-      <circle r={R - 7} fill="none" stroke="#fff" strokeOpacity="0.16" strokeWidth="12" />
-      {/* guard over the top half */}
-      <path d={`M ${-R - 18} 0 A ${R + 18} ${R + 18} 0 0 1 ${R + 18} 0 L ${R * 0.35} 0 A ${R * 0.35} ${R * 0.35} 0 0 0 ${-R * 0.35} 0 Z`} fill="#3A3632" />
-      <path d={`M ${-R - 18} 0 A ${R + 18} ${R + 18} 0 0 1 ${R + 18} 0`} fill="none" stroke="#C08A3E" strokeWidth="6" />
-    </svg>
+    <div style={{ position: "absolute", left: cutX - S / 2, top: y - S / 2, width: S, height: S, opacity: shown }}>
+      {/* soft shadow cast to the right */}
+      <div style={{ position: "absolute", left: S / 2 + 6, top: 30, width: 70, height: S - 60, borderRadius: "50%", background: "rgba(10,6,3,0.45)", filter: "blur(14px)" }} />
+      <svg viewBox={`${-S / 2} ${-S / 2} ${S} ${S}`} width={S} height={S}
+        style={{ position: "absolute", inset: 0, transform: "perspective(1400px) rotateY(70deg)" }}>
+        <defs>
+          <radialGradient id="steel" cx="0.38" cy="0.32" r="0.8">
+            <stop offset="0" stopColor="#F1F3F5" /><stop offset="0.55" stopColor="#BFC5CB" /><stop offset="1" stopColor="#8A9198" />
+          </radialGradient>
+        </defs>
+        <g transform={`rotate(${frame * 4.5})`}>
+          <path d={rim + "Z"} fill="url(#steel)" />
+          <circle r={R - 26} fill="none" stroke="#9AA1A8" strokeWidth="1.5" opacity="0.6" />
+          {[0, 1, 2, 3, 4, 5].map(i => <path key={i} d={`M ${at(R * 0.5, i * Math.PI / 3)} Q ${at(R * 0.72, i * Math.PI / 3 + 0.08)} ${at(R * 0.8, i * Math.PI / 3 + 0.3)}`} stroke="#7F868D" strokeWidth="4" fill="none" strokeLinecap="round" />)}
+          <circle r={R * 0.2} fill="#A7AEB5" />
+          <circle r={R * 0.09} fill="#3B3F44" />
+        </g>
+      </svg>
+    </div>
   );
 };
 
-// Sawdust thrown from where the blade meets the board.
-const DUST = Array.from({ length: 140 }, (_, i) => {
+// Fine sawdust drifting up out of the cut, soft as dust in a light beam.
+const MOTES = Array.from({ length: 80 }, (_, i) => {
   const r = rng(i * 31 + 7);
-  const toRight = r() < 0.7;
-  return {
-    t: 10 + i * 0.16, vx: (toRight ? 1 : -1) * (5 + r() * 13), vy: -(5 + r() * 14), size: 4 + r() * 7,
-    color: ["#D9B892", "#E6CFAE", "#BF9E7E", BOARD.raw][Math.floor(r() * 4)],
-  };
+  return { t: 18 + i * 0.5, vx: (r() - 0.5) * 4.5, vy: -(1 + r() * 3.2), size: 3 + r() * 5, life: 32 + r() * 22,
+    color: ["255,228,190", "233,210,175", "214,186,150"][Math.floor(r() * 3)] };
 });
-const Dust: React.FC<{ frame: number }> = ({ frame }) => (
+const Motes: React.FC<{ frame: number }> = ({ frame }) => (
   <>
-    {DUST.map((p, i) => {
-      const age = frame - p.t, k = kerfAt(p.t);
-      if (age < 0 || age > 24 || k <= 0 || k >= 1) return null;
-      const y0 = BOARD.y + k * BOARD.h;
-      return <i key={i} style={{ position: "absolute", left: cutX + p.vx * age, top: y0 + p.vy * age + 0.6 * age * age,
-        width: p.size, height: p.size, borderRadius: "50%", background: p.color, opacity: Math.min(1, (24 - age) / 8) }} />;
+    {MOTES.map((m, i) => {
+      const age = frame - m.t, k = kerfAt(m.t);
+      if (age < 0 || age > m.life || k <= 0 || k >= 1) return null;
+      const fade = Math.min(1, age / 5, (m.life - age) / 16);
+      const slow = 1 - Math.exp(-age / 18); // eases out as it drifts
+      return <i key={i} style={{ position: "absolute", left: cutX + m.vx * 18 * slow, top: BOARD.y + k * BOARD.h + m.vy * 18 * slow - age * 0.6,
+        width: m.size, height: m.size, borderRadius: "50%", opacity: 0.85 * fade,
+        background: `radial-gradient(circle, rgba(${m.color},1), rgba(${m.color},0) 70%)` }} />;
     })}
   </>
 );
 
 export const Cut: React.FC = () => {
   const f = useCurrentFrame();
-  const mark = useProgress(0, 8);
+  const mark = useProgress(4, 16);
   const kerf = kerfAt(f);
-  const fall = Math.max(0, f - 33);
-  const center = useProgress(40, 12);
-  const dx = ((W - CUT) / 2 - BOARD.x) * center;
+  const part = useProgress(64, 26);
+  const dx = ((W - CUT) / 2 - BOARD.x) * part;
   const piece = (from: number, to: number): React.CSSProperties => ({
     position: "absolute", left: BOARD.x + from, top: BOARD.y, width: to - from, height: BOARD.h, overflow: "hidden",
   });
 
   return (
     <AbsoluteFill style={{ background: C.night }}>
-      <div style={{ position: "absolute", left: -200, right: -200, top: BOARD.y - 520, height: 1240,
-        background: "radial-gradient(closest-side, rgba(255,196,107,0.16), rgba(255,196,107,0))" }} />
-      <AbsoluteFill style={{ transform: shake(f, 12, 32, 6) }}>
+      <div style={{ position: "absolute", left: -260, right: -260, top: BOARD.y - 560, height: 1300,
+        background: "radial-gradient(closest-side, rgba(255,196,107,0.14), rgba(255,196,107,0))" }} />
+      <AbsoluteFill style={{ transform: drift(f, SCENE) }}>
         {/* the shelf piece */}
         <div style={{ ...piece(0, CUT), transform: `translateX(${dx}px)` }}>
           <Plank w={BOARD.w} h={BOARD.h} hex={BOARD.raw} seed={BOARD.seed} />
         </div>
-        {/* the offcut, which drops away once it's free */}
-        <div style={{ ...piece(CUT, BOARD.w), transformOrigin: "left center",
-          transform: `translate(${fall * 6}px, ${0.9 * fall * fall}px) rotate(${fall * 2.2}deg)` }}>
+        {/* the offcut glides away once it's free */}
+        <div style={{ ...piece(CUT, BOARD.w), transform: `translateX(${dx + 200 * part}px)`, opacity: 1 - part }}>
           <Plank w={BOARD.w} h={BOARD.h} hex={BOARD.raw} seed={BOARD.seed} style={{ marginLeft: -CUT }} />
         </div>
-        {/* pencil mark, then the kerf behind the blade */}
-        <i style={{ position: "absolute", left: cutX - 2, top: BOARD.y - 16, width: 4, height: (BOARD.h + 32) * mark, background: "#2B2622", opacity: f > 33 ? 0 : 0.85 }} />
-        <i style={{ position: "absolute", left: cutX - 4, top: BOARD.y, width: 8, height: BOARD.h * kerf, background: "#1A120C", opacity: f > 33 ? 0 : 1 }} />
+        {/* pencil line, then the kerf */}
+        <i style={{ position: "absolute", left: cutX - 1.5, top: BOARD.y - 14, width: 3, height: (BOARD.h + 28) * mark, background: "#2B2622", opacity: 0.8 * (1 - kerf) }} />
+        <i style={{ position: "absolute", left: cutX - 3, top: BOARD.y, width: 6, height: BOARD.h * kerf, background: "#1A120C", opacity: 1 - part }} />
         {/* 36″ dimension line */}
-        <div style={{ position: "absolute", left: BOARD.x + dx, width: CUT, top: BOARD.y - 120, height: 90, opacity: mark * (1 - center) }}>
+        <div style={{ position: "absolute", left: BOARD.x + dx, width: CUT, top: BOARD.y - 120, height: 90, opacity: mark * (1 - part) }}>
           <div style={{ textAlign: "center", font: `400 64px ${serif}`, color: C.cream }}>36″</div>
-          <i style={{ position: "absolute", left: 0, right: 0, bottom: 14, height: 3, background: C.step }} />
-          <i style={{ position: "absolute", left: 0, bottom: 0, width: 3, height: 30, background: C.step }} />
-          <i style={{ position: "absolute", right: 0, bottom: 0, width: 3, height: 30, background: C.step }} />
+          <i style={{ position: "absolute", left: 0, right: 0, bottom: 14, height: 2, background: C.step }} />
+          <i style={{ position: "absolute", left: 0, bottom: 2, width: 2, height: 26, background: C.step }} />
+          <i style={{ position: "absolute", right: 0, bottom: 2, width: 2, height: 26, background: C.step }} />
         </div>
-        <Dust frame={f} />
-        {f >= 6 && f <= 40 && (
-          <div style={{ position: "absolute", left: cutX - R - 30, top: sawY(f) - R - 30 }}>
-            <Saw angle={f * 23} />
-          </div>
-        )}
+        <Motes frame={f} />
+        <Blade frame={f} />
       </AbsoluteFill>
-      <Captions>
+      <Captions end={SCENE}>
         <Cap delay={2}>Raw walnut.</Cap>
-        <Cap delay={12} add>Cut to the inch.</Cap>
+        <Cap delay={24} add>Cut to the inch.</Cap>
       </Captions>
     </AbsoluteFill>
   );
 };
+
+// Where the shelf piece rests at the end of the cut; the oil scene picks up
+// from here, including the push-in, so the crossfade lines up.
+export const RESTING = { x: (W - CUT) / 2, y: BOARD.y, scale: 1.04 };

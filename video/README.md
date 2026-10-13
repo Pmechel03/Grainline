@@ -3,7 +3,7 @@
 Two clips made with [Remotion](https://www.remotion.dev), both at 30 fps:
 
 - **Promo**: 32 seconds, 1920×1080, for the website or YouTube.
-- **TikTok**: 12 seconds, 1080×1920, for TikTok and Reels. A walnut board is
+- **TikTok**: 17 seconds, 1080×1920, for TikTok and Reels. A walnut board is
   cut and oiled, then the three pieces are built and lit.
 
 They draw the products with the site's own `drawing.js` and price them with
