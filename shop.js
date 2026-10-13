@@ -43,12 +43,11 @@ function syncControls() {
 }
 function draw() {
   const t = TYPES[spec.type], stage = $("#stage");
-  const in3d = !!viewer && spec.type === "led";
   stage.querySelector(":scope > svg")?.remove();
-  if (in3d) viewer.show(spec);
-  else { viewer?.hide(); stage.insertAdjacentHTML("afterbegin", render(spec)); }
-  stage.classList.toggle("lit", !in3d && !!LIGHTS[spec.light]);
-  stage.classList.toggle("in3d", in3d);
+  if (viewer) viewer.show(spec);
+  else stage.insertAdjacentHTML("afterbegin", render(spec));
+  stage.classList.toggle("lit", !viewer && !!LIGHTS[spec.light]);
+  stage.classList.toggle("in3d", !!viewer);
   $("#vW").textContent = inch(spec.width); $("#vH").textContent = fmtH(t, spec.height); $("#vD").textContent = inch(spec.depth);
   $("#dimTag").textContent = dimsText(spec);
   const rows = [["Material", spec.wood], ["Finish", spec.finish], ["Edge", cap(spec.edge)], [t.opt.key === "light" ? "LED" : "Charging", t.opt.key === "light" ? spec.light : spec.pad]];
@@ -165,13 +164,13 @@ document.querySelectorAll("[data-customize]").forEach(b => b.onclick = () => { s
 document.querySelectorAll("[data-add]").forEach(b => b.onclick = () => addToCart(DEFAULTS[b.dataset.add]));
 
 /* ---------- 3D preview ----------
-   LED shelves show in 3D (viewer3d.js); other pieces use the drawings. It's
-   loaded the first time the studio is on screen, so other pages don't
-   download it, and the drawing stays if a device can't show 3D. */
+   The studio shows the design in 3D (viewer3d.js). It's loaded the first
+   time the studio is on screen, so other pages don't download it, and the
+   drawings stay if a device can't show 3D. */
 new IntersectionObserver((entries, io) => {
   if (!entries.some(e => e.isIntersecting)) return;
   io.disconnect();
-  import("./viewer3d.js?v=4")
+  import("./viewer3d.js?v=7")
     .then(m => m.createViewer($("#stage")))
     .then(v => { viewer = v; if (v) draw(); })
     .catch(err => console.warn("3D preview unavailable:", err));
