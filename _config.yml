@@ -1,3 +1,4 @@
 exclude:
   - worker
+  - video
   - grainline-creations.html
