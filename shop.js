@@ -19,6 +19,7 @@ const MATERIAL_INFO = {
 
 /* ---------- custom designer ---------- */
 let spec = clampSpec(DEFAULTS.led);
+let viewer = null;   // the 3D preview, once loaded (see the bottom of this file)
 
 $("#cType").innerHTML = Object.entries(TYPES).map(([k, t]) => `<option value="${k}">${t.label}</option>`).join("");
 
@@ -42,9 +43,12 @@ function syncControls() {
 }
 function draw() {
   const t = TYPES[spec.type], stage = $("#stage");
-  stage.querySelector("svg")?.remove();
-  stage.insertAdjacentHTML("afterbegin", render(spec));
-  stage.classList.toggle("lit", !!LIGHTS[spec.light]);
+  const in3d = !!viewer && spec.type === "led";
+  stage.querySelector(":scope > svg")?.remove();
+  if (in3d) viewer.show(spec);
+  else { viewer?.hide(); stage.insertAdjacentHTML("afterbegin", render(spec)); }
+  stage.classList.toggle("lit", !in3d && !!LIGHTS[spec.light]);
+  stage.classList.toggle("in3d", in3d);
   $("#vW").textContent = inch(spec.width); $("#vH").textContent = fmtH(t, spec.height); $("#vD").textContent = inch(spec.depth);
   $("#dimTag").textContent = dimsText(spec);
   const rows = [["Material", spec.wood], ["Finish", spec.finish], ["Edge", cap(spec.edge)], [t.opt.key === "light" ? "LED" : "Charging", t.opt.key === "light" ? spec.light : spec.pad]];
@@ -159,6 +163,19 @@ document.querySelectorAll("[data-art]").forEach(el => { const p = clampSpec(JSON
 document.querySelectorAll("[data-from]").forEach(el => { el.textContent = money(priceOf(clampSpec(DEFAULTS[el.dataset.from])).total); });
 document.querySelectorAll("[data-customize]").forEach(b => b.onclick = () => { setSpec({...DEFAULTS[b.dataset.customize]}); openStudio(); });
 document.querySelectorAll("[data-add]").forEach(b => b.onclick = () => addToCart(DEFAULTS[b.dataset.add]));
+
+/* ---------- 3D preview ----------
+   LED shelves show in 3D (viewer3d.js); other pieces use the drawings. It's
+   loaded the first time the studio is on screen, so other pages don't
+   download it, and the drawing stays if a device can't show 3D. */
+new IntersectionObserver((entries, io) => {
+  if (!entries.some(e => e.isIntersecting)) return;
+  io.disconnect();
+  import("./viewer3d.js?v=4")
+    .then(m => m.createViewer($("#stage")))
+    .then(v => { viewer = v; if (v) draw(); })
+    .catch(err => console.warn("3D preview unavailable:", err));
+}).observe($("#stage"));
 
 syncControls(); draw(); renderCart();
 // Stripe sends people back to #cart if they leave checkout without paying.

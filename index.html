@@ -133,7 +133,17 @@
   .studio > * { min-width: 0; }
   .preview { position: sticky; top: 92px; }
   .stage { position: relative; aspect-ratio: 480 / 340; background: var(--oat); overflow: hidden; }
-  .dimtag { position: absolute; right: 16px; bottom: 14px; font-size: 0.82rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .stage-3d { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
+  .stage-3d:active { cursor: grabbing; }
+  .stage-ui { position: absolute; inset: 0; pointer-events: none; }
+  .mood { position: absolute; top: 14px; right: 14px; display: flex; pointer-events: auto; background: rgba(29,27,24,0.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border-radius: 999px; padding: 3px; }
+  .mood button { border: 0; background: none; color: #E9E2D7; font: 500 0.78rem var(--sans); padding: 5px 12px; border-radius: 999px; cursor: pointer; }
+  .mood button[aria-pressed="true"] { background: var(--paper); color: var(--ink); }
+  .stage-hint, .stage.in3d .dimtag { position: absolute; bottom: 14px; font-size: 0.78rem; color: #E9E2D7; background: rgba(29,27,24,0.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); padding: 4px 11px; border-radius: 999px; }
+  .stage-hint { left: 14px; transition: opacity .4s; }
+  .stage.in3d .dimtag { right: 14px; }
+  .stage-hint.used { opacity: 0; }
+  .dimtag { position: absolute; z-index: 1; right: 16px; bottom: 14px; font-size: 0.82rem; color: var(--muted); font-variant-numeric: tabular-nums; }
   .stage.lit .dimtag { color: var(--night-text); }
   .spec { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; border-bottom: 1px solid var(--line); }
   .spec div { padding: 16px 16px 16px 0; }
@@ -701,7 +711,8 @@
 
 <!-- Bump every ?v= (here and in the imports at the top of shop.js and drawing.js)
      whenever the JS changes, so browsers never mix old and new files. -->
-<script type="module" src="shop.js?v=10"></script>
+<script type="importmap">{"imports": {"three": "./vendor/three/three.module.min.js", "three/addons/": "./vendor/three/addons/"}}</script>
+<script type="module" src="shop.js?v=11"></script>
 <script type="module" src="contact.js?v=1"></script>
 <script>
   // Mobile nav toggle.
