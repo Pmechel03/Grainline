@@ -1,6 +1,6 @@
 # Grainline promo video
 
-A 30-second promo clip (1920×1080, 30 fps) made with [Remotion](https://www.remotion.dev).
+A 32-second promo clip (1920×1080, 30 fps) made with [Remotion](https://www.remotion.dev).
 It draws the products with the site's own `drawing.js` and prices them with
 `pricing.js`, so the video stays in step with the shop.
 

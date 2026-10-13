@@ -12,7 +12,7 @@ import { Outro } from "./scenes/Outro";
 
 // Scenes in order, with their length in frames (30 per second).
 const SCENES: [React.FC, number][] = [
-  [Intro, 75],
+  [Intro, 115],
   [Hero, 150],
   [Collection, 180],
   [Sizing, 165],
