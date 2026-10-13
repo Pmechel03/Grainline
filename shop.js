@@ -149,13 +149,15 @@ $("#materialsGrid").innerHTML = MATERIALS.map(m => `
     <p>${MATERIAL_INFO[m].note}</p>
     <div class="meta"><span>Durability ${dots(MATERIAL_INFO[m].durability)}</span><button type="button" class="text-btn" data-pick-wood="${m}">Design in ${m.toLowerCase()}</button></div>
   </article>`).join("");
-document.querySelectorAll("[data-pick-wood]").forEach(b => b.onclick = () => { setSpec({...spec, wood: b.dataset.pickWood}); document.getElementById("custom").scrollIntoView({behavior: "smooth"}); });
+// The custom studio is its own page (see the page switcher in index.html).
+const openStudio = () => { location.hash = "custom"; };
+document.querySelectorAll("[data-pick-wood]").forEach(b => b.onclick = () => { setSpec({...spec, wood: b.dataset.pickWood}); openStudio(); });
 
 /* ---------- product cards and hero ---------- */
 document.querySelectorAll("[data-swatches]").forEach(el => { el.innerHTML = MATERIALS.map(m => `<i style="background:${WOODS[m].hex}" title="${m}"></i>`).join(""); });
 document.querySelectorAll("[data-art]").forEach(el => { const p = clampSpec(JSON.parse(el.dataset.art)); el.insertAdjacentHTML("afterbegin", render(p)); el.classList.toggle("lit", !!LIGHTS[p.light]); });
 document.querySelectorAll("[data-from]").forEach(el => { el.textContent = money(priceOf(clampSpec(DEFAULTS[el.dataset.from])).total); });
-document.querySelectorAll("[data-customize]").forEach(b => b.onclick = () => { setSpec({...DEFAULTS[b.dataset.customize]}); document.getElementById("custom").scrollIntoView({behavior: "smooth"}); });
+document.querySelectorAll("[data-customize]").forEach(b => b.onclick = () => { setSpec({...DEFAULTS[b.dataset.customize]}); openStudio(); });
 document.querySelectorAll("[data-add]").forEach(b => b.onclick = () => addToCart(DEFAULTS[b.dataset.add]));
 
 syncControls(); draw(); renderCart();

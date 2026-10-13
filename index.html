@@ -69,7 +69,7 @@
   .brand span { font-family: var(--serif); font-size: 1.4rem; font-weight: 400; letter-spacing: -0.01em; }
   .nav-links { display: flex; gap: 36px; }
   .nav-links a { font-size: 0.92rem; font-weight: 500; text-decoration: none; padding: 6px 0; border-bottom: 1px solid transparent; transition: border-color .2s; }
-  .nav-links a:hover { border-color: var(--ink); }
+  .nav-links a:hover, .nav-links a[aria-current="page"] { border-color: var(--ink); }
   .nav-actions { justify-self: end; display: flex; align-items: center; gap: 6px; }
   .cart-btn { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 4px 0 10px; border: 0; background: none; color: var(--ink); font: 500 0.92rem var(--sans); cursor: pointer; }
   .cart-btn svg { width: 20px; height: 20px; }
@@ -226,6 +226,16 @@
   .story-body p { margin: 0 0 18px; font-size: 1.08rem; color: var(--muted); max-width: 58ch; }
   .story-body p:first-child { font-family: var(--serif); font-size: 1.55rem; line-height: 1.4; color: var(--ink); letter-spacing: -0.005em; }
 
+  /* Explore (home page links to the other tabs) */
+  .explore { border-bottom: 1px solid var(--line); }
+  .explore-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .explore a { display: flex; flex-direction: column; gap: 6px; padding: 48px 32px 48px 0; text-decoration: none; }
+  .explore a + a { padding-left: 32px; border-left: 1px solid var(--line); }
+  .explore b { font-family: var(--serif); font-weight: 400; font-size: 1.5rem; letter-spacing: -0.01em; line-height: 1.2; margin-top: 6px; }
+  .explore b::after { content: " →"; font-family: var(--sans); font-size: 1rem; transition: margin .2s var(--ease); }
+  .explore a:hover b::after { margin-left: 4px; }
+  .explore a > span:last-child { color: var(--muted); font-size: 0.92rem; }
+
   /* FAQ + support */
   #faq { border-top: 1px solid var(--line); }
   .help { display: grid; grid-template-columns: 4fr 7fr; gap: 80px; align-items: start; }
@@ -321,6 +331,7 @@
     }
     .site-header.nav-open .nav-links { visibility: visible; opacity: 1; transform: none; }
     .nav-links a { padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 1rem; }
+    .nav-links a[aria-current="page"] { border-color: var(--line); font-weight: 600; }
     .hero-grid { grid-template-columns: 1fr; min-height: 0; padding-block: 48px 8px; gap: 8px; }
     .hero-art { margin: 0 -24px; }
     .values .wrap { grid-template-columns: 1fr 1fr; }
@@ -334,6 +345,9 @@
     .materials { grid-template-columns: 1fr 1fr; gap: 32px 16px; }
     .steps { grid-template-columns: 1fr; gap: 32px; }
     .story, .help { grid-template-columns: 1fr; }
+    .explore-grid { grid-template-columns: 1fr; }
+    .explore a, .explore a + a { padding: 32px 0; border-left: 0; }
+    .explore a + a { border-top: 1px solid var(--line); }
     .help-side { position: static; }
     .footer-top { grid-template-columns: 1fr; }
   }
@@ -394,7 +408,7 @@
 
 <main id="top">
 
-<section class="hero">
+<section class="hero" data-page="home">
   <div class="wrap hero-grid">
     <div>
       <span class="label">Modern home &amp; room decor</span>
@@ -411,7 +425,7 @@
   </div>
 </section>
 
-<div class="values">
+<div class="values" data-page="home products">
   <div class="wrap">
     <div class="value"><h3>Made to order</h3><p>Each piece is built after you order it.</p></div>
     <div class="value"><h3>Sized to the inch</h3><p>Set the width, depth and height yourself.</p></div>
@@ -420,7 +434,7 @@
   </div>
 </div>
 
-<section id="products" class="block">
+<section id="products" class="block" data-page="home products">
   <div class="wrap">
     <div class="block-head reveal">
       <div>
@@ -470,7 +484,7 @@
   </div>
 </section>
 
-<section id="custom" class="block">
+<section id="custom" class="block" data-page="custom">
   <div class="wrap">
     <div class="block-head reveal">
       <div>
@@ -528,7 +542,7 @@
   </div>
 </section>
 
-<section id="materials" class="block">
+<section id="materials" class="block" data-page="materials">
   <div class="wrap">
     <div class="block-head reveal">
       <div>
@@ -541,7 +555,21 @@
   </div>
 </section>
 
-<section class="block process" id="how">
+<section id="story" class="block" data-page="story">
+  <div class="wrap story reveal">
+    <div>
+      <span class="label">Our story</span>
+      <h2 class="display">Craft first.</h2>
+    </div>
+    <div class="story-body">
+      <p>Grainline Creations is run by two co-founders: one with a background in woodworking and construction, the other in business and technology.</p>
+      <p>We keep the range small so we can make every piece properly, starting with real materials and real joinery. Nothing is pulled off a warehouse shelf. Your piece is built for you, at the size you chose.</p>
+      <p>Running a lean business means more of what you pay goes into the piece itself, without losing the hands-on quality that makes it worth having.</p>
+    </div>
+  </div>
+</section>
+
+<section class="block process" id="how" data-page="home story">
   <div class="wrap">
     <div class="block-head reveal">
       <div>
@@ -557,21 +585,15 @@
   </div>
 </section>
 
-<section id="story" class="block">
-  <div class="wrap story reveal">
-    <div>
-      <span class="label">Our story</span>
-      <h2 class="display">Craft first.</h2>
-    </div>
-    <div class="story-body">
-      <p>Grainline Creations is run by two co-founders: one with a background in woodworking and construction, the other in business and technology.</p>
-      <p>We keep the range small so we can make every piece properly, starting with real materials and real joinery. Nothing is pulled off a warehouse shelf. Your piece is built for you, at the size you chose.</p>
-      <p>Running a lean business means more of what you pay goes into the piece itself, without losing the hands-on quality that makes it worth having.</p>
-    </div>
+<section class="explore" data-page="home">
+  <div class="wrap explore-grid">
+    <a href="#custom"><span class="label">Custom studio</span><b>Design a piece to your size</b><span>Set the size, material and lighting and see the price as you go.</span></a>
+    <a href="#materials"><span class="label">Materials</span><b>Compare all five finishes</b><span>Oak, walnut, dark stain, matte black and matte white, side by side.</span></a>
+    <a href="#story"><span class="label">Our story</span><b>Who builds your piece</b><span>Two co-founders, real materials and real joinery.</span></a>
   </div>
 </section>
 
-<section id="faq" class="block">
+<section id="faq" class="block" data-page="faq">
   <div class="wrap help">
     <div class="help-side reveal">
       <span class="label">Help</span>
@@ -679,7 +701,7 @@
 
 <!-- Bump every ?v= (here and in the imports at the top of shop.js and drawing.js)
      whenever the JS changes, so browsers never mix old and new files. -->
-<script type="module" src="shop.js?v=9"></script>
+<script type="module" src="shop.js?v=10"></script>
 <script type="module" src="contact.js?v=1"></script>
 <script>
   // Mobile nav toggle.
@@ -690,6 +712,32 @@
     btn.addEventListener("click", () => set(!header.classList.contains("nav-open")));
     document.querySelectorAll("#navLinks a").forEach(a => a.addEventListener("click", () => set(false)));
     document.addEventListener("keydown", e => { if (e.key === "Escape") set(false); });
+  })();
+  // Each nav tab is its own page. Sections list the pages they appear on in
+  // data-page, and the URL hash picks the page (#materials). A link to
+  // anything else on a page (#how) opens that page and scrolls to it.
+  (() => {
+    const PAGES = {home: "", products: "Shop", custom: "Custom studio", materials: "Materials", story: "Our story", faq: "Help"};
+    const sections = document.querySelectorAll("[data-page]");
+    const onPage = (el, page) => el.dataset.page.split(" ").includes(page);
+    function show() {
+      const id = decodeURIComponent(location.hash.slice(1));
+      const el = id && !(id in PAGES) ? document.getElementById(id) : null;
+      const target = el?.closest("[data-page]") ? el : null;
+      const page = id in PAGES ? id : target ? target.closest("[data-page]").dataset.page.split(" ")[0] : "home";
+      sections.forEach(el => { el.hidden = !onPage(el, page); });
+      document.querySelectorAll("#navLinks a").forEach(a => {
+        if (a.hash === "#" + page) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+      });
+      document.title = PAGES[page] ? `${PAGES[page]} · Grainline Creations` : "Grainline Creations · Solid wood, made to measure";
+      if (target) target.scrollIntoView(); else window.scrollTo({top: 0, behavior: "instant"});
+    }
+    window.addEventListener("hashchange", show);
+    show();
+    // On load the browser also jumps to the #page section, just below the top. Undo that.
+    window.addEventListener("load", () => {
+      if (decodeURIComponent(location.hash.slice(1)) in PAGES && scrollY < 200) window.scrollTo({top: 0, behavior: "instant"});
+    });
   })();
   // Fade sections in as they scroll into view.
   (() => {
