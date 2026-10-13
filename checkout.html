@@ -37,6 +37,9 @@
   .top-links { display: flex; gap: 28px; align-items: center; }
   .back, .help { font-size: 0.9rem; font-weight: 500; text-decoration: none; }
   .back:hover, .help:hover { text-decoration: underline; }
+  .totals .disc dt, .totals .disc dd { color: var(--wood, #8B5E34); }
+  .ship-hint { margin: 12px 0 0; font-size: 0.82rem; color: var(--muted, #645E55); }
+  .count { margin: 4px 0 12px; font-size: 0.75rem; color: var(--muted, #645E55); text-align: right; }
   .support-note { margin: 18px 0 0; padding-top: 16px; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--muted); }
 
   .preview-bar { background: var(--ink); color: #D9D1C5; font-size: 0.8rem; text-align: center; padding: 9px 16px; }
@@ -191,6 +194,17 @@
         </fieldset>
 
         <fieldset>
+          <legend>Gift options <small>(optional)</small></legend>
+          <div class="full"><label class="check"><input type="checkbox" id="isGift"> This order is a gift</label></div>
+          <div class="full" id="giftFields" hidden>
+            <label for="giftNote">Gift message <small>(printed on a card in the box)</small></label>
+            <textarea id="giftNote" maxlength="250" placeholder="Happy birthday! Made just for your space."></textarea>
+            <p class="count"><span id="giftCount">0</span> / 250</p>
+            <label class="check"><input type="checkbox" id="hidePrices" checked> Leave prices off the packing slip</label>
+          </div>
+        </fieldset>
+
+        <fieldset>
           <legend>Quick feedback <small>(optional)</small></legend>
           <div class="rating" role="radiogroup" aria-labelledby="ratingLabel">
             <label id="ratingLabel">How was designing your piece?</label>
@@ -212,9 +226,11 @@
         <div id="items"></div>
         <dl class="totals">
           <div><dt>Subtotal</dt><dd id="sub"></dd></div>
+          <div class="disc" id="discRow" hidden><dt>LED shelf pair, 10% off</dt><dd id="disc"></dd></div>
           <div><dt>Shipping</dt><dd id="ship"></dd></div>
           <div class="grand"><dt>Total</dt><dd id="total"></dd></div>
         </dl>
+        <p class="ship-hint" id="shipHint" hidden></p>
         <p class="support-note">Questions about this order? <a class="order-mail" href="mailto:creationsgrainline@gmail.com">Email us</a> and we'll get back to you.</p>
       </aside>
     </div>
@@ -236,7 +252,7 @@
 </main>
 
 <!-- Bump ?v= whenever checkout.js changes. pricing.js and drawing.js versions are set inside checkout.js. -->
-<script type="module" src="checkout.js?v=10"></script>
+<script type="module" src="checkout.js?v=11"></script>
 <script type="module" src="contact.js?v=1"></script>
 </body>
 </html>

@@ -311,6 +311,21 @@
   body.no-scroll { overflow: hidden; }
 
   /* Email choice menu (contact.js) */
+  /* Offers, engraving, cart totals */
+  .announce .sep { margin: 0 6px; opacity: .6; }
+  .offer-tag { position: absolute; top: 12px; left: 12px; z-index: 2; background: var(--wood); color: #fff; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; padding: 5px 10px; border-radius: 2px; }
+  .engrave-input { width: 8.5em; font: 500 1.1rem var(--sans); letter-spacing: 0.3em; text-transform: uppercase; padding: 10px 12px; border: 1px solid var(--line); border-radius: 2px; background: var(--white); color: var(--ink); }
+  .engrave-input:focus { outline: none; border-color: var(--ink); }
+  .pair-price { opacity: .7; font-variant-numeric: tabular-nums; }
+  .ship-meter p { margin: 0 0 8px; font-size: 0.85rem; }
+  .ship-meter b { font-weight: 600; }
+  .meter { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+  .meter i { display: block; height: 100%; width: 0; background: var(--wood); transition: width .4s; }
+  .cart-row { display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--wood); font-variant-numeric: tabular-nums; }
+  .cart-nudge { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 4px 0 8px; padding: 12px 14px; background: var(--oat); font-size: 0.85rem; }
+  .cart-nudge button { flex: none; }
+  .buybar { display: none; }
+
   .mail-menu { position: fixed; z-index: 60; width: 260px; padding: 8px; border-radius: 4px; background: var(--white); border: 1px solid var(--line); box-shadow: 0 20px 40px -16px rgba(29,27,24,0.35); display: flex; flex-direction: column; }
   .mail-menu-to { margin: 4px 10px 6px; font-size: 0.75rem; color: var(--muted); overflow-wrap: anywhere; }
   .mail-menu a, .mail-menu button { display: block; width: 100%; text-align: left; padding: 10px; border-radius: 2px; border: 0; background: none; font: 500 0.9rem var(--sans); color: var(--ink); text-decoration: none; cursor: pointer; }
@@ -350,8 +365,19 @@
     .block { padding: 80px 0; }
     .block-head { flex-direction: column; align-items: flex-start; margin-bottom: 40px; }
     .products { grid-template-columns: 1fr; gap: 56px; }
-    .studio { grid-template-columns: 1fr; gap: 32px; }
-    .preview { position: static; }
+    .studio { grid-template-columns: 1fr; gap: 24px; }
+    /* On phones the preview stays pinned under the header while the options
+       scroll beneath it, and a bar at the bottom keeps price and Add to cart in reach. */
+    .preview { position: sticky; top: var(--header-h, 64px); z-index: 4; background: var(--white); padding-bottom: 8px; }
+    .preview .spec { display: none; }
+    .stage { aspect-ratio: 16 / 10; }
+    .config-top .price-row, .buy #addBtn { display: none; }
+    .buybar { display: flex; position: sticky; bottom: 0; z-index: 4; align-items: center; justify-content: space-between; gap: 16px;
+      margin-inline: -24px; padding: 12px 24px calc(12px + env(safe-area-inset-bottom, 0px)); background: rgba(253,252,250,0.96);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid var(--line); }
+    .buybar-label { display: block; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .buybar b { font-size: 1.35rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+    .buybar .btn { flex: 1; max-width: 220px; }
     .materials { grid-template-columns: 1fr 1fr; gap: 32px 16px; }
     .steps { grid-template-columns: 1fr; gap: 32px; }
     .story, .help { grid-template-columns: 1fr; }
@@ -376,12 +402,13 @@
     .cart-head, .cart-foot { padding-inline: 20px; }
     .cart-lines { padding: 0 20px; }
     .cart-line { grid-template-columns: 76px 1fr auto; gap: 12px; }
+    .buybar { margin-inline: -16px; padding-inline: 16px; }
   }
 </style>
 </head>
 <body>
 
-<div class="announce">Every piece is made to order and built by hand. <a href="#custom">Design yours</a></div>
+<div class="announce">Free shipping on orders over $200 <span class="sep" aria-hidden="true">·</span> Buy 2 LED shelves, save 10%. <a href="#products">Shop now</a></div>
 
 <header class="site-header">
   <div class="wrap nav">
@@ -455,7 +482,7 @@
     </div>
     <div class="products reveal">
       <article class="product">
-        <div class="art" data-art='{"type":"led","width":36,"height":1.75,"depth":8,"wood":"Oak","edge":"square","light":"Warm white"}' data-customize="led"></div>
+        <div class="art" data-art='{"type":"led","width":36,"height":1.75,"depth":8,"wood":"Oak","edge":"square","light":"Warm white"}' data-customize="led"><span class="offer-tag">Buy 2, save 10%</span></div>
         <div class="product-head"><h3>LED floating shelf</h3><span class="from">From <b data-from="led"></b></span></div>
         <p>Solid wood with an LED strip tucked underneath that washes the wall in light.</p>
         <div class="dots-row" data-swatches aria-hidden="true"></div>
@@ -487,6 +514,7 @@
           <div><dt>Holds</dt><dd>Headphones, watch, phone</dd></div>
           <div><dt>Charging</dt><dd>15W wireless pad</dd></div>
           <div><dt>Without pad</dt><dd>$85</dd></div>
+          <div><dt>Personalize</dt><dd>Engraved initials, +$15</dd></div>
         </dl>
         <div class="card-actions"><button class="btn btn-dark btn-sm" data-customize="charger">Customize</button><button class="btn btn-line btn-sm" data-add="charger">Add to cart</button></div>
       </article>
@@ -512,7 +540,7 @@
         <div class="config-top">
           <label class="label" for="cType">Product</label>
           <div class="select-wrap"><select id="cType"></select></div>
-          <div class="price-row"><span class="total" id="total"></span><small>Plus shipping</small></div>
+          <div class="price-row"><span class="total" id="total"></span><small>Free shipping over $200</small></div>
         </div>
         <div class="opt">
           <div class="opt-head">
@@ -532,21 +560,32 @@
           <div class="opt-head"><span id="optLabel"></span></div>
           <div class="seg" id="cOpt" role="group" aria-labelledby="optLabel"></div>
         </div>
+        <div class="opt" id="engraveOpt" hidden>
+          <div class="opt-head"><label for="cEngrave">Engraved initials <small>Optional, +$15</small></label></div>
+          <input type="text" id="cEngrave" class="engrave-input" maxlength="3" placeholder="e.g. JMR" autocomplete="off" autocapitalize="characters" spellcheck="false">
+          <p class="mat-note">Up to 3 letters, engraved into the front of the tray. Makes a great gift.</p>
+        </div>
         <div class="opt">
           <div class="opt-head"><span id="edgeLabel">Edge</span></div>
           <div class="seg" id="cEdge" role="group" aria-labelledby="edgeLabel"></div>
         </div>
         <div class="buy">
           <button class="btn btn-dark btn-block" id="addBtn">Add to cart</button>
+          <button class="btn btn-line btn-block" id="pairBtn" hidden>Add a pair, save 10% <span class="pair-price" id="pairPrice"></span></button>
           <details class="breakdown">
             <summary>Price breakdown</summary>
             <ul class="lines" id="lines"></ul>
           </details>
           <ul class="assurances">
+            <li>Free shipping on orders over $200</li>
             <li>Made to order and built by hand</li>
             <li>Need a size or idea the studio can't do? <a href="mailto:creationsgrainline@gmail.com?subject=Question%20about%20a%20custom%20piece">Email us</a></li>
           </ul>
         </div>
+      </div>
+      <div class="buybar" aria-label="Price and add to cart">
+        <div><span class="buybar-label">Your price</span><b id="barTotal"></b></div>
+        <button type="button" class="btn btn-dark" id="barAdd">Add to cart</button>
       </div>
     </div>
   </div>
@@ -644,7 +683,7 @@
       </details>
       <details>
         <summary>What does shipping cost?</summary>
-        <div class="answer"><p>Shipping is added at checkout, and we currently ship within the US.</p></div>
+        <div class="answer"><p>Shipping is free on orders over $200. Below that, it’s added at checkout. We currently ship within the US.</p></div>
       </details>
     </div>
   </div>
@@ -702,8 +741,10 @@
   <div class="cart-head"><h2>Your cart</h2><button type="button" class="x" id="cartClose" aria-label="Close cart">×</button></div>
   <div class="cart-lines" id="cartLines"></div>
   <div class="cart-foot" id="cartFoot" hidden>
+    <div class="ship-meter" id="shipMeter"><p id="shipMsg"></p><div class="meter"><i id="shipBar"></i></div></div>
+    <div class="cart-row" id="discountRow" hidden><span>LED shelf pair, 10% off</span><span id="cartDiscount"></span></div>
     <div class="cart-total"><span>Subtotal</span><span id="cartSubtotal"></span></div>
-    <p class="fine-dark">Plus shipping. Every piece is made to order.</p>
+    <p class="fine-dark" id="shipNote">Every piece is made to order.</p>
     <button type="button" class="btn btn-dark btn-block" id="checkoutBtn">Checkout</button>
     <p class="fine-dark">Questions before you order? <a href="mailto:creationsgrainline@gmail.com?subject=Question%20about%20my%20order">Email us</a>.</p>
   </div>
@@ -712,7 +753,7 @@
 <!-- Bump every ?v= (here and in the imports at the top of shop.js and drawing.js)
      whenever the JS changes, so browsers never mix old and new files. -->
 <script type="importmap">{"imports": {"three": "./vendor/three/three.module.min.js", "three/addons/": "./vendor/three/addons/"}}</script>
-<script type="module" src="shop.js?v=11"></script>
+<script type="module" src="shop.js?v=12"></script>
 <script type="module" src="contact.js?v=1"></script>
 <script>
   // Mobile nav toggle.

@@ -54,9 +54,31 @@ const PRICING = {
     // Poplar barely saves money on a piece this small, and painting adds work, so finishes cost the same as oak.
     base: {Oak: 109, Walnut: 129, "Dark stain": 109, "Matte black": 109, "Matte white": 109}, min: 79,
     size: p => (p.width - 11) * 4 + (p.height - 13) * 3 + (p.depth - 6) * 4,
-    extras: p => p.pad === "Not included" ? [["Without charging pad", -24]] : []
+    extras: p => [
+      ...(p.pad === "Not included" ? [["Without charging pad", -24]] : []),
+      ...(p.engrave ? [[`Engraved initials (${p.engrave})`, ENGRAVING_PRICE]] : [])
+    ]
   }
 };
+const ENGRAVING_PRICE = 15;
+
+/* ---------- cart offers ----------
+   Two or more LED shelves in a cart take 10% off every LED shelf, and orders
+   over FREE_SHIPPING_MIN (after that discount) ship free. The discount is
+   worked out per shelf in whole dollars, so the checkout server can charge
+   each shelf exactly what the cart shows. */
+const BUNDLE = {type: "led", min: 2, off: 0.10};
+const FREE_SHIPPING_MIN = 200;
+const bundleSaving = p => p.type === BUNDLE.type ? Math.round(priceOf(p).total * BUNDLE.off) : 0;
+function cartTotals(items) {
+  const bundleQty = items.reduce((n, l) => n + (l.spec.type === BUNDLE.type ? l.qty : 0), 0);
+  const bundled = bundleQty >= BUNDLE.min;
+  const subtotal = items.reduce((sum, l) => sum + priceOf(l.spec).total * l.qty, 0);
+  const discount = bundled ? items.reduce((sum, l) => sum + bundleSaving(l.spec) * l.qty, 0) : 0;
+  const total = subtotal - discount;
+  return {subtotal, discount, total, bundleQty, bundled,
+    freeShipping: total >= FREE_SHIPPING_MIN, toFreeShipping: Math.max(0, FREE_SHIPPING_MIN - total)};
+}
 function priceOf(p) {
   const rule = PRICING[p.type], base = rule.base[p.wood];
   // Size savings never take the base piece below the product's minimum; add-ons go on top.
@@ -87,6 +109,9 @@ function clampSpec(p) {
   if (!t.edges.includes(out.edge)) out.edge = t.edges[0];
   out.light = t.opt.key === "light" && t.opt.values.includes(out.light) ? out.light : (t.opt.key === "light" ? t.opt.values[0] : "None");
   out.pad = t.opt.key === "pad" && t.opt.values.includes(out.pad) ? out.pad : (t.opt.key === "pad" ? t.opt.values[0] : undefined);
+  // Engraving is up to three letters, on the charging station only.
+  const initials = out.type === "charger" ? String(out.engrave || "").toUpperCase().replace(/[^A-Z]/g, "").slice(0, 3) : "";
+  if (initials) out.engrave = initials; else delete out.engrave;
   return out;
 }
 
@@ -106,7 +131,9 @@ function optText(p) {
 }
 // One line describing a design, for the cart, the order email and Stripe receipts.
 function describe(p) {
-  return `${dimsText(p)} · ${p.wood} (${materialOf(p).toLowerCase()}) · ${p.edge} edge · ${optText(p)}`;
+  return `${dimsText(p)} · ${p.wood} (${materialOf(p).toLowerCase()}) · ${p.edge} edge · ${optText(p)}` +
+    (p.engrave ? ` · Engraved "${p.engrave}"` : "");
 }
 
-export { WOODS, MATERIALS, LIGHTS, TYPES, PRICING, DEFAULTS, priceOf, money, inch, dimsText, clampSpec, materialOf, optText, describe };
+export { WOODS, MATERIALS, LIGHTS, TYPES, PRICING, DEFAULTS, BUNDLE, FREE_SHIPPING_MIN, ENGRAVING_PRICE,
+  priceOf, cartTotals, bundleSaving, money, inch, dimsText, clampSpec, materialOf, optText, describe };

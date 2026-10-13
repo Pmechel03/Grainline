@@ -4,7 +4,7 @@
    pricing.js (the same file the website uses), so a customer can't change a
    price in their browser, then creates a Stripe Checkout session and returns
    its URL for the website to redirect to. */
-import { TYPES, clampSpec, priceOf, describe } from "../../pricing.js";
+import { TYPES, clampSpec, priceOf, describe, cartTotals, bundleSaving } from "../../pricing.js";
 
 const MAX_LINES = 20;
 const MAX_QTY = 10;
@@ -27,16 +27,22 @@ export default {
     if (!items.length) return json({error: "Your cart is empty."}, 400, cors);
     if (items.length > MAX_LINES) return json({error: `Checkout takes up to ${MAX_LINES} different designs at a time.`}, 400, cors);
 
-    const lineItems = items.map(item => {
-      const spec = clampSpec(item?.spec || {});
-      const qty = Math.min(MAX_QTY, Math.max(1, Math.floor(Number(item?.qty)) || 1));
+    const cart = items.map(item => ({
+      spec: clampSpec(item?.spec || {}),
+      qty: Math.min(MAX_QTY, Math.max(1, Math.floor(Number(item?.qty)) || 1))
+    }));
+    // Same offers as the cart: the LED shelf pair discount comes off each shelf's
+    // price, and big enough orders ship free.
+    const totals = cartTotals(cart);
+    const lineItems = cart.map(({spec, qty}) => {
+      const unit = priceOf(spec).total - (totals.bundled ? bundleSaving(spec) : 0);
       return {
         quantity: qty,
         price_data: {
           currency: "usd",
-          unit_amount: priceOf(spec).total * 100,
+          unit_amount: unit * 100,
           product_data: {
-            name: `${TYPES[spec.type].label}, ${spec.wood}`,
+            name: `${TYPES[spec.type].label}, ${spec.wood}` + (totals.bundled && bundleSaving(spec) ? " (pair price, 10% off)" : ""),
             description: describe(spec),
             // The full design, so it shows on the order in the Stripe dashboard.
             metadata: {design: JSON.stringify(spec).slice(0, 500)}
@@ -52,11 +58,17 @@ export default {
       shipping_options: [{
         shipping_rate_data: {
           type: "fixed_amount",
-          display_name: "Standard shipping",
-          fixed_amount: {amount: Number(env.SHIPPING_CENTS || 1500), currency: "usd"}
+          display_name: totals.freeShipping ? "Free shipping" : "Standard shipping",
+          fixed_amount: {amount: totals.freeShipping ? 0 : Number(env.SHIPPING_CENTS || 1500), currency: "usd"}
         }
       }],
       phone_number_collection: {enabled: true},
+      // Gift details show on the order in the Stripe dashboard.
+      metadata: body?.gift ? {
+        gift: "yes",
+        gift_note: String(body.gift.note || "").slice(0, 250),
+        hide_prices: body.gift.hidePrices ? "yes" : "no"
+      } : {},
       success_url: `${env.SITE_URL}/success.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${env.SITE_URL}/#cart`
     };

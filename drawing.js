@@ -1,6 +1,6 @@
 /* Product drawings. Every picture on the site is drawn here from a design
    spec, so catalog cards, the designer preview and the cart always match. */
-import { WOODS, LIGHTS, TYPES } from "./pricing.js?v=9";
+import { WOODS, LIGHTS, TYPES } from "./pricing.js?v=12";
 
 export const esc = s => String(s).replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
 function rng(seed) { let a = seed >>> 0; return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -130,6 +130,11 @@ export function render(p) {
     body += `<g filter="${D}"><rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="${p.edge === "rounded" ? 10 : 3}" fill="${G}"/><rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="${p.edge === "rounded" ? 10 : 3}" fill="${side}" opacity=".2"/>
       <rect x="${bx + 8}" y="${by + 6}" width="${bw - 16}" height="${bh * 0.35}" rx="4" fill="${dark}" opacity=".55"/>
       <rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="${p.edge === "rounded" ? 10 : 3}" fill="${S}"/></g>`;
+    // engraved initials on the front of the tray
+    if (p.engrave) {
+      const fs = Math.min(15, bh * 0.42);
+      body += `<text x="${bx + bw / 2}" y="${by + bh - bh * 0.18}" text-anchor="middle" font-family="Georgia, serif" font-size="${fs.toFixed(1)}" letter-spacing="${(fs * 0.25).toFixed(1)}" fill="${shade(hex, -0.55)}" opacity=".8">${esc(p.engrave)}</text>`;
+    }
     // wallet, earbuds case and phone on a wireless pad, sitting in the tray
     const ty = by + 6 + bh * 0.2;
     body += `<path d="M ${bx + 16} ${ty} l 6 -26 h 48 l -4 26 Z" fill="#4A3426"/><path d="M ${bx + 24} ${ty - 22} h 40" stroke="#C8A04A" stroke-width="1.2" opacity=".6"/>`;

@@ -4,8 +4,8 @@
    here is the "Email us" links, which the customer sends themselves. When
    real checkout is ready, replace placeOrder() with a call to the checkout
    server (see worker/). */
-import { TYPES, LIGHTS, priceOf, money, clampSpec, describe } from "./pricing.js?v=9";
-import { render, esc } from "./drawing.js?v=9";
+import { TYPES, LIGHTS, priceOf, cartTotals, money, clampSpec, describe } from "./pricing.js?v=12";
+import { render, esc } from "./drawing.js?v=12";
 
 const $ = s => document.querySelector(s);
 const MAX_QTY = 10;
@@ -19,7 +19,7 @@ try {
     .map(l => ({spec: clampSpec(l.spec), qty: Math.min(MAX_QTY, Math.max(1, l.qty | 0))}));
 } catch { cart = []; }
 
-const subtotal = cart.reduce((sum, l) => sum + priceOf(l.spec).total * l.qty, 0);
+const totals = cartTotals(cart);
 
 if (!cart.length) {
   $("#empty").hidden = false;
@@ -31,10 +31,14 @@ if (!cart.length) {
       <div><b>${esc(TYPES[l.spec.type].label)}</b><small>${esc(describe(l.spec))}</small></div>
       <div class="p">${money(priceOf(l.spec).total * l.qty)}</div>
     </div>`).join("");
-  $("#sub").textContent = money(subtotal);
-  // Shipping isn't priced yet, so the total doesn't include it.
-  $("#ship").textContent = "Set when orders open";
-  $("#total").textContent = money(subtotal);
+  $("#sub").textContent = money(totals.subtotal);
+  $("#discRow").hidden = !totals.discount;
+  $("#disc").textContent = money(-totals.discount);
+  // Paid shipping isn't priced yet, so below the free-shipping amount the total leaves it out.
+  $("#ship").textContent = totals.freeShipping ? "Free" : "Set when orders open";
+  $("#total").textContent = money(totals.total);
+  $("#shipHint").hidden = totals.freeShipping;
+  $("#shipHint").textContent = `Add ${money(totals.toFreeShipping)} more for free shipping.`;
   $("#state").insertAdjacentHTML("beforeend", STATES.map(s => `<option>${s}</option>`).join(""));
   $("#scale").innerHTML = RATINGS.map(([v, label]) =>
     `<input type="radio" name="rating" id="r${v}" value="${v}"><label for="r${v}"><span>${v}</span><small>${label}</small></label>`).join("");
@@ -43,8 +47,11 @@ if (!cart.length) {
 // "Email us" links on this page carry the cart, so we know which order the question is about.
 const orderText = cart.map(l => `- ${l.qty} × ${TYPES[l.spec.type].label}: ${describe(l.spec)} (${money(priceOf(l.spec).total)} each)`).join("\n");
 document.querySelectorAll(".order-mail").forEach(a => {
-  a.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("Question about my order")}&body=${encodeURIComponent(`Hi Grainline,\n\nMy question:\n\n\nMy cart:\n${orderText}\nSubtotal: ${money(subtotal)}\n`)}`;
+  a.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("Question about my order")}&body=${encodeURIComponent(`Hi Grainline,\n\nMy question:\n\n\nMy cart:\n${orderText}\nTotal: ${money(totals.total)}\n`)}`;
 });
+
+$("#isGift").onchange = e => { $("#giftFields").hidden = !e.target.checked; };
+$("#giftNote").oninput = e => { $("#giftCount").textContent = e.target.value.length; };
 
 $("#form").addEventListener("submit", e => {
   e.preventDefault();
@@ -61,10 +68,11 @@ function placeOrder() {
   const val = id => $("#" + id).value.trim();
   const rating = document.querySelector('input[name="rating"]:checked');
   const rows = [
-    ["Order", cart.map(l => `${l.qty} × ${TYPES[l.spec.type].label} (${l.spec.wood})`).join(", ") + ` · ${money(subtotal)}`],
+    ["Order", cart.map(l => `${l.qty} × ${TYPES[l.spec.type].label} (${l.spec.wood})`).join(", ") + ` · ${money(totals.total)}` + (totals.discount ? ` (saved ${money(totals.discount)})` : "") + (totals.freeShipping ? ", free shipping" : "")],
     ["Ship to", `${val("first")} ${val("last")}, ${val("street")}${val("apt") ? " " + val("apt") : ""}, ${val("city")}, ${val("state")} ${val("zip")}`],
     ["Email", val("email") + ($("#updates").checked ? " (wants launch updates)" : "")]
   ];
+  if ($("#isGift").checked) rows.push(["Gift", (val("giftNote") ? `Card: "${val("giftNote")}"` : "No message") + ($("#hidePrices").checked ? " · prices left off the packing slip" : "")]);
   if (rating) rows.push(["Your rating", `${rating.value} out of 5`]);
   $("#doneTitle").textContent = `Thanks, ${val("first")}! That's how checkout will work.`;
   $("#recap").innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("");

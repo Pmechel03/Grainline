@@ -10,7 +10,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { RectAreaLightUniformsLib } from "three/addons/lights/RectAreaLightUniformsLib.js";
-import { WOODS, LIGHTS } from "./pricing.js?v=9";
+import { WOODS, LIGHTS } from "./pricing.js?v=12";
 
 // How each material looks. tex: which textures/ file; null means paint.
 const FINISHES = {
@@ -127,7 +127,11 @@ export async function createViewer(stage) {
   let spec = null, wood = null, mood = "evening", moodPicked = false, view = null;
 
   function build() {
-    piece.traverse(o => o.geometry?.dispose());   // materials are shared, so they stay
+    // Materials are shared, so they stay, except ones made for a single piece (engraving).
+    piece.traverse(o => {
+      o.geometry?.dispose();
+      if (o.userData.ownMaterial) { o.material.map?.dispose(); o.material.dispose(); }
+    });
     scene.remove(piece);
     piece = new THREE.Group();
     scene.add(piece);
@@ -361,6 +365,14 @@ function buildCharger(p, group, wood, kit) {
   add(new RoundedBoxGeometry(W, rimH, t, 3, r(t)), "x", 0, rimH / 2, -D / 2 + t / 2, 17);
   add(new RoundedBoxGeometry(t, rimH, D - 2 * t, 3, r(t)), "z", -W / 2 + t / 2, rimH / 2, 0, 5);
   add(new RoundedBoxGeometry(t, rimH, D - 2 * t, 3, r(t)), "z", W / 2 - t / 2, rimH / 2, 0, 13);
+
+  // Engraved initials on the front rim. Engraving cuts through paint to bare
+  // wood, so it shows light on dark paint and dark on everything else.
+  if (p.engrave) {
+    const tag = kit.engraving(p.engrave, rimH * 0.9, p.wood === "Matte black" || p.wood === "Dark stain" ? "#D9B98E" : "#2A170B");
+    tag.position.set(0, rimH / 2, D / 2 + 0.012);
+    group.add(tag);
+  }
 
   // The post at the back, a headphone arm near the top and a lower watch bar.
   const post = 1.4, pz = -D / 2 + t + post / 2 + 0.25, postH = H - plate;
@@ -647,6 +659,27 @@ function makeKit() {
       g.add(body);
       g.userData.depth = d;
       return g;
+    },
+
+    // Engraved letters as a flat label, height inches tall, for the front of a part.
+    engraving(text, height, color) {
+      const c = document.createElement("canvas");
+      c.width = 512; c.height = 128;
+      const ctx = c.getContext("2d");
+      ctx.font = "700 112px Georgia, serif";
+      ctx.letterSpacing = "18px";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = color;
+      ctx.fillText(text, 256, 68);
+      const tex = new THREE.CanvasTexture(c);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = 4;
+      const mat = new THREE.MeshStandardMaterial({map: tex, transparent: true, roughness: 0.9, depthWrite: false,
+        polygonOffset: true, polygonOffsetFactor: -2});
+      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(height * 4, height), mat);
+      mesh.userData.ownMaterial = true;
+      return mesh;
     },
 
     earbuds() {

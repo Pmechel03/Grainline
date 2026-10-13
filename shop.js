@@ -1,6 +1,6 @@
 /* Grainline shop: the custom designer, the cart and checkout. */
-import { WOODS, MATERIALS, LIGHTS, TYPES, DEFAULTS, priceOf, money, inch, dimsText, clampSpec, materialOf, describe } from "./pricing.js?v=9";
-import { render, swatch, esc } from "./drawing.js?v=9";
+import { WOODS, MATERIALS, LIGHTS, TYPES, DEFAULTS, BUNDLE, FREE_SHIPPING_MIN, priceOf, cartTotals, bundleSaving, money, inch, dimsText, clampSpec, materialOf, describe } from "./pricing.js?v=12";
+import { render, swatch, esc } from "./drawing.js?v=12";
 
 const $ = s => document.querySelector(s);
 // Shown in the material comparison. durability is 1-5: how well it shrugs off dents and scratches.
@@ -40,6 +40,9 @@ function syncControls() {
   $("#cEdge").innerHTML = t.edges.map(e => `<button type="button" aria-pressed="${e === spec.edge}" data-e="${e}">${cap(e)}</button>`).join("");
   $("#optLabel").textContent = t.opt.label;
   $("#cOpt").innerHTML = t.opt.values.map(v => `<button type="button" aria-pressed="${v === spec[t.opt.key]}" data-o="${v}">${v}</button>`).join("");
+  $("#engraveOpt").hidden = spec.type !== "charger";
+  $("#cEngrave").value = spec.engrave || "";
+  $("#pairBtn").hidden = spec.type !== BUNDLE.type;
 }
 function draw() {
   const t = TYPES[spec.type], stage = $("#stage");
@@ -53,7 +56,8 @@ function draw() {
   const rows = [["Material", spec.wood], ["Finish", spec.finish], ["Edge", cap(spec.edge)], [t.opt.key === "light" ? "LED" : "Charging", t.opt.key === "light" ? spec.light : spec.pad]];
   $("#spec").innerHTML = rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("");
   const pr = priceOf(spec);
-  $("#total").textContent = money(pr.total);
+  $("#total").textContent = $("#barTotal").textContent = money(pr.total);
+  $("#pairPrice").textContent = `(${money(2 * (pr.total - bundleSaving(spec)))} for 2)`;
   $("#lines").innerHTML = pr.lines.map(([k, v], i) => `<li><span>${esc(k)}</span><span>${i ? (v > 0 ? "+" : "") : ""}${money(v)}</span></li>`).join("");
   if (!$("#matInfo").hidden) drawCompare();
 }
@@ -78,7 +82,13 @@ $("#cD").oninput = e => { spec.depth = +e.target.value; draw(); };
 $("#cWood").onclick = e => { const b = e.target.closest("[data-w]"); if (!b) return; spec = clampSpec({...spec, wood: b.dataset.w}); syncControls(); draw(); };
 $("#cEdge").onclick = e => { const b = e.target.closest("[data-e]"); if (!b) return; spec.edge = b.dataset.e; syncControls(); draw(); };
 $("#cOpt").onclick = e => { const b = e.target.closest("[data-o]"); if (!b) return; spec[TYPES[spec.type].opt.key] = b.dataset.o; syncControls(); draw(); };
-$("#addBtn").onclick = () => addToCart(spec);
+$("#cEngrave").oninput = e => {
+  spec = clampSpec({...spec, engrave: e.target.value});
+  e.target.value = spec.engrave || "";   // letters only, upper case
+  draw();
+};
+$("#addBtn").onclick = $("#barAdd").onclick = () => addToCart(spec);
+$("#pairBtn").onclick = () => addToCart(spec, 2);
 
 /* ---------- cart ---------- */
 // The cart lives in the visitor's browser and checkout.html reads it from there.
@@ -91,12 +101,11 @@ try {
 } catch { cart = []; }
 const saveCart = () => { try { localStorage.setItem("gl-cart", JSON.stringify(cart)); } catch {} };
 const sameDesign = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-const subtotal = () => cart.reduce((sum, l) => sum + priceOf(l.spec).total * l.qty, 0);
 
-function addToCart(p) {
+function addToCart(p, n = 1) {
   p = clampSpec(p);
   const line = cart.find(l => sameDesign(l.spec, p));
-  if (line) line.qty = Math.min(MAX_QTY, line.qty + 1); else cart.push({spec: p, qty: 1});
+  if (line) line.qty = Math.min(MAX_QTY, line.qty + n); else cart.push({spec: p, qty: Math.min(MAX_QTY, n)});
   saveCart(); renderCart(); openCart(true);
 }
 function renderCart() {
@@ -119,8 +128,23 @@ function renderCart() {
         </div>
       </div>
       <div class="cart-price">${money(priceOf(l.spec).total * l.qty)}</div>
-    </div>`).join("");
-  $("#cartSubtotal").textContent = money(subtotal());
+    </div>`).join("") + pairNudge();
+  const totals = cartTotals(cart);
+  $("#discountRow").hidden = !totals.discount;
+  $("#cartDiscount").textContent = money(-totals.discount);
+  $("#cartSubtotal").textContent = money(totals.total);
+  $("#shipMsg").innerHTML = totals.freeShipping
+    ? "<b>Your order ships free.</b>"
+    : `You're <b>${money(totals.toFreeShipping)}</b> away from free shipping.`;
+  $("#shipBar").style.width = `${Math.min(100, totals.total / FREE_SHIPPING_MIN * 100)}%`;
+  $("#shipNote").textContent = totals.freeShipping ? "Free shipping. Every piece is made to order." : "Plus shipping. Every piece is made to order.";
+}
+// With exactly one LED shelf in the cart, offer a second one at the pair discount.
+function pairNudge() {
+  const shelves = cart.filter(l => l.spec.type === BUNDLE.type);
+  if (shelves.length !== 1 || shelves[0].qty !== 1) return "";
+  const i = cart.indexOf(shelves[0]);
+  return `<div class="cart-nudge"><span>Add a second LED shelf and save 10% on both.</span><button type="button" class="btn btn-line btn-sm" data-inc="${i}">Add another</button></div>`;
 }
 function openCart(open) {
   $("#cart").hidden = !open; $("#scrim").hidden = !open;
@@ -170,11 +194,17 @@ document.querySelectorAll("[data-add]").forEach(b => b.onclick = () => addToCart
 new IntersectionObserver((entries, io) => {
   if (!entries.some(e => e.isIntersecting)) return;
   io.disconnect();
-  import("./viewer3d.js?v=7")
+  import("./viewer3d.js?v=9")
     .then(m => m.createViewer($("#stage")))
     .then(v => { viewer = v; if (v) draw(); })
     .catch(err => console.warn("3D preview unavailable:", err));
 }).observe($("#stage"));
+
+// The pinned phone preview sits just under the header, whatever its height.
+const header = document.querySelector(".site-header");
+const setHeaderH = () => document.documentElement.style.setProperty("--header-h", `${header.offsetHeight}px`);
+setHeaderH();
+new ResizeObserver(setHeaderH).observe(header);
 
 syncControls(); draw(); renderCart();
 // Stripe sends people back to #cart if they leave checkout without paying.
