@@ -1,3 +1,4 @@
 exclude:
   - worker
   - grainline-creations.html
+  - tools
