@@ -154,8 +154,22 @@
   .config { display: flex; flex-direction: column; }
   .config-top { padding-bottom: 16px; border-bottom: 1px solid var(--line); }
   .config-top .label { display: block; margin-bottom: 6px; }
-  .select-wrap select { width: 100%; appearance: none; -webkit-appearance: none; font: 500 1rem/1.2 var(--sans); color: var(--ink); background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%231D1B18' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 12px center / 18px; border: 1px solid var(--line); border-radius: 2px; min-height: 44px; padding: 0 40px 0 14px; cursor: pointer; }
-  .select-wrap select:hover, .select-wrap select:focus { border-color: var(--ink); outline: none; }
+  /* Product picker: our own menu, so it looks the same and stays small on every device. */
+  .picker { position: relative; }
+  .picker-btn { width: 100%; display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 6px 40px 6px 8px; font: 500 0.95rem var(--sans); color: var(--ink); text-align: left; cursor: pointer;
+    background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%231D1B18' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 12px center / 16px;
+    border: 1px solid var(--line); border-radius: 2px; }
+  .picker-btn:hover, .picker-btn[aria-expanded="true"] { border-color: var(--ink); }
+  .picker-thumb { flex: none; width: 48px; aspect-ratio: 480 / 340; background: var(--oat); overflow: hidden; }
+  .picker-thumb.lit { background: var(--night); }
+  .picker-thumb svg { width: 100%; height: 100%; display: block; }
+  .picker-text { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
+  .picker-text small { font-size: 0.74rem; font-weight: 400; color: var(--muted); }
+  .picker-menu { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; right: 0; margin: 0; padding: 4px; list-style: none; background: var(--white); border: 1px solid var(--line); box-shadow: 0 16px 32px -16px rgba(29,27,24,0.3); }
+  .picker-menu li { display: flex; align-items: center; gap: 12px; padding: 6px 8px; font-size: 0.9rem; cursor: pointer; }
+  .picker-menu li:hover, .picker-menu li.active { background: var(--paper); }
+  .picker-menu li[aria-selected="true"] { font-weight: 600; }
+  .picker-menu li[aria-selected="true"]::after { content: "✓"; margin-left: auto; font-weight: 400; }
   .price-row { display: flex; align-items: baseline; gap: 10px; margin-top: 12px; }
   .total { font-size: 1.35rem; font-weight: 500; font-variant-numeric: tabular-nums; }
   .price-row small { color: var(--muted); font-size: 0.8rem; }
@@ -540,8 +554,11 @@
       </div>
       <div class="config">
         <div class="config-top">
-          <label class="label" for="cType">Product</label>
-          <div class="select-wrap"><select id="cType"></select></div>
+          <span class="label" id="productLabel">Product</span>
+          <div class="picker" id="picker">
+            <button type="button" class="picker-btn" id="pickerBtn" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="productLabel pickerBtn"></button>
+            <ul class="picker-menu" id="pickerMenu" role="listbox" aria-labelledby="productLabel" tabindex="-1" hidden></ul>
+          </div>
           <div class="price-row"><span class="total" id="total"></span><small>Free shipping over $200</small></div>
         </div>
         <div class="opt">
@@ -755,7 +772,7 @@
 <!-- Bump every ?v= (here and in the imports at the top of shop.js and drawing.js)
      whenever the JS changes, so browsers never mix old and new files. -->
 <script type="importmap">{"imports": {"three": "./vendor/three/three.module.min.js", "three/addons/": "./vendor/three/addons/"}}</script>
-<script type="module" src="shop.js?v=12"></script>
+<script type="module" src="shop.js?v=13"></script>
 <script type="module" src="contact.js?v=1"></script>
 <script>
   // Mobile nav toggle.

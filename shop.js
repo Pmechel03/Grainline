@@ -21,14 +21,58 @@ const MATERIAL_INFO = {
 let spec = clampSpec(DEFAULTS.led);
 let viewer = null;   // the 3D preview, once loaded (see the bottom of this file)
 
-$("#cType").innerHTML = Object.entries(TYPES).map(([k, t]) => `<option value="${k}">${t.label}</option>`).join("");
+/* Product picker: a button that opens a short list, each product with a
+   small drawing and its starting price. Arrow keys, Enter and Escape work. */
+const pickerItem = k => {
+  const p = clampSpec(DEFAULTS[k]);
+  return `<span class="picker-thumb${LIGHTS[p.light] ? " lit" : ""}">${render(p)}</span>
+    <span class="picker-text">${TYPES[k].label}<small>From ${money(priceOf(p).total)}</small></span>`;
+};
+const PRODUCT_KEYS = Object.keys(TYPES);
+$("#pickerMenu").innerHTML = PRODUCT_KEYS.map(k => `<li role="option" id="pick-${k}" data-type="${k}">${pickerItem(k)}</li>`).join("");
+function openPicker(open) {
+  $("#pickerMenu").hidden = !open;
+  $("#pickerBtn").setAttribute("aria-expanded", open);
+  if (open) {
+    const cur = $(`#pick-${spec.type}`);
+    highlight(cur);
+    $("#pickerMenu").focus();
+  }
+}
+function highlight(li) {
+  $("#pickerMenu").querySelectorAll("li").forEach(x => x.classList.toggle("active", x === li));
+  $("#pickerMenu").setAttribute("aria-activedescendant", li.id);
+}
+function choose(type) {
+  openPicker(false);
+  $("#pickerBtn").focus();
+  if (type !== spec.type) setSpec({...DEFAULTS[type], wood: spec.wood});
+}
+$("#pickerBtn").onclick = () => openPicker($("#pickerMenu").hidden);
+$("#pickerMenu").onclick = e => { const li = e.target.closest("li"); if (li) choose(li.dataset.type); };
+$("#pickerMenu").onkeydown = e => {
+  const items = [...$("#pickerMenu").querySelectorAll("li")];
+  const i = items.findIndex(x => x.classList.contains("active"));
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    e.preventDefault();
+    highlight(items[(i + (e.key === "ArrowDown" ? 1 : items.length - 1)) % items.length]);
+  } else if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    choose(items[i].dataset.type);
+  } else if (e.key === "Escape" || e.key === "Tab") {
+    openPicker(false);
+    if (e.key === "Escape") $("#pickerBtn").focus();
+  }
+};
+document.addEventListener("click", e => { if (!$("#picker").contains(e.target)) openPicker(false); });
 
 const fmtH = (t, v) => t.H[4] === "count" ? String(v) : inch(v);
 const cap = s => s[0].toUpperCase() + s.slice(1);
 function setSpec(p) { spec = clampSpec(p); syncControls(); draw(); }
 function syncControls() {
   const t = TYPES[spec.type];
-  $("#cType").value = spec.type;
+  $("#pickerBtn").innerHTML = pickerItem(spec.type);
+  $("#pickerMenu").querySelectorAll("li").forEach(li => li.setAttribute("aria-selected", li.dataset.type === spec.type));
   const setR = (el, lo, hi, step, v) => { el.min = lo; el.max = hi; el.step = step; el.value = v; };
   setR($("#cW"), t.W[0], t.W[1], 1, spec.width);
   setR($("#cH"), t.H[0], t.H[1], t.H[2], spec.height);
@@ -75,7 +119,6 @@ $("#matInfoBtn").onclick = () => {
   $("#matInfo").hidden = !open; $("#matInfoBtn").setAttribute("aria-expanded", open);
   if (open) drawCompare();
 };
-$("#cType").onchange = e => setSpec({...DEFAULTS[e.target.value], wood: spec.wood});
 $("#cW").oninput = e => { spec.width = +e.target.value; draw(); };
 $("#cH").oninput = e => { spec.height = +e.target.value; draw(); };
 $("#cD").oninput = e => { spec.depth = +e.target.value; draw(); };
