@@ -1,20 +1,18 @@
 /* Grainline shop: the custom designer, the cart and checkout. */
-import { WOODS, MATERIALS, LIGHTS, TYPES, DEFAULTS, BUNDLE, FREE_SHIPPING_MIN, priceOf, cartTotals, bundleSaving, money, inch, dimsText, clampSpec, materialOf, describe } from "./pricing.js?v=12";
-import { render, swatch, esc } from "./drawing.js?v=12";
+import { WOODS, MATERIALS, LIGHTS, TYPES, DEFAULTS, BUNDLE, FREE_SHIPPING_MIN, priceOf, cartTotals, bundleSaving, money, inch, dimsText, clampSpec, materialOf, describe } from "./pricing.js?v=13";
+import { render, swatch, esc } from "./drawing.js?v=13";
 
 const $ = s => document.querySelector(s);
 // Shown in the material comparison. durability is 1-5: how well it shrugs off dents and scratches.
 const MATERIAL_INFO = {
-  "Oak":         {look: "Light, with bold open grain",     durability: 5, best: "Everyday use, natural look",
-                  note: "The toughest option. Resists dents, and scratches can be sanded and re-oiled."},
-  "Walnut":      {look: "Rich chocolate brown",            durability: 4, best: "A premium, statement piece",
-                  note: "Our most premium wood. Deep color that warms up as it ages."},
+  "Walnut":      {look: "Rich chocolate brown",            durability: 5, best: "A premium, statement piece",
+                  note: "Our most premium wood and the toughest finish. Deep color that warms up as it ages."},
   "Dark stain":  {look: "Walnut-like brown, even color",   durability: 3, best: "The walnut look for less",
-                  note: "Gets the dark walnut look for less. Deep scratches can show lighter wood underneath."},
+                  note: "Real wood with a walnut-colored stain, for the walnut look for less. Deep scratches can show lighter wood underneath."},
   "Matte black": {look: "Flat black, no grain",            durability: 3, best: "Modern rooms, LED glow",
-                  note: "Bold and modern, and makes LED light pop. Shows dust more than wood does."},
+                  note: "Painted MDF: smooth, bold and modern, and makes LED light pop. Keep it away from standing water."},
   "Matte white": {look: "Soft white, no grain",            durability: 3, best: "Bright, minimal rooms",
-                  note: "Clean and bright, blends into light walls. Wipe with a damp cloth to keep it fresh."}
+                  note: "Painted MDF: clean and bright, and blends into light walls. Wipe with a damp cloth; keep it away from standing water."}
 };
 
 /* ---------- custom designer ---------- */
@@ -237,7 +235,7 @@ document.querySelectorAll("[data-add]").forEach(b => b.onclick = () => addToCart
 new IntersectionObserver((entries, io) => {
   if (!entries.some(e => e.isIntersecting)) return;
   io.disconnect();
-  import("./viewer3d.js?v=9")
+  import("./viewer3d.js?v=10")
     .then(m => m.createViewer($("#stage")))
     .then(v => { viewer = v; if (v) draw(); })
     .catch(err => console.warn("3D preview unavailable:", err));

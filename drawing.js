@@ -1,6 +1,6 @@
 /* Product drawings. Every picture on the site is drawn here from a design
    spec, so catalog cards, the designer preview and the cart always match. */
-import { WOODS, LIGHTS, TYPES } from "./pricing.js?v=12";
+import { WOODS, LIGHTS, TYPES } from "./pricing.js?v=13";
 
 export const esc = s => String(s).replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
 function rng(seed) { let a = seed >>> 0; return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -44,7 +44,7 @@ function bottle(x, base, h, w, glass, cap) {
 }
 
 export function render(p) {
-  const wood = WOODS[p.wood] || WOODS.Oak, id = "w" + (++uid), hex = wood.hex;
+  const wood = WOODS[p.wood] || WOODS["Dark stain"], id = "w" + (++uid), hex = wood.hex;
   const seed = hashStr(p.type + p.wood + p.width);
   const sheen = {"Hardwax oil": 0.16, "Stain + satin": 0.12, "Matte paint": 0.03}[wood.finish] ?? 0.1;
   const colors = LIGHTS[p.light];
@@ -153,6 +153,6 @@ export function render(p) {
 // A flat sample of one material, for the materials section. The grain runs
 // top to bottom, like a board standing on end.
 export function swatch(name) {
-  const wood = WOODS[name] || WOODS.Oak, id = "w" + (++uid);
+  const wood = WOODS[name] || WOODS["Dark stain"], id = "w" + (++uid);
   return `<svg viewBox="0 0 300 375" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(name)} sample"><defs>${grainDefs(id, wood.hex, hashStr(name), wood.grain)}</defs><rect width="375" height="300" fill="url(#${id})" transform="translate(300 0) rotate(90)"/></svg>`;
 }

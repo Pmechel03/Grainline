@@ -4,8 +4,8 @@
    here is the "Email us" links, which the customer sends themselves. When
    real checkout is ready, replace placeOrder() with a call to the checkout
    server (see worker/). */
-import { TYPES, LIGHTS, priceOf, cartTotals, money, clampSpec, describe } from "./pricing.js?v=12";
-import { render, esc } from "./drawing.js?v=12";
+import { TYPES, LIGHTS, priceOf, cartTotals, money, clampSpec, describe } from "./pricing.js?v=13";
+import { render, esc } from "./drawing.js?v=13";
 
 const $ = s => document.querySelector(s);
 const MAX_QTY = 10;

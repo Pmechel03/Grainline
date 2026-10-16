@@ -3,16 +3,15 @@
    (worker/), so the price a customer sees is the price they pay. */
 
 /* ---------- materials ---------- */
-// Every product offers the same five materials. grain: how visible the wood
+// Every product offers the same four materials. grain: how visible the wood
 // grain is (0 = painted). finish: the one finish each material gets.
 // material: what it's really made of, for solid-wood pieces and for the
 // veneer-plywood cologne steps.
 const WOODS = {
-  "Oak":         {hex: "#C9A275", grain: 1,   finish: "Hardwax oil",   material: {solid: "Solid red oak",          veneer: "Oak veneer"}},
   "Walnut":      {hex: "#6E4A31", grain: 1,   finish: "Hardwax oil",   material: {solid: "Solid walnut",           veneer: "Walnut veneer"}},
-  "Dark stain":  {hex: "#4B3020", grain: 0.4, finish: "Stain + satin", material: {solid: "Walnut-stained poplar",  veneer: "Stained oak veneer"}},
-  "Matte black": {hex: "#2E2B29", grain: 0,   finish: "Matte paint",   material: {solid: "Painted poplar",         veneer: "Painted birch plywood"}},
-  "Matte white": {hex: "#ECE8E1", grain: 0,   finish: "Matte paint",   material: {solid: "Painted poplar",         veneer: "Painted birch plywood"}}
+  "Dark stain":  {hex: "#4B3020", grain: 0.4, finish: "Stain + satin", material: {solid: "Walnut-stained poplar",  veneer: "Walnut-stained poplar"}},
+  "Matte black": {hex: "#2E2B29", grain: 0,   finish: "Matte paint",   material: {solid: "Painted MDF",            veneer: "Painted MDF"}},
+  "Matte white": {hex: "#ECE8E1", grain: 0,   finish: "Matte paint",   material: {solid: "Painted MDF",            veneer: "Painted MDF"}}
 };
 const MATERIALS = Object.keys(WOODS);
 const LIGHTS = {
@@ -41,18 +40,18 @@ const TYPES = {
    profitable, since hardware and LEDs cost about the same at any size. */
 const PRICING = {
   led: {
-    base: {Oak: 139, Walnut: 179, "Dark stain": 125, "Matte black": 125, "Matte white": 125}, min: 99,
+    base: {Walnut: 179, "Dark stain": 125, "Matte black": 125, "Matte white": 125}, min: 99,
     size: (p, walnut) => (p.width - 36) * (walnut ? 4 : 2.5) + (p.depth - 8) * (walnut ? 9 : 6) + (p.height - 1.75) * 20,
     extras: p => p.light === "RGB" ? [["RGB lights", 15]] : []
   },
   cologne: {
-    base: {Oak: 79, Walnut: 95, "Dark stain": 79, "Matte black": 79, "Matte white": 79}, min: 59,
+    base: {Walnut: 95, "Dark stain": 79, "Matte black": 79, "Matte white": 79}, min: 59,
     size: (p, walnut) => (p.width - 20) * (walnut ? 2.5 : 2) + (p.depth - 9) * 3 + (p.height - 3) * 18,
     extras: p => p.light !== "None" ? [[`LED lighting (${p.height - 1} strip${p.height > 2 ? "s" : ""})`, 10 + 10 * (p.height - 1)]] : []
   },
   charger: {
-    // Poplar barely saves money on a piece this small, and painting adds work, so finishes cost the same as oak.
-    base: {Oak: 109, Walnut: 129, "Dark stain": 109, "Matte black": 109, "Matte white": 109}, min: 79,
+    // Poplar and MDF barely save money on a piece this small, so every finish but walnut costs the same.
+    base: {Walnut: 129, "Dark stain": 109, "Matte black": 109, "Matte white": 109}, min: 79,
     size: p => (p.width - 11) * 4 + (p.height - 13) * 3 + (p.depth - 6) * 4,
     extras: p => [
       ...(p.pad === "Not included" ? [["Without charging pad", -24]] : []),
@@ -104,7 +103,7 @@ function clampSpec(p) {
   out.width = cl(out.width, t.W[0], t.W[1], 1);
   out.height = cl(out.height, t.H[0], t.H[1], t.H[2]);
   out.depth = cl(out.depth, t.D[0], t.D[1], 1);
-  if (!WOODS[out.wood]) out.wood = "Oak";
+  if (!WOODS[out.wood]) out.wood = "Dark stain";
   out.finish = WOODS[out.wood].finish;
   if (!t.edges.includes(out.edge)) out.edge = t.edges[0];
   out.light = t.opt.key === "light" && t.opt.values.includes(out.light) ? out.light : (t.opt.key === "light" ? t.opt.values[0] : "None");
@@ -117,9 +116,9 @@ function clampSpec(p) {
 
 // The standard version of each product; catalog "from" prices use these.
 const DEFAULTS = {
-  led:     {type: "led", width: 36, height: 1.75, depth: 8, wood: "Oak", edge: "square", light: "Warm white"},
-  cologne: {type: "cologne", width: 20, height: 3, depth: 9, wood: "Oak", edge: "square", light: "None"},
-  charger: {type: "charger", width: 11, height: 13, depth: 6, wood: "Oak", edge: "rounded", pad: "Included"}
+  led:     {type: "led", width: 36, height: 1.75, depth: 8, wood: "Dark stain", edge: "square", light: "Warm white"},
+  cologne: {type: "cologne", width: 20, height: 3, depth: 9, wood: "Dark stain", edge: "square", light: "None"},
+  charger: {type: "charger", width: 11, height: 13, depth: 6, wood: "Dark stain", edge: "rounded", pad: "Included"}
 };
 
 function materialOf(p) {
