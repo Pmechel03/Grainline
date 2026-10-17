@@ -472,7 +472,7 @@
         <a href="#products" class="arrow-link">Shop the collection</a>
       </div>
     </div>
-    <figure class="hero-art" data-art='{"type":"led","width":36,"height":2,"depth":8,"wood":"Walnut","edge":"square","light":"Warm white"}'>
+    <figure class="hero-art" data-art='{"type":"led","width":24,"height":1.5,"depth":5.5,"wood":"Walnut","edge":"square","light":"Warm white"}'>
       <figcaption><b>LED floating shelf</b> in walnut, warm white</figcaption>
     </figure>
   </div>
@@ -498,13 +498,13 @@
     </div>
     <div class="products reveal">
       <article class="product">
-        <div class="art" data-art='{"type":"led","width":36,"height":1.75,"depth":8,"wood":"Walnut","edge":"square","light":"Warm white"}' data-customize="led"><span class="offer-tag">Buy 2, save 10%</span></div>
+        <div class="art" data-art='{"type":"led","width":24,"height":1.5,"depth":5.5,"wood":"Walnut","edge":"square","light":"Warm white"}' data-customize="led"><span class="offer-tag">Buy 2, save 10%</span></div>
         <div class="product-head"><h3>LED floating shelf</h3><span class="from">From <b data-from="led"></b></span></div>
         <p>A floating shelf with an LED strip tucked underneath that washes the wall in light.</p>
         <div class="dots-row" data-swatches aria-hidden="true"></div>
         <dl class="facts">
-          <div><dt>Width</dt><dd>12″ to 60″</dd></div>
-          <div><dt>Light</dt><dd>Warm white, cool white or RGB</dd></div>
+          <div><dt>Size</dt><dd>16″ or 24″ wide, 5½″ deep</dd></div>
+          <div><dt>Light</dt><dd>Warm white, cool white, RGB or none</dd></div>
           <div><dt>Mounting</dt><dd>Hidden wall bracket</dd></div>
         </dl>
         <div class="card-actions"><button class="btn btn-dark btn-sm" data-customize="led">Customize</button><button class="btn btn-line btn-sm" data-add="led">Add to cart</button></div>
@@ -570,7 +570,11 @@
           <p class="mat-note" id="matNote"></p>
           <div class="mat-compare" id="matInfo" hidden></div>
         </div>
-        <div class="opt ranges">
+        <div class="opt" id="sizeOpt" hidden>
+          <div class="opt-head"><span id="sizeLabel">Size</span> <small id="sizeNote"></small></div>
+          <div class="seg" id="cSize" role="group" aria-labelledby="sizeLabel"></div>
+        </div>
+        <div class="opt ranges" id="rangeOpt">
           <div><label for="cW">Width <b id="vW"></b></label><input type="range" id="cW"></div>
           <div><label for="cH"><span id="lH">Height</span> <b id="vH"></b></label><input type="range" id="cH"></div>
           <div><label for="cD">Depth <b id="vD"></b></label><input type="range" id="cD"></div>
@@ -772,7 +776,7 @@
 <!-- Bump every ?v= (here and in the imports at the top of shop.js and drawing.js)
      whenever the JS changes, so browsers never mix old and new files. -->
 <script type="importmap">{"imports": {"three": "./vendor/three/three.module.min.js", "three/addons/": "./vendor/three/addons/"}}</script>
-<script type="module" src="shop.js?v=14"></script>
+<script type="module" src="shop.js?v=15"></script>
 <script type="module" src="contact.js?v=1"></script>
 <script>
   // Mobile nav toggle.

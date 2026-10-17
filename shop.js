@@ -1,6 +1,6 @@
 /* Grainline shop: the custom designer, the cart and checkout. */
-import { WOODS, MATERIALS, LIGHTS, TYPES, DEFAULTS, BUNDLE, FREE_SHIPPING_MIN, priceOf, cartTotals, bundleSaving, money, inch, dimsText, clampSpec, materialOf, describe } from "./pricing.js?v=13";
-import { render, swatch, esc } from "./drawing.js?v=13";
+import { WOODS, MATERIALS, LIGHTS, TYPES, DEFAULTS, BUNDLE, FREE_SHIPPING_MIN, priceOf, cartTotals, bundleSaving, money, inch, dimsText, clampSpec, materialOf, describe } from "./pricing.js?v=14";
+import { render, swatch, esc } from "./drawing.js?v=14";
 
 const $ = s => document.querySelector(s);
 // Shown in the material comparison. durability is 1-5: how well it shrugs off dents and scratches.
@@ -75,6 +75,13 @@ function syncControls() {
   setR($("#cW"), t.W[0], t.W[1], 1, spec.width);
   setR($("#cH"), t.H[0], t.H[1], t.H[2], spec.height);
   setR($("#cD"), t.D[0], t.D[1], 1, spec.depth);
+  // Products sold in set sizes get size buttons instead of sliders.
+  $("#sizeOpt").hidden = !t.sizes;
+  $("#rangeOpt").hidden = !!t.sizes;
+  if (t.sizes) {
+    $("#sizeNote").textContent = `${inch(spec.depth)} deep, ${inch(spec.height)} thick`;
+    $("#cSize").innerHTML = t.sizes.map(w => `<button type="button" aria-pressed="${w === spec.width}" data-size="${w}">${inch(w)} wide</button>`).join("");
+  }
   $("#lH").textContent = t.H[3];
   $("#woodNote").textContent = materialOf(spec);
   $("#matNote").textContent = MATERIAL_INFO[spec.wood].note;
@@ -121,6 +128,7 @@ $("#cW").oninput = e => { spec.width = +e.target.value; draw(); };
 $("#cH").oninput = e => { spec.height = +e.target.value; draw(); };
 $("#cD").oninput = e => { spec.depth = +e.target.value; draw(); };
 $("#cWood").onclick = e => { const b = e.target.closest("[data-w]"); if (!b) return; spec = clampSpec({...spec, wood: b.dataset.w}); syncControls(); draw(); };
+$("#cSize").onclick = e => { const b = e.target.closest("[data-size]"); if (!b) return; spec = clampSpec({...spec, width: +b.dataset.size}); syncControls(); draw(); };
 $("#cEdge").onclick = e => { const b = e.target.closest("[data-e]"); if (!b) return; spec.edge = b.dataset.e; syncControls(); draw(); };
 $("#cOpt").onclick = e => { const b = e.target.closest("[data-o]"); if (!b) return; spec[TYPES[spec.type].opt.key] = b.dataset.o; syncControls(); draw(); };
 $("#cEngrave").oninput = e => {
@@ -235,7 +243,7 @@ document.querySelectorAll("[data-add]").forEach(b => b.onclick = () => addToCart
 new IntersectionObserver((entries, io) => {
   if (!entries.some(e => e.isIntersecting)) return;
   io.disconnect();
-  import("./viewer3d.js?v=10")
+  import("./viewer3d.js?v=11")
     .then(m => m.createViewer($("#stage")))
     .then(v => { viewer = v; if (v) draw(); })
     .catch(err => console.warn("3D preview unavailable:", err));

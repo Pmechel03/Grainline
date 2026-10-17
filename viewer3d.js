@@ -10,7 +10,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { RectAreaLightUniformsLib } from "three/addons/lights/RectAreaLightUniformsLib.js";
-import { WOODS, LIGHTS } from "./pricing.js?v=13";
+import { WOODS, LIGHTS } from "./pricing.js?v=14";
 
 // How each material looks. tex: which textures/ file; null means paint.
 const FINISHES = {

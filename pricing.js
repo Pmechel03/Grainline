@@ -21,11 +21,13 @@ const LIGHTS = {
   "RGB":        ["#FF3B6B", "#FFB03B", "#3BFF8A", "#3B9BFF", "#B03BFF"]
 };
 // H is the second slider: [min, max, step, label, unit].
+// sizes, when set, replaces the sliders with a fixed list of widths; depth and
+// thickness then stay at D[0] and H[0].
 // opt is the product's one extra choice, stored on the spec under opt.key.
 const TYPES = {
-  led:     {label: "LED floating shelf",    W: [12, 60], H: [1.5, 3, 0.25, "Thickness", "in"], D: [4, 10], edges: ["square", "rounded"],
-            build: "solid",
-            opt: {key: "light", label: "LED light", values: ["Warm white", "Cool white", "RGB"]}},
+  led:     {label: "LED floating shelf",    W: [16, 24], H: [1.5, 1.5, 0.25, "Thickness", "in"], D: [5.5, 5.5], edges: ["square", "rounded"],
+            sizes: [16, 24], build: "solid",
+            opt: {key: "light", label: "LED light", values: ["Warm white", "Cool white", "RGB", "None"]}},
   cologne: {label: "Cologne display steps", W: [12, 36], H: [2, 4, 1, "Steps", "count"],         D: [6, 12], edges: ["square", "rounded"],
             build: "veneer",
             opt: {key: "light", label: "LED light", values: ["None", "Warm white", "Cool white", "RGB"]}},
@@ -40,9 +42,11 @@ const TYPES = {
    profitable, since hardware and LEDs cost about the same at any size. */
 const PRICING = {
   led: {
-    base: {Walnut: 179, "Dark stain": 125, "Matte black": 125, "Matte white": 125}, min: 99,
-    size: (p, walnut) => (p.width - 36) * (walnut ? 4 : 2.5) + (p.depth - 8) * (walnut ? 9 : 6) + (p.height - 1.75) * 20,
-    extras: p => p.light === "RGB" ? [["RGB lights", 15]] : []
+    // 16″ is the base; 24″ adds $20, or $30 in walnut. Without LEDs it's $10 less.
+    base: {Walnut: 79, "Dark stain": 59, "Matte black": 59, "Matte white": 59}, min: 59,
+    size: (p, walnut) => p.width === 24 ? (walnut ? 30 : 20) : 0,
+    sizeLabel: p => `${p.width}″ size`,
+    extras: p => p.light === "RGB" ? [["RGB lights", 15]] : p.light === "None" ? [["Without LED lights", -10]] : []
   },
   cologne: {
     base: {Walnut: 95, "Dark stain": 79, "Matte black": 79, "Matte white": 79}, min: 59,
@@ -83,7 +87,7 @@ function priceOf(p) {
   // Size savings never take the base piece below the product's minimum; add-ons go on top.
   const size = Math.max(Math.round(rule.size(p, p.wood === "Walnut") / 5) * 5, rule.min - base);
   const lines = [[`${TYPES[p.type].label}, ${p.wood.toLowerCase()}`, base]];
-  if (size) lines.push([size > 0 ? "Larger size" : "Smaller size", size]);
+  if (size) lines.push([rule.sizeLabel ? rule.sizeLabel(p) : size > 0 ? "Larger size" : "Smaller size", size]);
   lines.push(...rule.extras(p));
   return {lines, total: lines.reduce((sum, l) => sum + l[1], 0)};
 }
@@ -100,9 +104,17 @@ function clampSpec(p) {
   if (!TYPES[out.type]) out.type = "led";
   const t = TYPES[out.type];
   const cl = (v, lo, hi, step) => { v = Number(v); if (!isFinite(v)) v = (lo + hi) / 2; v = Math.min(hi, Math.max(lo, v)); return Math.round(v / step) * step; };
-  out.width = cl(out.width, t.W[0], t.W[1], 1);
-  out.height = cl(out.height, t.H[0], t.H[1], t.H[2]);
-  out.depth = cl(out.depth, t.D[0], t.D[1], 1);
+  if (t.sizes) {
+    // Fixed sizes: snap to the nearest offered width; depth and thickness are set.
+    const w = Number(out.width);
+    out.width = t.sizes.reduce((best, s) => Math.abs(s - w) < Math.abs(best - w) ? s : best, t.sizes[0]);
+    out.height = t.H[0];
+    out.depth = t.D[0];
+  } else {
+    out.width = cl(out.width, t.W[0], t.W[1], 1);
+    out.height = cl(out.height, t.H[0], t.H[1], t.H[2]);
+    out.depth = cl(out.depth, t.D[0], t.D[1], 1);
+  }
   if (!WOODS[out.wood]) out.wood = "Dark stain";
   out.finish = WOODS[out.wood].finish;
   if (!t.edges.includes(out.edge)) out.edge = t.edges[0];
@@ -116,7 +128,7 @@ function clampSpec(p) {
 
 // The standard version of each product; catalog "from" prices use these.
 const DEFAULTS = {
-  led:     {type: "led", width: 36, height: 1.75, depth: 8, wood: "Dark stain", edge: "square", light: "Warm white"},
+  led:     {type: "led", width: 16, height: 1.5, depth: 5.5, wood: "Dark stain", edge: "square", light: "Warm white"},
   cologne: {type: "cologne", width: 20, height: 3, depth: 9, wood: "Dark stain", edge: "square", light: "None"},
   charger: {type: "charger", width: 11, height: 13, depth: 6, wood: "Dark stain", edge: "rounded", pad: "Included"}
 };
