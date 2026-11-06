@@ -24,17 +24,22 @@ const LIGHTS = {
 // sizes, when set, replaces the sliders with a fixed list of widths; depth and
 // thickness then stay at D[0] and H[0].
 // opt is the product's one extra choice, stored on the spec under opt.key.
+// comingSoon: shown on the site but can't be ordered yet (see canOrder).
 const TYPES = {
   led:     {label: "LED floating shelf",    W: [16, 24], H: [1.5, 1.5, 0.25, "Thickness", "in"], D: [5.5, 5.5], edges: ["square", "rounded"],
             sizes: [16, 24], build: "solid",
             opt: {key: "light", label: "LED light", values: ["Warm white", "Cool white", "RGB", "None"]}},
   cologne: {label: "Cologne display steps", W: [12, 36], H: [2, 4, 1, "Steps", "count"],         D: [6, 12], edges: ["square", "rounded"],
-            build: "veneer",
+            build: "veneer", comingSoon: true,
             opt: {key: "light", label: "LED light", values: ["None", "Warm white", "Cool white", "RGB"]}},
   charger: {label: "Charging station",      W: [8, 14],  H: [10, 16, 1, "Height", "in"],         D: [5, 8],  edges: ["square", "rounded"],
-            build: "solid",
+            build: "solid", comingSoon: true,
             opt: {key: "pad", label: "Wireless charging pad", values: ["Included", "Not included"]}}
 };
+// Own keys only, so a name like "constructor" is never taken for a product or finish.
+const has = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
+// Whether a product can be ordered now. The checkout server refuses anything else.
+const canOrder = type => has(TYPES, type) && !TYPES[type].comingSoon;
 
 /* ---------- pricing ----------
    Base prices are for the standard size (see DEFAULTS). Size changes are
@@ -65,13 +70,16 @@ const PRICING = {
 };
 const ENGRAVING_PRICE = 15;
 
-/* ---------- cart offers ----------
+/* ---------- cart offers and shipping ----------
    Two or more LED shelves in a cart take 10% off every LED shelf, and orders
-   over FREE_SHIPPING_MIN (after that discount) ship free. The discount is
-   worked out per shelf in whole dollars, so the checkout server can charge
-   each shelf exactly what the cart shows. */
+   over FREE_SHIPPING_MIN (after that discount) ship free; smaller orders pay
+   SHIPPING. The discount is worked out per shelf in whole dollars, so the
+   checkout server can charge each shelf exactly what the cart shows. */
 const BUNDLE = {type: "led", min: 2, off: 0.10};
 const FREE_SHIPPING_MIN = 200;
+// Flat shipping per order under FREE_SHIPPING_MIN, in dollars. $15 is a placeholder:
+// set the real rate before taking orders, then update the site and the checkout server.
+const SHIPPING = 15;
 const bundleSaving = p => p.type === BUNDLE.type ? Math.round(priceOf(p).total * BUNDLE.off) : 0;
 function cartTotals(items) {
   const bundleQty = items.reduce((n, l) => n + (l.spec.type === BUNDLE.type ? l.qty : 0), 0);
@@ -79,8 +87,9 @@ function cartTotals(items) {
   const subtotal = items.reduce((sum, l) => sum + priceOf(l.spec).total * l.qty, 0);
   const discount = bundled ? items.reduce((sum, l) => sum + bundleSaving(l.spec) * l.qty, 0) : 0;
   const total = subtotal - discount;
-  return {subtotal, discount, total, bundleQty, bundled,
-    freeShipping: total >= FREE_SHIPPING_MIN, toFreeShipping: Math.max(0, FREE_SHIPPING_MIN - total)};
+  const freeShipping = total >= FREE_SHIPPING_MIN;
+  return {subtotal, discount, total, bundleQty, bundled, freeShipping,
+    toFreeShipping: Math.max(0, FREE_SHIPPING_MIN - total), shipping: freeShipping ? 0 : SHIPPING};
 }
 function priceOf(p) {
   const rule = PRICING[p.type], base = rule.base[p.wood];
@@ -101,7 +110,7 @@ function dimsText(p) {
 }
 function clampSpec(p) {
   const out = {...p};
-  if (!TYPES[out.type]) out.type = "led";
+  if (!has(TYPES, out.type)) out.type = "led";
   const t = TYPES[out.type];
   const cl = (v, lo, hi, step) => { v = Number(v); if (!isFinite(v)) v = (lo + hi) / 2; v = Math.min(hi, Math.max(lo, v)); return Math.round(v / step) * step; };
   if (t.sizes) {
@@ -115,7 +124,7 @@ function clampSpec(p) {
     out.height = cl(out.height, t.H[0], t.H[1], t.H[2]);
     out.depth = cl(out.depth, t.D[0], t.D[1], 1);
   }
-  if (!WOODS[out.wood]) out.wood = "Dark stain";
+  if (!has(WOODS, out.wood)) out.wood = "Dark stain";
   out.finish = WOODS[out.wood].finish;
   if (!t.edges.includes(out.edge)) out.edge = t.edges[0];
   out.light = t.opt.key === "light" && t.opt.values.includes(out.light) ? out.light : (t.opt.key === "light" ? t.opt.values[0] : "None");
@@ -140,11 +149,12 @@ function optText(p) {
   const t = TYPES[p.type];
   return t.opt.key === "light" ? (p.light === "None" ? "No LED" : `${p.light} LED`) : `Charging pad ${p.pad === "Included" ? "included" : "not included"}`;
 }
-// One line describing a design, for the cart, the order email and Stripe receipts.
+// One line describing a design, for the cart and Stripe receipts.
 function describe(p) {
-  return `${dimsText(p)} · ${p.wood} (${materialOf(p).toLowerCase()}) · ${p.edge} edge · ${optText(p)}` +
+  // Lower-case only the first letter, so "Painted MDF" reads "painted MDF".
+  return `${dimsText(p)} · ${p.wood} (${materialOf(p).replace(/^\w/, c => c.toLowerCase())}) · ${p.edge} edge · ${optText(p)}` +
     (p.engrave ? ` · Engraved "${p.engrave}"` : "");
 }
 
-export { WOODS, MATERIALS, LIGHTS, TYPES, PRICING, DEFAULTS, BUNDLE, FREE_SHIPPING_MIN, ENGRAVING_PRICE,
-  priceOf, cartTotals, bundleSaving, money, inch, dimsText, clampSpec, materialOf, optText, describe };
+export { WOODS, MATERIALS, LIGHTS, TYPES, PRICING, DEFAULTS, BUNDLE, FREE_SHIPPING_MIN, SHIPPING, ENGRAVING_PRICE,
+  canOrder, priceOf, cartTotals, bundleSaving, money, inch, dimsText, clampSpec, materialOf, optText, describe };

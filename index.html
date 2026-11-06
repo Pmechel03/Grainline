@@ -126,6 +126,9 @@
   .facts dd { margin: 0; text-align: right; }
   .card-actions { display: flex; gap: 10px; margin-top: auto; }
   .card-actions .btn { flex: 1; }
+  .btn-soon { background: var(--oat); color: var(--muted); border-color: transparent; cursor: default; }
+  .product .art:not([data-customize]) { cursor: default; }
+  .product .art:not([data-customize]):hover { opacity: 1; }
 
   /* Custom studio */
   #custom { background: var(--white); border-block: 1px solid var(--line); }
@@ -170,6 +173,8 @@
   .picker-menu li:hover, .picker-menu li.active { background: var(--paper); }
   .picker-menu li[aria-selected="true"] { font-weight: 600; }
   .picker-menu li[aria-selected="true"]::after { content: "✓"; margin-left: auto; font-weight: 400; }
+  .picker-menu li[aria-disabled="true"] { cursor: default; color: var(--muted); }
+  .picker-menu li[aria-disabled="true"] .picker-thumb { opacity: .55; }
   .price-row { display: flex; align-items: baseline; gap: 10px; margin-top: 12px; }
   .total { font-size: 1.35rem; font-weight: 500; font-variant-numeric: tabular-nums; }
   .price-row small { color: var(--muted); font-size: 0.8rem; }
@@ -322,6 +327,9 @@
   .cart-foot { padding: 22px 28px 28px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; }
   .cart-total { display: flex; justify-content: space-between; font-weight: 500; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
   .fine-dark { margin: 0; font-size: 0.8rem; color: var(--muted); }
+  .cart-error { margin: 0; padding: 10px 12px; border-left: 2px solid #A1452B; background: #F6E9E4; font-size: 0.85rem; color: #6E2A17; }
+  .btn:disabled { cursor: default; opacity: 0.6; }
+  .btn-dark:disabled:hover { background: var(--ink); }
   .fine-dark a { color: var(--ink); text-underline-offset: 3px; }
   body.no-scroll { overflow: hidden; }
 
@@ -510,29 +518,28 @@
         <div class="card-actions"><button class="btn btn-dark btn-sm" data-customize="led">Customize</button><button class="btn btn-line btn-sm" data-add="led">Add to cart</button></div>
       </article>
       <article class="product">
-        <div class="art" data-art='{"type":"cologne","width":20,"height":3,"depth":9,"wood":"Matte black","edge":"square","light":"Warm white"}' data-customize="cologne"><span class="art-tag">Shown with LED lighting</span></div>
-        <div class="product-head"><h3>Cologne display steps</h3><span class="from">From <b data-from="cologne"></b></span></div>
+        <div class="art" data-art='{"type":"cologne","width":20,"height":3,"depth":9,"wood":"Matte black","edge":"square","light":"Warm white"}'><span class="art-tag">Shown with LED lighting</span></div>
+        <div class="product-head"><h3>Cologne display steps</h3></div>
         <p>Tiered steps that lift every bottle into view, with optional light behind each row.</p>
         <div class="dots-row" data-swatches aria-hidden="true"></div>
         <dl class="facts">
           <div><dt>Steps</dt><dd>2 to 4</dd></div>
           <div><dt>Width</dt><dd>12″ to 36″</dd></div>
-          <div><dt>Lighting</dt><dd>Optional, +$30 for 3 steps</dd></div>
+          <div><dt>Lighting</dt><dd>Optional LED strips</dd></div>
         </dl>
-        <div class="card-actions"><button class="btn btn-dark btn-sm" data-customize="cologne">Customize</button><button class="btn btn-line btn-sm" data-add="cologne">Add to cart</button></div>
+        <div class="card-actions"><span class="btn btn-sm btn-soon">Coming soon</span></div>
       </article>
       <article class="product">
-        <div class="art" data-art='{"type":"charger","width":11,"height":13,"depth":6,"wood":"Dark stain","edge":"rounded","pad":"Included"}' data-customize="charger"></div>
-        <div class="product-head"><h3>Charging station</h3><span class="from">From <b data-from="charger"></b></span></div>
+        <div class="art" data-art='{"type":"charger","width":11,"height":13,"depth":6,"wood":"Dark stain","edge":"rounded","pad":"Included"}'></div>
+        <div class="product-head"><h3>Charging station</h3></div>
         <p>One stand for headphones, watch and phone, with a tray for wireless charging.</p>
         <div class="dots-row" data-swatches aria-hidden="true"></div>
         <dl class="facts">
           <div><dt>Holds</dt><dd>Headphones, watch, phone</dd></div>
           <div><dt>Charging</dt><dd>15W wireless pad</dd></div>
-          <div><dt>Without pad</dt><dd>$85</dd></div>
-          <div><dt>Personalize</dt><dd>Engraved initials, +$15</dd></div>
+          <div><dt>Personalize</dt><dd>Engraved initials</dd></div>
         </dl>
-        <div class="card-actions"><button class="btn btn-dark btn-sm" data-customize="charger">Customize</button><button class="btn btn-line btn-sm" data-add="charger">Add to cart</button></div>
+        <div class="card-actions"><span class="btn btn-sm btn-soon">Coming soon</span></div>
       </article>
     </div>
   </div>
@@ -650,8 +657,8 @@
       </div>
     </div>
     <div class="steps reveal">
-      <div class="step"><h3>Choose a piece</h3><p>Start with an LED shelf, cologne display steps or a charging station.</p></div>
-      <div class="step"><h3>Make it yours</h3><p>Set the size to the inch and pick a material and lighting. The price updates as you go.</p></div>
+      <div class="step"><h3>Choose a piece</h3><p>Start with an LED floating shelf. Cologne display steps and a charging station are coming soon.</p></div>
+      <div class="step"><h3>Make it yours</h3><p>Pick a size, a material and lighting. The price updates as you go.</p></div>
       <div class="step"><h3>We build it by hand</h3><p>Once you order, we build your piece and email you when it ships.</p></div>
     </div>
   </div>
@@ -768,15 +775,16 @@
     <div class="cart-row" id="discountRow" hidden><span>LED shelf pair, 10% off</span><span id="cartDiscount"></span></div>
     <div class="cart-total"><span>Subtotal</span><span id="cartSubtotal"></span></div>
     <p class="fine-dark" id="shipNote">Every piece is made to order.</p>
+    <p class="cart-error" id="checkoutError" role="alert" hidden></p>
     <button type="button" class="btn btn-dark btn-block" id="checkoutBtn">Checkout</button>
-    <p class="fine-dark">Questions before you order? <a href="mailto:creationsgrainline@gmail.com?subject=Question%20about%20my%20order">Email us</a>.</p>
+    <p class="fine-dark">Secure payment with Stripe. Questions before you order? <a href="mailto:creationsgrainline@gmail.com?subject=Question%20about%20my%20order">Email us</a>.</p>
   </div>
 </aside>
 
 <!-- Bump every ?v= (here and in the imports at the top of shop.js and drawing.js)
      whenever the JS changes, so browsers never mix old and new files. -->
 <script type="importmap">{"imports": {"three": "./vendor/three/three.module.min.js", "three/addons/": "./vendor/three/addons/"}}</script>
-<script type="module" src="shop.js?v=15"></script>
+<script type="module" src="shop.js?v=16"></script>
 <script type="module" src="contact.js?v=1"></script>
 <script>
   // Mobile nav toggle.

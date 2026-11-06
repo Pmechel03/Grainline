@@ -1,6 +1,10 @@
 /* Grainline shop: the custom designer, the cart and checkout. */
-import { WOODS, MATERIALS, LIGHTS, TYPES, DEFAULTS, BUNDLE, FREE_SHIPPING_MIN, priceOf, cartTotals, bundleSaving, money, inch, dimsText, clampSpec, materialOf, describe } from "./pricing.js?v=14";
-import { render, swatch, esc } from "./drawing.js?v=14";
+import { WOODS, MATERIALS, LIGHTS, TYPES, DEFAULTS, BUNDLE, FREE_SHIPPING_MIN, SHIPPING, canOrder, priceOf, cartTotals, bundleSaving, money, inch, dimsText, clampSpec, materialOf, describe } from "./pricing.js?v=15";
+import { render, swatch, esc } from "./drawing.js?v=15";
+
+// The checkout server's address (see worker/README.md), ending in /checkout.
+// Until it's set, the cart's Checkout button says ordering opens soon.
+const CHECKOUT_URL = "";
 
 const $ = s => document.querySelector(s);
 // Shown in the material comparison. durability is 1-5: how well it shrugs off dents and scratches.
@@ -20,14 +24,16 @@ let spec = clampSpec(DEFAULTS.led);
 let viewer = null;   // the 3D preview, once loaded (see the bottom of this file)
 
 /* Product picker: a button that opens a short list, each product with a
-   small drawing and its starting price. Arrow keys, Enter and Escape work. */
+   small drawing and its starting price. Arrow keys, Enter and Escape work.
+   Products that are coming soon are listed but can't be chosen yet. */
 const pickerItem = k => {
   const p = clampSpec(DEFAULTS[k]);
   return `<span class="picker-thumb${LIGHTS[p.light] ? " lit" : ""}">${render(p)}</span>
-    <span class="picker-text">${TYPES[k].label}<small>From ${money(priceOf(p).total)}</small></span>`;
+    <span class="picker-text">${TYPES[k].label}<small>${canOrder(k) ? `From ${money(priceOf(p).total)}` : "Coming soon"}</small></span>`;
 };
 const PRODUCT_KEYS = Object.keys(TYPES);
-$("#pickerMenu").innerHTML = PRODUCT_KEYS.map(k => `<li role="option" id="pick-${k}" data-type="${k}">${pickerItem(k)}</li>`).join("");
+$("#pickerMenu").innerHTML = PRODUCT_KEYS.map(k =>
+  `<li role="option" id="pick-${k}" data-type="${k}"${canOrder(k) ? "" : ' aria-disabled="true"'}>${pickerItem(k)}</li>`).join("");
 function openPicker(open) {
   $("#pickerMenu").hidden = !open;
   $("#pickerBtn").setAttribute("aria-expanded", open);
@@ -42,6 +48,7 @@ function highlight(li) {
   $("#pickerMenu").setAttribute("aria-activedescendant", li.id);
 }
 function choose(type) {
+  if (!canOrder(type)) return;
   openPicker(false);
   $("#pickerBtn").focus();
   if (type !== spec.type) setSpec({...DEFAULTS[type], wood: spec.wood});
@@ -92,6 +99,8 @@ function syncControls() {
   $("#engraveOpt").hidden = spec.type !== "charger";
   $("#cEngrave").value = spec.engrave || "";
   $("#pairBtn").hidden = spec.type !== BUNDLE.type;
+  const orderable = canOrder(spec.type);
+  [$("#addBtn"), $("#barAdd")].forEach(b => { b.disabled = !orderable; b.textContent = orderable ? "Add to cart" : "Coming soon"; });
 }
 function draw() {
   const t = TYPES[spec.type], stage = $("#stage");
@@ -140,19 +149,23 @@ $("#addBtn").onclick = $("#barAdd").onclick = () => addToCart(spec);
 $("#pairBtn").onclick = () => addToCart(spec, 2);
 
 /* ---------- cart ---------- */
-// The cart lives in the visitor's browser and checkout.html reads it from there.
+// The cart lives in the visitor's browser until they check out.
 const MAX_QTY = 10;
 
 let cart = [];
 try {
+  // Pieces that can't be ordered yet (saved before they were marked coming soon) are dropped.
   cart = (JSON.parse(localStorage.getItem("gl-cart")) || [])
-    .map(l => ({spec: clampSpec(l.spec), qty: Math.min(MAX_QTY, Math.max(1, l.qty | 0))}));
+    .map(l => ({spec: clampSpec(l.spec), qty: Math.min(MAX_QTY, Math.max(1, l.qty | 0))}))
+    .filter(l => canOrder(l.spec.type));
 } catch { cart = []; }
 const saveCart = () => { try { localStorage.setItem("gl-cart", JSON.stringify(cart)); } catch {} };
+saveCart();
 const sameDesign = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 function addToCart(p, n = 1) {
   p = clampSpec(p);
+  if (!canOrder(p.type)) return;
   const line = cart.find(l => sameDesign(l.spec, p));
   if (line) line.qty = Math.min(MAX_QTY, line.qty + n); else cart.push({spec: p, qty: Math.min(MAX_QTY, n)});
   saveCart(); renderCart(); openCart(true);
@@ -186,7 +199,8 @@ function renderCart() {
     ? "<b>Your order ships free.</b>"
     : `You're <b>${money(totals.toFreeShipping)}</b> away from free shipping.`;
   $("#shipBar").style.width = `${Math.min(100, totals.total / FREE_SHIPPING_MIN * 100)}%`;
-  $("#shipNote").textContent = totals.freeShipping ? "Free shipping. Every piece is made to order." : "Plus shipping. Every piece is made to order.";
+  $("#shipNote").textContent = (totals.freeShipping ? "Free shipping." : `Plus ${money(SHIPPING)} shipping.`) + " Every piece is made to order.";
+  $("#checkoutError").hidden = true;
 }
 // With exactly one LED shelf in the cart, offer a second one at the pair discount.
 function pairNudge() {
@@ -214,7 +228,37 @@ $("#cartBtn").onclick = () => openCart(true);
 $("#cartClose").onclick = $("#scrim").onclick = () => openCart(false);
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#cart").hidden) openCart(false); });
 
-$("#checkoutBtn").onclick = () => { location.href = "checkout.html"; };
+/* ---------- checkout ----------
+   Payment happens on Stripe's own checkout page. The checkout server prices
+   the cart again from pricing.js and replies with that page's address. */
+const checkoutBtn = $("#checkoutBtn");
+function resetCheckout() {
+  checkoutBtn.disabled = !CHECKOUT_URL;
+  checkoutBtn.textContent = CHECKOUT_URL ? "Checkout" : "Ordering opens soon";
+}
+function checkoutError(text) {
+  $("#checkoutError").textContent = text;
+  $("#checkoutError").hidden = false;
+  resetCheckout();
+}
+checkoutBtn.onclick = async () => {
+  if (!CHECKOUT_URL || !cart.length) return;
+  checkoutBtn.disabled = true;
+  checkoutBtn.textContent = "Opening secure checkout…";
+  $("#checkoutError").hidden = true;
+  let res, data;
+  try {
+    res = await fetch(CHECKOUT_URL, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({items: cart})});
+    data = await res.json().catch(() => ({}));
+  } catch {
+    return checkoutError("We couldn't reach checkout. Check your connection and try again.");
+  }
+  if (res.ok && data.url) location.href = data.url;
+  else checkoutError(data.error || "Checkout isn't available right now. Please try again in a few minutes.");
+};
+resetCheckout();
+// Coming back from Stripe with the Back button can restore this page as it was left.
+window.addEventListener("pageshow", e => { if (e.persisted) resetCheckout(); });
 
 /* ---------- materials section ---------- */
 $("#materialsGrid").innerHTML = MATERIALS.map(m => `
@@ -243,7 +287,7 @@ document.querySelectorAll("[data-add]").forEach(b => b.onclick = () => addToCart
 new IntersectionObserver((entries, io) => {
   if (!entries.some(e => e.isIntersecting)) return;
   io.disconnect();
-  import("./viewer3d.js?v=11")
+  import("./viewer3d.js?v=12")
     .then(m => m.createViewer($("#stage")))
     .then(v => { viewer = v; if (v) draw(); })
     .catch(err => console.warn("3D preview unavailable:", err));

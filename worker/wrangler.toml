@@ -7,8 +7,9 @@ compatibility_date = "2025-06-01"
 SITE_URL = "https://grainlinecreations.com"
 # Sites allowed to start a checkout, comma-separated.
 ALLOWED_ORIGINS = "https://grainlinecreations.com,http://grainlinecreations.com,https://pmechel03.github.io"
-# Flat shipping charge per order, in cents. 1500 = $15.00. Change this to your real rate.
-SHIPPING_CENTS = "1500"
+# Sales tax through Stripe Tax: "on" once Stripe Tax is set up in the Stripe dashboard, otherwise "off".
+STRIPE_TAX = "off"
 
+# Prices, the pair discount and shipping are in ../pricing.js, shared with the website.
 # The Stripe secret key is NOT stored here. Set it with:
 #   npx wrangler secret put STRIPE_SECRET_KEY

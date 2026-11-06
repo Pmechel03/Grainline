@@ -49,8 +49,8 @@
     <a class="btn" href="./">Back to Grainline</a>
   </main>
   <script>
-    // The order went through, so empty the cart.
-    try { localStorage.removeItem("gl-cart"); } catch {}
+    // Stripe sends customers here with a session_id once they've paid, so only then empty the cart.
+    if (new URLSearchParams(location.search).has("session_id")) try { localStorage.removeItem("gl-cart"); } catch {}
   </script>
 </body>
 </html>

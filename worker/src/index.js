@@ -1,13 +1,27 @@
 /* Grainline checkout server (Cloudflare Worker).
 
-   The website POSTs the cart here. This worker recalculates every price from
+   The website POSTs the cart here. This worker prices every line again from
    pricing.js (the same file the website uses), so a customer can't change a
    price in their browser, then creates a Stripe Checkout session and returns
-   its URL for the website to redirect to. */
-import { TYPES, clampSpec, priceOf, describe, cartTotals, bundleSaving } from "../../pricing.js";
+   its URL for the website to send the customer to. Stripe's page collects the
+   email, shipping address and payment. */
+import { TYPES, canOrder, clampSpec, priceOf, describe, optText, cartTotals, bundleSaving } from "../../pricing.js";
 
 const MAX_LINES = 20;
 const MAX_QTY = 10;
+// The fields of a design, as clampSpec returns them.
+const FIELDS = ["type", "width", "height", "depth", "wood", "edge", "light", "pad", "engrave"];
+
+// A cart line is accepted only if it's a design the site offers, exactly as
+// the site sends it. Anything else (an out-of-date cart, an edited request)
+// is refused rather than charged as some other piece.
+function readLine(item) {
+  const s = item?.spec, qty = item?.qty;
+  if (!s || typeof s !== "object" || Array.isArray(s)) return null;
+  if (!Number.isInteger(qty) || qty < 1 || qty > MAX_QTY) return null;
+  const spec = clampSpec(s);
+  return FIELDS.every(k => spec[k] === s[k] || (spec[k] === undefined && s[k] == null)) ? {spec, qty} : null;
+}
 
 export default {
   async fetch(request, env) {
@@ -26,14 +40,16 @@ export default {
     const items = Array.isArray(body?.items) ? body.items : [];
     if (!items.length) return json({error: "Your cart is empty."}, 400, cors);
     if (items.length > MAX_LINES) return json({error: `Checkout takes up to ${MAX_LINES} different designs at a time.`}, 400, cors);
+    if (items.some(item => !canOrder(item?.spec?.type))) {
+      return json({error: "Only the LED shelves can be ordered right now. Please remove anything else from your cart."}, 400, cors);
+    }
+    const cart = items.map(readLine);
+    if (cart.some(line => !line)) return json({error: "Something in your cart has changed. Please refresh the page and check your cart."}, 400, cors);
 
-    const cart = items.map(item => ({
-      spec: clampSpec(item?.spec || {}),
-      qty: Math.min(MAX_QTY, Math.max(1, Math.floor(Number(item?.qty)) || 1))
-    }));
     // Same offers as the cart: the LED shelf pair discount comes off each shelf's
     // price, and big enough orders ship free.
     const totals = cartTotals(cart);
+    const tax = env.STRIPE_TAX === "on";
     const lineItems = cart.map(({spec, qty}) => {
       const unit = priceOf(spec).total - (totals.bundled ? bundleSaving(spec) : 0);
       return {
@@ -41,6 +57,7 @@ export default {
         price_data: {
           currency: "usd",
           unit_amount: unit * 100,
+          ...(tax ? {tax_behavior: "exclusive"} : {}),
           product_data: {
             name: `${TYPES[spec.type].label}, ${spec.wood}` + (totals.bundled && bundleSaving(spec) ? " (pair price, 10% off)" : ""),
             description: describe(spec),
@@ -51,6 +68,10 @@ export default {
       };
     });
 
+    // What was ordered, in one line, e.g. "2 x LED floating shelf (Walnut, 24″ wide, RGB LED)".
+    // It goes on the payment, which is what the Stripe dashboard lists first.
+    const summary = cart.map(({spec, qty}) => `${qty} x ${TYPES[spec.type].label} (${spec.wood}, ${spec.width}″ wide, ${optText(spec)})`).join("; ").slice(0, 500);
+
     const params = {
       mode: "payment",
       line_items: lineItems,
@@ -59,16 +80,24 @@ export default {
         shipping_rate_data: {
           type: "fixed_amount",
           display_name: totals.freeShipping ? "Free shipping" : "Standard shipping",
-          fixed_amount: {amount: totals.freeShipping ? 0 : Number(env.SHIPPING_CENTS || 1500), currency: "usd"}
+          fixed_amount: {amount: totals.shipping * 100, currency: "usd"},
+          ...(tax ? {tax_behavior: "exclusive"} : {})
         }
       }],
       phone_number_collection: {enabled: true},
-      // Gift details show on the order in the Stripe dashboard.
-      metadata: body?.gift ? {
-        gift: "yes",
-        gift_note: String(body.gift.note || "").slice(0, 250),
-        hide_prices: body.gift.hidePrices ? "yes" : "no"
-      } : {},
+      // Two optional questions on Stripe's page. The answers show on the order in the dashboard.
+      custom_fields: [
+        {key: "giftmessage", label: {type: "custom", custom: "Gift message"}, type: "text", optional: true, text: {maximum_length: 255}},
+        {key: "heardabout", label: {type: "custom", custom: "How did you hear about us?"}, type: "dropdown", optional: true,
+          dropdown: {options: [
+            {label: "Instagram", value: "instagram"}, {label: "TikTok", value: "tiktok"},
+            {label: "A friend or family member", value: "friend"}, {label: "Google search", value: "google"}, {label: "Other", value: "other"}
+          ]}}
+      ],
+      // Sales tax, worked out by Stripe Tax once it's set up in the Stripe dashboard (see README).
+      ...(tax ? {automatic_tax: {enabled: true}} : {}),
+      metadata: {order: summary},
+      payment_intent_data: {description: summary, metadata: {order: summary}},
       success_url: `${env.SITE_URL}/success.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${env.SITE_URL}/#cart`
     };
@@ -81,7 +110,7 @@ export default {
     const session = await res.json();
     if (!res.ok) {
       console.error("Stripe error:", session?.error?.message);
-      return json({error: "Checkout is unavailable right now."}, 502, cors);
+      return json({error: "Checkout is unavailable right now. Please try again in a few minutes."}, 502, cors);
     }
     return json({url: session.url}, 200, cors);
   }
