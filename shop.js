@@ -1,6 +1,6 @@
 /* Grainline shop: the custom designer, the cart and checkout. */
-import { WOODS, MATERIALS, LIGHTS, TYPES, DEFAULTS, BUNDLE, FREE_SHIPPING_MIN, SHIPPING, canOrder, priceOf, cartTotals, bundleSaving, money, inch, dimsText, clampSpec, materialOf, describe } from "./pricing.js?v=15";
-import { render, swatch, esc } from "./drawing.js?v=15";
+import { WOODS, MATERIALS, LIGHTS, TYPES, DEFAULTS, BUNDLE, FREE_SHIPPING_MIN, SHIPPING, canOrder, priceOf, cartTotals, bundleSaving, money, inch, dimsText, clampSpec, materialOf, describe } from "./pricing.js?v=16";
+import { render, swatch, esc } from "./drawing.js?v=16";
 
 // The checkout server's address (see worker/README.md), ending in /checkout.
 // Until it's set, the cart's Checkout button says ordering opens soon.
@@ -23,13 +23,19 @@ const MATERIAL_INFO = {
 let spec = clampSpec(DEFAULTS.led);
 let viewer = null;   // the 3D preview, once loaded (see the bottom of this file)
 
+// A product's lowest price at its standard size, e.g. the LED shelf without lights.
+const fromPrice = type => {
+  const opt = TYPES[type].opt;
+  return Math.min(...opt.values.map(v => priceOf(clampSpec({...DEFAULTS[type], [opt.key]: v})).total));
+};
+
 /* Product picker: a button that opens a short list, each product with a
    small drawing and its starting price. Arrow keys, Enter and Escape work.
    Products that are coming soon are listed but can't be chosen yet. */
 const pickerItem = k => {
   const p = clampSpec(DEFAULTS[k]);
   return `<span class="picker-thumb${LIGHTS[p.light] ? " lit" : ""}">${render(p)}</span>
-    <span class="picker-text">${TYPES[k].label}<small>${canOrder(k) ? `From ${money(priceOf(p).total)}` : "Coming soon"}</small></span>`;
+    <span class="picker-text">${TYPES[k].label}<small>${canOrder(k) ? `From ${money(fromPrice(k))}` : "Coming soon"}</small></span>`;
 };
 const PRODUCT_KEYS = Object.keys(TYPES);
 $("#pickerMenu").innerHTML = PRODUCT_KEYS.map(k =>
@@ -154,10 +160,11 @@ const MAX_QTY = 10;
 
 let cart = [];
 try {
-  // Pieces that can't be ordered yet (saved before they were marked coming soon) are dropped.
+  // Pieces saved before they stopped being offered (a product now coming soon,
+  // or a finish we no longer make) are dropped rather than changed.
   cart = (JSON.parse(localStorage.getItem("gl-cart")) || [])
-    .map(l => ({spec: clampSpec(l.spec), qty: Math.min(MAX_QTY, Math.max(1, l.qty | 0))}))
-    .filter(l => canOrder(l.spec.type));
+    .filter(l => canOrder(l.spec?.type) && MATERIALS.includes(l.spec?.wood))
+    .map(l => ({spec: clampSpec(l.spec), qty: Math.min(MAX_QTY, Math.max(1, l.qty | 0))}));
 } catch { cart = []; }
 const saveCart = () => { try { localStorage.setItem("gl-cart", JSON.stringify(cart)); } catch {} };
 saveCart();
@@ -276,7 +283,7 @@ document.querySelectorAll("[data-pick-wood]").forEach(b => b.onclick = () => { s
 /* ---------- product cards and hero ---------- */
 document.querySelectorAll("[data-swatches]").forEach(el => { el.innerHTML = MATERIALS.map(m => `<i style="background:${WOODS[m].hex}" title="${m}"></i>`).join(""); });
 document.querySelectorAll("[data-art]").forEach(el => { const p = clampSpec(JSON.parse(el.dataset.art)); el.insertAdjacentHTML("afterbegin", render(p)); el.classList.toggle("lit", !!LIGHTS[p.light]); });
-document.querySelectorAll("[data-from]").forEach(el => { el.textContent = money(priceOf(clampSpec(DEFAULTS[el.dataset.from])).total); });
+document.querySelectorAll("[data-from]").forEach(el => { el.textContent = money(fromPrice(el.dataset.from)); });
 document.querySelectorAll("[data-customize]").forEach(b => b.onclick = () => { setSpec({...DEFAULTS[b.dataset.customize]}); openStudio(); });
 document.querySelectorAll("[data-add]").forEach(b => b.onclick = () => addToCart(DEFAULTS[b.dataset.add]));
 
@@ -287,7 +294,7 @@ document.querySelectorAll("[data-add]").forEach(b => b.onclick = () => addToCart
 new IntersectionObserver((entries, io) => {
   if (!entries.some(e => e.isIntersecting)) return;
   io.disconnect();
-  import("./viewer3d.js?v=12")
+  import("./viewer3d.js?v=13")
     .then(m => m.createViewer($("#stage")))
     .then(v => { viewer = v; if (v) draw(); })
     .catch(err => console.warn("3D preview unavailable:", err));

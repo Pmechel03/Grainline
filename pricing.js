@@ -3,17 +3,18 @@
    (worker/), so the price a customer sees is the price they pay. */
 
 /* ---------- materials ---------- */
-// Every product offers the same four materials. grain: how visible the wood
-// grain is (0 = painted). finish: the one finish each material gets.
-// material: what it's really made of, for solid-wood pieces and for the
-// veneer-plywood cologne steps.
+// grain: how visible the wood grain is (0 = painted). finish: the one finish
+// each material gets. material: what it's really made of, for solid-wood
+// pieces and for the veneer-plywood cologne steps.
 const WOODS = {
   "Walnut":      {hex: "#6E4A31", grain: 1,   finish: "Hardwax oil",   material: {solid: "Solid walnut",           veneer: "Walnut veneer"}},
   "Dark stain":  {hex: "#4B3020", grain: 0.4, finish: "Stain + satin", material: {solid: "Walnut-stained poplar",  veneer: "Walnut-stained poplar"}},
   "Matte black": {hex: "#2E2B29", grain: 0,   finish: "Matte paint",   material: {solid: "Painted MDF",            veneer: "Painted MDF"}},
   "Matte white": {hex: "#ECE8E1", grain: 0,   finish: "Matte paint",   material: {solid: "Painted MDF",            veneer: "Painted MDF"}}
 };
-const MATERIALS = Object.keys(WOODS);
+// The finishes offered now, the same for every product. Walnut and dark stain
+// stay in WOODS so they can come back: add one here and give it a price in PRICING.
+const MATERIALS = ["Matte black", "Matte white"];
 const LIGHTS = {
   "None":       null,
   "Warm white": ["#FFC46B"],
@@ -47,11 +48,10 @@ const canOrder = type => has(TYPES, type) && !TYPES[type].comingSoon;
    profitable, since hardware and LEDs cost about the same at any size. */
 const PRICING = {
   led: {
-    // 16″ is the base; 24″ adds $20, or $30 in walnut. Without LEDs it's $10 less.
-    base: {Walnut: 79, "Dark stain": 59, "Matte black": 59, "Matte white": 59}, min: 59,
-    size: (p, walnut) => p.width === 24 ? (walnut ? 30 : 20) : 0,
-    sizeLabel: p => `${p.width}″ size`,
-    extras: p => p.light === "RGB" ? [["RGB lights", 15]] : p.light === "None" ? [["Without LED lights", -10]] : []
+    // $40 with LED lights (any color) and $35 without, at either size.
+    base: {"Matte black": 40, "Matte white": 40}, min: 35,
+    size: () => 0,
+    extras: p => p.light === "None" ? [["Without LED lights", -5]] : []
   },
   cologne: {
     base: {Walnut: 95, "Dark stain": 79, "Matte black": 79, "Matte white": 79}, min: 59,
@@ -124,7 +124,7 @@ function clampSpec(p) {
     out.height = cl(out.height, t.H[0], t.H[1], t.H[2]);
     out.depth = cl(out.depth, t.D[0], t.D[1], 1);
   }
-  if (!has(WOODS, out.wood)) out.wood = "Dark stain";
+  if (!MATERIALS.includes(out.wood)) out.wood = MATERIALS[0];
   out.finish = WOODS[out.wood].finish;
   if (!t.edges.includes(out.edge)) out.edge = t.edges[0];
   out.light = t.opt.key === "light" && t.opt.values.includes(out.light) ? out.light : (t.opt.key === "light" ? t.opt.values[0] : "None");
@@ -137,9 +137,9 @@ function clampSpec(p) {
 
 // The standard version of each product; catalog "from" prices use these.
 const DEFAULTS = {
-  led:     {type: "led", width: 16, height: 1.5, depth: 5.5, wood: "Dark stain", edge: "square", light: "Warm white"},
-  cologne: {type: "cologne", width: 20, height: 3, depth: 9, wood: "Dark stain", edge: "square", light: "None"},
-  charger: {type: "charger", width: 11, height: 13, depth: 6, wood: "Dark stain", edge: "rounded", pad: "Included"}
+  led:     {type: "led", width: 16, height: 1.5, depth: 5.5, wood: "Matte black", edge: "square", light: "Warm white"},
+  cologne: {type: "cologne", width: 20, height: 3, depth: 9, wood: "Matte black", edge: "square", light: "None"},
+  charger: {type: "charger", width: 11, height: 13, depth: 6, wood: "Matte black", edge: "rounded", pad: "Included"}
 };
 
 function materialOf(p) {

@@ -68,7 +68,7 @@ export default {
       };
     });
 
-    // What was ordered, in one line, e.g. "2 x LED floating shelf (Walnut, 24″ wide, RGB LED)".
+    // What was ordered, in one line, e.g. "2 x LED floating shelf (Matte black, 24″ wide, RGB LED)".
     // It goes on the payment, which is what the Stripe dashboard lists first.
     const summary = cart.map(({spec, qty}) => `${qty} x ${TYPES[spec.type].label} (${spec.wood}, ${spec.width}″ wide, ${optText(spec)})`).join("; ").slice(0, 500);
 
